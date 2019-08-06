@@ -1,0 +1,10 @@
+{
+	"mysql": {
+		"user": "root",
+		"password": "f18hornet",
+		"host": "localhost",
+		"name": "payslip"
+	},
+	"jwtSecretKey": "f40c99635c2440a8a0fd0ba4fa98041f",
+	"tokenExpiryTime": 36000
+}
