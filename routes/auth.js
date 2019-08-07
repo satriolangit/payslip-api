@@ -18,10 +18,20 @@ router.get('/', auth, async (req, res) => {
 		const sql = 'SELECT user_id, email, name, employee_id, photo, role FROM user WHERE user_id = ?';
 		const user = await db.query(sql, [req.user.id]);
 
-		res.json(user);
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: user,
+			errors: null,
+		});
 	} catch (err) {
 		console.log(err.message);
-		res.status(500).send('Internal Server Error');
+		res.status(500).json({
+			status: 500,
+			message: 'Get logged user fail',
+			data: req.body,
+			errors: null,
+		});
 	}
 });
 
@@ -38,10 +48,13 @@ router.post(
 	async (req, res) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
+			return res.status(400).json({
+				status: 400,
+				message: 'bad request',
+				data: req.body,
+				errors: errors.array(),
+			});
 		}
-
-		console.log(req.body);
 
 		const { email, password } = req.body;
 
@@ -50,13 +63,23 @@ router.post(
 			let user = await db.query(sql, email);
 
 			if (!user) {
-				return res.status(400).json({ msg: 'Invalid credentials' });
+				return res.status(400).json({
+					status: 400,
+					message: 'Invalid credentials',
+					data: req.body,
+					errors: null,
+				});
 			}
 
 			user = user[0];
 			const isMatch = await bcrypt.compare(password, user.password);
 			if (!isMatch) {
-				return res.status(400).json({ msg: 'Invalid credentials' });
+				return res.status(400).json({
+					status: 400,
+					message: 'Invalid credentials',
+					data: req.body,
+					errors: null,
+				});
 			}
 
 			const payload = {
@@ -75,7 +98,12 @@ router.post(
 			});
 		} catch (err) {
 			console.log(err.message);
-			res.status(500).send('Internal Server Error');
+			res.status(500).json({
+				status: 500,
+				message: 'Failed to get token',
+				data: req.body,
+				errors: err,
+			});
 		}
 	}
 );
