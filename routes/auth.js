@@ -12,7 +12,6 @@ const router = express.Router();
 // @route   GET api/auth
 // @desc    Get logged in user
 // @access  Private
-
 router.get('/', auth, async (req, res) => {
 	try {
 		const sql = 'SELECT user_id, email, name, employee_id, photo, role FROM user WHERE user_id = ?';
@@ -30,7 +29,7 @@ router.get('/', auth, async (req, res) => {
 			status: 500,
 			message: 'Get logged user fail',
 			data: req.body,
-			errors: null,
+			errors: err,
 		});
 	}
 });
@@ -40,14 +39,13 @@ router.get('/', auth, async (req, res) => {
 // @access  Public
 router.post(
 	'/',
-	[
-		auth,
-		[check('email', 'Please include a valid email').isEmail(), check('password', 'Password is required').exists()],
-	],
+	[[check('nik', 'NIK is required'), check('password', 'Password is required').exists()]],
 
 	async (req, res) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
+			console.log(errors);
+
 			return res.status(400).json({
 				status: 400,
 				message: 'bad request',
@@ -56,13 +54,14 @@ router.post(
 			});
 		}
 
-		const { email, password } = req.body;
+		const { nik, password } = req.body;
 
 		try {
-			const sql = 'SELECT user_id, role FROM user WHERE email = ? LIMIT 1';
-			let user = await db.query(sql, email);
+			const sql = 'SELECT user_id, role, password, is_active FROM user WHERE employee_id = ?  LIMIT 1';
+			let user = await db.query(sql, nik);
 
-			if (!user) {
+			if (user.length === 0) {
+				//console.log('user:', user);
 				return res.status(400).json({
 					status: 400,
 					message: 'Invalid credentials',
@@ -72,8 +71,20 @@ router.post(
 			}
 
 			user = user[0];
+
+			if (user.is_active === 0) {
+				//console.log('user not active');
+				return res.status(400).json({
+					status: 400,
+					message: 'User not active',
+					data: req.body,
+					errors: null,
+				});
+			}
+
 			const isMatch = await bcrypt.compare(password, user.password);
 			if (!isMatch) {
+				//console.log('invalid credentials');
 				return res.status(400).json({
 					status: 400,
 					message: 'Invalid credentials',

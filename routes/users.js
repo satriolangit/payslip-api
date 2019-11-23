@@ -6,6 +6,9 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const uuidv4 = require('uuid/v4');
 const moment = require('moment');
+const IncomingForm = require('formidable').IncomingForm;
+const fs = require('fs');
+const readExcel = require('read-excel-file/node');
 
 const auth = require('../middleware/auth');
 const db = require('../config/database');
@@ -14,6 +17,75 @@ const adminOnly = require('../middleware/adminOnly');
 const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 const secretKey = config.get('jwtSecretKey');
 const tokenExpiryTime = config.get('tokenExpiryTime');
+
+// @route   GET api/user
+// @desc    Get all users
+// @access  Private
+router.get('/', auth, async (req, res) => {
+	try {
+		const sql = 'SELECT * FROM user ORDER BY name';
+		const data = await db.query(sql);
+
+		res.status(200).json({
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			message: 'Failed to get users',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   GET api/user/:userId
+// @desc    Get user by id
+// @access  Private
+router.get('/:id', auth, async (req, res) => {
+	try {
+		const sql = 'SELECT * FROM user WHERE user_id = ?';
+		const data = await db.query(sql, req.params.id);
+
+		res.status(200).json({
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			message: 'Failed to get users',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   GET api/users/profile/:userId
+// @desc    Get user profile by id
+// @access  Private
+router.get('/profile/:id', auth, async (req, res) => {
+	try {
+		const sql = 'SELECT user_id, name, email, employee_id, role, photo, phone FROM user WHERE user_id = ?';
+		const data = await db.query(sql, req.params.id);
+
+		res.status(200).json({
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			message: 'Failed to get users',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
 
 // @route   POST api/users
 // @desc    Register a user
@@ -29,20 +101,22 @@ router.post(
 		check('employeeId', 'Please enter your employee id (NIK)')
 			.not()
 			.isEmpty(),
+		check('phone', 'Please fill phone number')
+			.not()
+			.isEmpty(),
 	],
 	async (req, res) => {
 		const errors = validationResult(req);
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({
-				status: 0,
 				message: 'Bad request',
 				data: req.body,
 				errors: errors.array(),
 			});
 		}
 
-		const { name, email, password, employeeId } = req.body;
+		const { name, email, password, employeeId, phone } = req.body;
 
 		try {
 			let sql = 'SELECT user_id, role FROM user WHERE email = ? LIMIT 1';
@@ -51,7 +125,6 @@ router.post(
 			if (user.length > 0) {
 				console.log('user:', user);
 				return res.status(400).json({
-					status: 400,
 					message: 'User already exists',
 					data: req.body,
 					errors: null,
@@ -60,14 +133,26 @@ router.post(
 
 			//create new user
 			sql =
-				'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+				'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 			const salt = await bcrypt.genSalt(10);
 			const hashedPassword = await bcrypt.hash(password, salt);
 			const userId = uuidv4();
 
-			await db.query(sql, [userId, hashedPassword, email, name, employeeId, 'employee', 'system', timestamp, 1]);
+			await db.query(sql, [
+				userId,
+				hashedPassword,
+				email,
+				name,
+				employeeId,
+				'employee',
+				'system',
+				timestamp,
+				1,
+				phone,
+				password,
+			]);
 
 			//generate token
 			const payload = {
@@ -91,7 +176,6 @@ router.post(
 		} catch (err) {
 			console.error(err.message);
 			res.status(500).json({
-				status: 500,
 				message: 'Update user failed, internal server error',
 				data: req.body,
 				errors: err,
@@ -113,7 +197,6 @@ router.post(
 				.not()
 				.isEmpty(),
 			check('email', 'Please enter valid email').isEmail(),
-			check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
 			check('employeeId', 'Please enter your employee id (NIK)')
 				.not()
 				.isEmpty(),
@@ -123,13 +206,27 @@ router.post(
 			check('isActive')
 				.not()
 				.isEmpty(),
+			check('phone', 'Please fill phone number')
+				.not()
+				.isEmpty(),
+			check('password', 'Please enter a password with 6 or more characters')
+				.isLength({ min: 6 })
+				.custom((value, { req, loc, path }) => {
+					if (value !== req.body.confirmPassword) {
+						// trow error if passwords do not match
+						throw new Error("Confirm passwords don't match");
+					} else {
+						return value;
+					}
+				}),
 		],
 	],
 	async (req, res) => {
 		const errors = validationResult(req);
-		const secretKey = config.get('jwtSecretKey');
 
 		if (!errors.isEmpty()) {
+			console.log('errors :', errors.array());
+
 			return res.status(400).json({
 				status: 400,
 				message: 'Bad request',
@@ -139,24 +236,23 @@ router.post(
 		}
 
 		try {
-			const { name, email, password, employeeId, role, isActive } = req.body;
+			const { name, email, password, employeeId, role, isActive, phone } = req.body;
 
-			let sql = 'SELECT user_id, role FROM user WHERE email = ? LIMIT 1';
-			let user = await db.query(sql, email);
+			let sql = 'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1';
+			let user = await db.query(sql, [email, employeeId]);
 
 			if (user.length > 0) {
 				return res.status(400).json({
-					status: 400,
 					message: 'User already exists',
 					data: req.body,
-					errors: null,
+					errors: [{ msg: 'User already exists, please change nik or email' }],
 				});
 			}
 
 			//create new user
 			sql =
-				'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+				'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
+				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 			const salt = await bcrypt.genSalt(10);
 			const hashedPassword = await bcrypt.hash(password, salt);
@@ -165,7 +261,7 @@ router.post(
 			const token = req.header('x-auth-token');
 			const decoded = jwt.verify(token, secretKey);
 			const loggedUser = decoded.user;
-
+			const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 			await db.query(sql, [
 				userId,
 				hashedPassword,
@@ -174,12 +270,13 @@ router.post(
 				employeeId,
 				role,
 				loggedUser.id,
-				timestamp,
+				now,
 				isActive,
+				phone,
+				password,
 			]);
 
 			res.status(200).json({
-				status: 200,
 				message: 'Successfully add user',
 				data: req.body,
 				errors: null,
@@ -187,7 +284,87 @@ router.post(
 		} catch (err) {
 			console.error('Add user error : ', err.message);
 			res.status(500).json({
-				status: 500,
+				message: 'Add user failed, internal server error',
+				data: req.body,
+				errors: err,
+			});
+		}
+	}
+);
+
+router.post(
+	'/test',
+	[
+		[
+			check('name', 'Please add name')
+				.not()
+				.isEmpty(),
+			check('email', 'Please enter valid email').isEmail(),
+			check('password', 'Please enter a password with 6 or more characters')
+				.isLength({ min: 6 })
+				.custom((value, { req, loc, path }) => {
+					if (value !== req.body.confirmPassword) {
+						// trow error if passwords do not match
+						throw new Error("Confirm passwords don't match");
+					} else {
+						return value;
+					}
+				}),
+			check('employeeId', 'Please enter your employee id (NIK)')
+				.not()
+				.isEmpty(),
+			check('role')
+				.not()
+				.isEmpty(),
+			check('isActive')
+				.not()
+				.isEmpty(),
+			check('phone', 'Please fill phone number')
+				.not()
+				.isEmpty(),
+		],
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		//console.log('req.body: ', req.body);
+
+		if (!errors.isEmpty()) {
+			//console.log('req.body: ', req.body);
+			//console.log('enter errors :', errors.array());
+
+			return res.status(400).json({
+				message: 'Bad request',
+				data: req.body,
+				errors: errors.array(),
+			});
+		}
+
+		try {
+			const { name, email, password, employeeId, role, isActive, phone, confirmPassword } = req.body;
+
+			let sql = 'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1';
+			let user = await db.query(sql, [email, employeeId]);
+
+			if (user.length > 0) {
+				return res.status(400).json({
+					message: 'User already exists',
+					data: req.body,
+					errors: [{ msg: 'User already exists, please change nik or email' }],
+				});
+			}
+
+			res.status(200).json({
+				status: 200,
+				message: 'Successfully add user',
+				data: req.body,
+				errors: null,
+			});
+
+			console.log('OK');
+		} catch (err) {
+			console.error('Add user error : ', err.message);
+			res.status(500).json({
 				message: 'Add user failed, internal server error',
 				data: req.body,
 				errors: err,
@@ -210,7 +387,6 @@ router.post(
 				.not()
 				.isEmpty(),
 			check('email', 'Please enter valid email').isEmail(),
-			check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
 			check('employeeId', 'Please enter your employee id (NIK)')
 				.not()
 				.isEmpty(),
@@ -220,6 +396,9 @@ router.post(
 			check('isActive')
 				.not()
 				.isEmpty(),
+			check('phone', 'Please fill phone number')
+				.not()
+				.isEmpty(),
 		],
 	],
 	async (req, res) => {
@@ -227,7 +406,6 @@ router.post(
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({
-				status: 400,
 				message: 'Bad request',
 				data: req.body,
 				errors: errors.array(),
@@ -235,11 +413,83 @@ router.post(
 		}
 
 		try {
-			const { name, email, password, employeeId, role, isActive, userId } = req.body;
+			const { name, email, employeeId, role, isActive, userId, phone } = req.body;
+			console.log(req.body);
+			//check user
+			let sql = 'SELECT user_id, role FROM user WHERE user_id != ? AND (email = ? OR employee_id = ?) LIMIT 1';
+			let user = await db.query(sql, [userId, email, employeeId]);
+
+			if (user.length > 0) {
+				return res.status(400).json({
+					message: 'User already exists',
+					data: req.body,
+					errors: [{ msg: 'User already exists, please change nik or email' }],
+				});
+			}
+
+			//update new user
+			sql =
+				'UPDATE user SET email = ?, name = ?, employee_id = ?, role = ? , updated_by = ?, updated_on = ?, is_active = ?, phone = ? WHERE user_id = ?';
+
+			const token = req.header('x-auth-token');
+			const decoded = jwt.verify(token, secretKey);
+			const loggedUser = decoded.user;
+			const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+			await db.query(sql, [email, name, employeeId, role, loggedUser.id, now, isActive, phone, userId]);
+
+			res.status(200).json({
+				message: 'Successfully update user',
+				data: req.body,
+				errors: null,
+			});
+		} catch (err) {
+			console.error('Update user error : ', err.message);
+			return res.status(500).json({
+				message: 'Update user failed, internal server error',
+				data: req.body,
+				errors: err,
+			});
+		}
+	}
+);
+
+// @route   POST api/users/changepwd
+// @desc    Update a user
+// @access  private, admin only
+
+router.post(
+	'/changepwd',
+	[
+		auth,
+		adminOnly,
+		[
+			check('password', 'Please provide password')
+				.not()
+				.isEmpty(),
+			check('userId')
+				.not()
+				.isEmpty(),
+		],
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		console.log(req.body);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({
+				message: 'Bad request',
+				data: req.body,
+				errors: errors.array(),
+			});
+		}
+
+		try {
+			const { userId, password } = req.body;
 
 			//create new user
 			const sql =
-				'UPDATE user SET password = ?, email = ?, name = ?, employee_id = ?, role = ? , updated_by = ?, updated_on = ?, is_active = ? WHERE user_id = ?';
+				'UPDATE user SET password = ?, updated_by = ?, updated_on = ?, last_change_password = ?, password_plain = ? WHERE user_id = ?';
 
 			const salt = await bcrypt.genSalt(10);
 			const hashedPassword = await bcrypt.hash(password, salt);
@@ -248,29 +498,18 @@ router.post(
 			const decoded = jwt.verify(token, secretKey);
 			const loggedUser = decoded.user;
 
-			await db.query(sql, [
-				hashedPassword,
-				email,
-				name,
-				employeeId,
-				role,
-				loggedUser.id,
-				timestamp,
-				isActive,
-				userId,
-			]);
+			const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+			await db.query(sql, [hashedPassword, loggedUser.id, now, now, password, userId]);
 
 			res.status(200).json({
-				status: 200,
-				message: 'Successfully update user',
+				message: 'Successfully change password of user',
 				data: req.body,
 				errors: null,
 			});
 		} catch (err) {
 			console.error('Update user error : ', err.message);
 			return res.status(500).json({
-				status: 500,
-				message: 'Update user failed, internal server error',
+				message: 'Change password user failed, internal server error',
 				data: req.body,
 				errors: err,
 			});
@@ -327,5 +566,131 @@ router.post(
 		}
 	}
 );
+
+// @route   POST api/users/deletes
+// @desc    Delete a users
+// @access  private
+router.post(
+	'/deletes',
+	[
+		auth,
+		adminOnly,
+		[
+			check('ids')
+				.not()
+				.isEmpty(),
+		],
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({
+				status: 400,
+				message: 'Error',
+				data: req.body,
+				errors: errors.array(),
+			});
+		}
+
+		const { ids } = req.body;
+		console.log('ids:', ids);
+
+		try {
+			for (i = 0; i < ids.length; i++) {
+				let userId = ids[i];
+
+				let sql = 'DELETE FROM user WHERE user_id = ?';
+				await db.query(sql, userId);
+			}
+
+			return res.status(200).json({
+				status: 200,
+				message: 'Successfully delete user',
+				data: req.body,
+				errors: null,
+			});
+		} catch (err) {
+			console.log('Failed to delete user, error : ', err.message);
+			return res.status(500).json({
+				status: 500,
+				message: 'Failed to delete user',
+				data: req.body,
+				errors: err,
+			});
+		}
+	}
+);
+
+router.post('/upload', (req, res) => {
+	try {
+		var form = new IncomingForm();
+
+		form.parse(req, function(err, fields, files) {
+			var f = files[Object.keys(files)[0]];
+
+			readExcel(f.path).then(rows => {
+				for (i = 1; i < rows.length; i++) {
+					const row = rows[i];
+
+					const name = row[0];
+					const email = row[1];
+					const nik = row[2];
+					const role = row[3];
+					const phone = row[4];
+					const password = row[5];
+
+					db.query(
+						'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1',
+						[email, nik],
+						(error, results, fields) => {
+							if (results <= 0) {
+								const sql =
+									'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
+									'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+								const salt = bcrypt.genSaltSync(10);
+								const hashedPassword = bcrypt.hashSync(password.toString(), salt);
+								const userId = uuidv4();
+								const token = req.header('x-auth-token');
+								const decoded = jwt.verify(token, secretKey);
+								const loggedUser = decoded.user;
+								const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+
+								db.query(
+									sql,
+									[
+										userId,
+										hashedPassword,
+										email,
+										name,
+										nik,
+										role,
+										loggedUser.id,
+										now,
+										1,
+										phone,
+										password,
+									],
+									(error, results, fields) => {
+										if (error) console.log(error);
+									}
+								);
+							}
+						}
+					);
+				}
+			});
+		});
+	} catch (error) {
+		console.log(error);
+		return res.status(500).json({
+			status: 500,
+			message: 'Failed to delete users',
+			data: req.body,
+			errors: error,
+		});
+	}
+});
 
 module.exports = router;

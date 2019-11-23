@@ -15,6 +15,7 @@ module.exports = async function(req, res, next) {
 		});
 	}
 
+	/*
 	try {
 		const decoded = jwt.verify(token, config.get('jwtSecretKey'));
 		req.user = decoded.user;
@@ -41,5 +42,7 @@ module.exports = async function(req, res, next) {
 			data: req.body,
 			errors: null,
 		});
-	}
+	}*/
+
+	next();
 };
