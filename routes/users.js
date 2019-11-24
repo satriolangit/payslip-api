@@ -594,7 +594,6 @@ router.post(
 		}
 
 		const { ids } = req.body;
-		console.log('ids:', ids);
 
 		try {
 			for (i = 0; i < ids.length; i++) {
@@ -640,6 +639,8 @@ router.post('/upload', (req, res) => {
 					const phone = row[4];
 					const password = row[5];
 
+					//console.log(name, email, nik, role, phone, password);
+
 					db.query(
 						'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1',
 						[email, nik],
@@ -682,11 +683,13 @@ router.post('/upload', (req, res) => {
 				}
 			});
 		});
+
+		return res.json({ message: 'upload user data done.' });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({
 			status: 500,
-			message: 'Failed to delete users',
+			message: 'Failed to upload users',
 			data: req.body,
 			errors: error,
 		});

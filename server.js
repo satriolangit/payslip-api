@@ -37,6 +37,7 @@ app.use('/api/information', require('./routes/information'));
 app.use('/api/todo', require('./routes/todo'));
 app.use('/api/role', require('./routes/role'));
 app.use('/api/upload', require('./routes/upload'));
+app.use('/api/connect', require('./routes/connect'));
 
 app.use(fileUpload());
 app.use('/public', express.static(__dirname + '/public'));

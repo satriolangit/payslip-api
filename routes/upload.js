@@ -14,23 +14,24 @@ const auth = require('../middleware/auth');
 const db = require('../config/database');
 const adminOnly = require('../middleware/adminOnly');
 
-//utils
-const secretKey = config.get('jwtSecretKey');
-
 router.post('/', (req, res) => {
 	try {
 		var form = new IncomingForm();
 
-		console.log('Enter upload...');
-
+		let imageUrl = config.get('upload_url');
 		form.parse(req);
 
 		form.on('fileBegin', function(name, file) {
 			file.path = __dirname + '/../public/uploads/' + file.name;
+			imageUrl += file.name;
 		});
 
 		form.on('file', function(name, file) {
 			console.log('Uploaded ' + file.name);
+		});
+
+		form.on('end', () => {
+			res.json({ result: 'OK', imageUrl: imageUrl });
 		});
 	} catch (error) {
 		console.log(error);

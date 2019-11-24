@@ -6,5 +6,6 @@
 		"name": "payslip"
 	},
 	"jwtSecretKey": "f40c99635c2440a8a0fd0ba4fa98041f",
-	"tokenExpiryTime": 36000
+	"tokenExpiryTime": 36000,
+	"upload_url": "http://localhost:3001/files/"
 }
