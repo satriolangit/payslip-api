@@ -2,8 +2,8 @@ const db = require('../config/database');
 const uuidv4 = require('uuid/v4');
 const moment = require('moment');
 const bcrypt = require('bcryptjs');
-
-const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 
 const isUserAlreadyExist = async email => {
 	const sql = 'SELECT user_id, role FROM user WHERE email = ? LIMIT 1';
@@ -11,8 +11,15 @@ const isUserAlreadyExist = async email => {
 	return user.length > 0;
 };
 
+const isEmployeeIdIsTaken = async employeeId => {
+	const sql = 'SELECT user_id FROM user WHERE employee_id = ? LIMIT 1';
+	let user = await db.query(sql, employeeId);
+	return user.length > 0;
+};
+
 const registerUser = async (name, email, password, employeeId) => {
 	//create new user
+	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 	const sql =
 		'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active) ' +
 		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
@@ -26,7 +33,81 @@ const registerUser = async (name, email, password, employeeId) => {
 	return userId;
 };
 
+const createUser = async (name, email, password, employeeId, phone, role, createdBy) => {
+	//create new user
+	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+	const sql =
+		'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
+		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+	const salt = await bcrypt.genSalt(10);
+	const hashedPassword = await bcrypt.hash(password, salt);
+	const userId = uuidv4();
+
+	await db.query(sql, [
+		userId,
+		hashedPassword,
+		email,
+		name,
+		employeeId,
+		role,
+		createdBy,
+		timestamp,
+		1,
+		phone,
+		password,
+	]);
+
+	return userId;
+};
+
+const updateUserByUserId = async (userId, name, role, phone, password) => {
+	console.log('update user service');
+};
+
+const updateUserByEmployeeId = async (employeeId, name, email, role, phone, password, updatedBy) => {
+	console.log('update user by employeeId');
+
+	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+	const sql =
+		'UPDATE user SET name = ?, email = ?, role = ?, phone = ?, password = ?, password_plain = ?, updated_by = ?, updated_on = ? WHERE employee_id = ?';
+
+	const salt = await bcrypt.genSalt(10);
+	const hashedPassword = await bcrypt.hash(password, salt);
+
+	await db.query(sql, [name, email, role, phone, hashedPassword, password, updatedBy, timestamp, employeeId]);
+};
+
+const uploadUser = async (name, email, nik, role, phone, password, createdBy) => {
+	let result = null;
+
+	try {
+		const isEmployeeExist = await isEmployeeIdIsTaken(nik);
+		if (isEmployeeExist) {
+			//update
+			//await updateUserByEmployeeId(nik, name, role, phone, password, createdBy);
+			console.log('employee exist..', nik, name);
+		} else {
+			//insert
+			//await createUser(name, email, password, nik, phone, role, createdBy);
+			console.log('create user...', nik, name);
+		}
+		result = true;
+	} catch (error) {
+		result = false;
+	}
+
+	return result;
+};
+
+const ping = text => {
+	return text;
+};
+
 module.exports = {
 	isUserAlreadyExist,
 	registerUser,
+	uploadUser,
+	createUser,
+	ping,
 };

@@ -13,6 +13,7 @@ const readExcel = require('read-excel-file/node');
 const auth = require('../middleware/auth');
 const db = require('../config/database');
 const adminOnly = require('../middleware/adminOnly');
+const service = require('../services/userService');
 
 const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 const secretKey = config.get('jwtSecretKey');
@@ -621,70 +622,52 @@ router.post(
 	}
 );
 
-router.post('/upload', (req, res) => {
+router.post('/upload', async (req, res) => {
 	try {
 		var form = new IncomingForm();
+		let ok = 0;
+		let fail = 0;
+		let users = [];
 
-		form.parse(req, function(err, fields, files) {
+		form.parse(req, (err, fields, files) => {
 			var f = files[Object.keys(files)[0]];
 
 			readExcel(f.path).then(rows => {
 				for (i = 1; i < rows.length; i++) {
 					const row = rows[i];
-
 					const name = row[0];
 					const email = row[1];
 					const nik = row[2];
 					const role = row[3];
 					const phone = row[4];
 					const password = row[5];
+					const salt = bcrypt.genSaltSync(10);
+					const hashedPassword = bcrypt.hashSync(password.toString(), salt);
+					const userId = uuidv4();
+					//const token = req.header('x-auth-token');
+					//const decoded = jwt.verify(token, secretKey);
+					//const loggedUser = decoded.user;
+					const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-					//console.log(name, email, nik, role, phone, password);
-
-					db.query(
-						'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1',
-						[email, nik],
-						(error, results, fields) => {
-							if (results <= 0) {
-								const sql =
-									'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
-									'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-								const salt = bcrypt.genSaltSync(10);
-								const hashedPassword = bcrypt.hashSync(password.toString(), salt);
-								const userId = uuidv4();
-								const token = req.header('x-auth-token');
-								const decoded = jwt.verify(token, secretKey);
-								const loggedUser = decoded.user;
-								const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-
-								db.query(
-									sql,
-									[
-										userId,
-										hashedPassword,
-										email,
-										name,
-										nik,
-										role,
-										loggedUser.id,
-										now,
-										1,
-										phone,
-										password,
-									],
-									(error, results, fields) => {
-										if (error) console.log(error);
-									}
-								);
-							}
-						}
-					);
+					users = [...users, { name, email, nik, role, phone, password }];
 				}
 			});
 		});
 
-		return res.json({ message: 'upload user data done.' });
+		for (let i = 0; i < users.length; i++) {
+			console.log(users[i]);
+			// if (name.length <= 0 || email.length <= 0 || nik.length <= 0 || password.length <= 0) {
+			// 	fail++;
+			// } else {
+			// 	const uploadResult = service.uploadUser(name, email, nik, role, phone, password, 'system');
+			// 	if (uploadResult) ok++;
+			// 	else fail++;
+			// }
+		}
+
+		const uploadMessage = 'Upload user data done, ok :' + ok + ', fail :' + fail;
+		console.log(uploadMessage);
+		return res.json({ message: uploadMessage });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({
