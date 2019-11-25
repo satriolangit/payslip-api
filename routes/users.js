@@ -649,21 +649,72 @@ router.post('/upload', async (req, res) => {
 					//const loggedUser = decoded.user;
 					const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-					users = [...users, { name, email, nik, role, phone, password }];
+					db.query(
+						'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1',
+						[email, nik],
+						(error, results, fields) => {
+							if (results <= 0) {
+								const sql =
+									'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
+									'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+
+								db.query(
+									sql,
+									[
+										userId,
+										hashedPassword,
+										email,
+										name,
+										nik,
+										role,
+										'system upload',
+										now,
+										1,
+										phone,
+										password,
+									],
+									(error, results, fields) => {
+										if (error) {
+											fail++;
+											console.log(error);
+										} else {
+											ok++;
+											console.log('ok', ok);
+										}
+									}
+								);
+							} else {
+								//update
+								const sql =
+									'UPDATE user SET name = ?, email = ?, role = ?, phone = ?, password = ?, password_plain = ?, updated_by = ?, updated_on = ? WHERE employee_id = ?';
+								db.query(
+									sql,
+									[
+										name,
+										email,
+										role,
+										phone,
+										hashedPassword,
+										password,
+										'system upload',
+										timestamp,
+										nik,
+									],
+									(error, result, fields) => {
+										if (error) {
+											fail++;
+											console.log(error);
+										} else {
+											ok++;
+										}
+									}
+								);
+							}
+						}
+					);
 				}
 			});
 		});
-
-		for (let i = 0; i < users.length; i++) {
-			console.log(users[i]);
-			// if (name.length <= 0 || email.length <= 0 || nik.length <= 0 || password.length <= 0) {
-			// 	fail++;
-			// } else {
-			// 	const uploadResult = service.uploadUser(name, email, nik, role, phone, password, 'system');
-			// 	if (uploadResult) ok++;
-			// 	else fail++;
-			// }
-		}
 
 		const uploadMessage = 'Upload user data done, ok :' + ok + ', fail :' + fail;
 		console.log(uploadMessage);
