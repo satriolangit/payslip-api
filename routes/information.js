@@ -308,4 +308,82 @@ router.post(
 	}
 );
 
+// @route   POST api/information/search
+// @desc    POST search
+// @access  Private
+router.post('/search', auth, async (req, res) => {
+	try {
+		const { keywords } = req.body;
+
+		const sql = 'SELECT * FROM information WHERE title LIKE ? OR text LIKE ? ORDER BY created_on DESC';
+		const data = await db.query(sql, ['%' + keywords + '%', '%' + keywords + '%']);
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get informations',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   POST api/information/multidelete
+// @desc    Delete a information
+// @access  private
+router.post(
+	'/multidelete',
+	[
+		auth,
+		adminOnly,
+		[
+			check('ids')
+				.not()
+				.isEmpty(),
+		],
+	],
+	async (req, res) => {
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({
+				message: 'Error',
+				data: req.body,
+				errors: errors.array(),
+			});
+		}
+
+		const { ids } = req.body;
+
+		try {
+			for (i = 0; i < ids.length; i++) {
+				let id = ids[i];
+
+				let sql = 'DELETE FROM information WHERE id = ?';
+				await db.query(sql, id);
+			}
+
+			return res.status(200).json({
+				message: 'Successfully delete information',
+				data: null,
+				errors: null,
+			});
+		} catch (err) {
+			console.log('Failed to delete user, error : ', err.message);
+			return res.status(500).json({
+				message: 'Failed to delete user',
+				data: req.body,
+				errors: err,
+			});
+		}
+	}
+);
+
 module.exports = router;

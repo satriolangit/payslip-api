@@ -39,8 +39,12 @@ app.use('/api/role', require('./routes/role'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/connect', require('./routes/connect'));
 
+//test
+app.get('/xyz', (req, res) => res.send('Hello World!'));
+
 app.use(fileUpload());
 app.use('/public', express.static(__dirname + '/public'));
+app.use('/payslip', express.static(__dirname + '/public/payslip'));
 app.use('/files', express.static(__dirname + '/public/uploads'));
 
 //port

@@ -97,15 +97,20 @@ router.get('/download/:filename', async (req, res) => {
 
 		res.download(path);
 
+		console.log('filename: ', filename, 'path:', path);
+
 		//set lastdownload & downloadcount
 		let downloadCount = 0;
 		let sql = 'SELECT IFNULL(download_count, 0) AS download_count FROM payslip WHERE filename = ? LIMIT 1';
-		let result = await db.query(sql);
+		let result = await db.query(sql, filename);
 		const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+
 		if (result.length > 0) {
-			downloadCount = res.download_count;
+			downloadCount = result[0].download_count;
+			const count = downloadCount + 1;
+			console.log('count :', count);
 			sql = 'UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?';
-			await db.query(sql, [downloadCount++, now, filename]);
+			await db.query(sql, [count, now, filename]);
 		}
 	} catch (error) {
 		console.log('error download payslip:', error);
@@ -117,7 +122,7 @@ router.get('/download/:filename', async (req, res) => {
 // @access  Private
 router.get('/', auth, async (req, res) => {
 	try {
-		const sql = 'SELECT * FROM payslip ORDER BY year, month DESC';
+		let sql = "SELECT *, concat(id, ';', filename) as idx FROM payslip ORDER BY year, month DESC";
 		const data = await db.query(sql);
 
 		res.status(200).json({
@@ -142,7 +147,8 @@ router.get('/', auth, async (req, res) => {
 // @access  Private
 router.get('/:employeeId', auth, async (req, res) => {
 	try {
-		const sql = 'SELECT * FROM payslip WHERE employee_id = ? ORDER BY year, month DESC';
+		const sql =
+			"SELECT *, concat(id, ';', filename) as idx FROM payslip WHERE employee_id = ? ORDER BY year, month DESC";
 		const data = await db.query(sql, req.params.employeeId);
 
 		res.status(200).json({
@@ -167,7 +173,9 @@ router.get('/:employeeId', auth, async (req, res) => {
 // @access  Private
 router.get('/:employeeId/:limit', auth, async (req, res) => {
 	try {
-		const sql = 'SELECT * FROM payslip WHERE employee_id = ? ORDER BY year, month DESC LIMIT ' + req.params.limit;
+		const sql =
+			"SELECT *, concat(id, ';', filename) as idx FROM payslip WHERE employee_id = ? ORDER BY year, month DESC LIMIT " +
+			req.params.limit;
 		const data = await db.query(sql, req.params.employeeId);
 
 		res.status(200).json({
@@ -303,5 +311,33 @@ router.post(
 		}
 	}
 );
+
+// @route   POST api/payslip/search
+// @desc    POST search
+// @access  Private
+router.post('/search', auth, async (req, res) => {
+	try {
+		const { keywords } = req.body;
+
+		const sql =
+			"SELECT *, concat(id, ';', filename) as idx FROM payslip WHERE employee_name LIKE ? OR employee_id LIKE ? OR filename LIKE ? ORDER BY created_on DESC";
+		const data = await db.query(sql, ['%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%']);
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get users',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
 
 module.exports = router;
