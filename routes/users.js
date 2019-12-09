@@ -713,12 +713,12 @@ router.post('/upload', async (req, res) => {
 						}
 					);
 				}
+
+				const uploadMessage = 'Upload user data done, ok :' + ok + ', fail :' + fail;
+				console.log(uploadMessage);
+				return res.json({ message: uploadMessage });
 			});
 		});
-
-		const uploadMessage = 'Upload user data done, ok :' + ok + ', fail :' + fail;
-		console.log(uploadMessage);
-		return res.json({ message: uploadMessage });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({
@@ -756,6 +756,39 @@ router.post('/search', auth, async (req, res) => {
 			errors: err,
 		});
 	}
+});
+
+router.post('/upload1', async (req, res) => {
+	var form = new IncomingForm();
+	let ok = 0;
+	let fail = 0;
+	let users = [];
+
+	form.parse(req, (err, fields, files) => {
+		var f = files[Object.keys(files)[0]];
+		readExcel(f.path).then(rows => {
+			for (i = 1; i < rows.length; i++) {
+				try {
+					const row = rows[i];
+					const name = row[0];
+					const email = row[1];
+					const nik = row[2];
+					const role = row[3];
+					const phone = row[4];
+					const password = row[5];
+					const salt = bcrypt.genSaltSync(10);
+					const hashedPassword = bcrypt.hashSync(password.toString(), salt);
+					const userId = uuidv4();
+
+					ok++;
+				} catch {
+					fail++;
+				}
+			}
+
+			console.log('ok:', ok, ' fail:', fail);
+		});
+	});
 });
 
 module.exports = router;
