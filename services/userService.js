@@ -5,9 +5,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
-const isUserAlreadyExist = async email => {
-	const sql = 'SELECT user_id, role FROM user WHERE email = ? LIMIT 1';
-	let user = await db.query(sql, email);
+const isUserAlreadyExist = async employeeId => {
+	const sql = 'SELECT user_id, role FROM user WHERE employee_id = ? LIMIT 1';
+	let user = await db.query(sql, employeeId);
 	return user.length > 0;
 };
 
@@ -41,22 +41,10 @@ const createUser = async (name, email, password, employeeId, phone, role, create
 		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 	const salt = await bcrypt.genSalt(10);
-	const hashedPassword = await bcrypt.hash(password, salt);
+	const hashedPassword = bcrypt.hashSync(password.toString(), salt);
 	const userId = uuidv4();
 
-	await db.query(sql, [
-		userId,
-		hashedPassword,
-		email,
-		name,
-		employeeId,
-		role,
-		createdBy,
-		timestamp,
-		1,
-		phone,
-		password,
-	]);
+	db.query(sql, [userId, hashedPassword, email, name, employeeId, role, createdBy, timestamp, 1, phone, password]);
 
 	return userId;
 };
@@ -73,41 +61,14 @@ const updateUserByEmployeeId = async (employeeId, name, email, role, phone, pass
 		'UPDATE user SET name = ?, email = ?, role = ?, phone = ?, password = ?, password_plain = ?, updated_by = ?, updated_on = ? WHERE employee_id = ?';
 
 	const salt = await bcrypt.genSalt(10);
-	const hashedPassword = await bcrypt.hash(password, salt);
+	const hashedPassword = await bcrypt.hash(password.toString(), salt);
 
 	await db.query(sql, [name, email, role, phone, hashedPassword, password, updatedBy, timestamp, employeeId]);
-};
-
-const uploadUser = async (name, email, nik, role, phone, password, createdBy) => {
-	let result = null;
-
-	try {
-		const isEmployeeExist = await isEmployeeIdIsTaken(nik);
-		if (isEmployeeExist) {
-			//update
-			//await updateUserByEmployeeId(nik, name, role, phone, password, createdBy);
-			console.log('employee exist..', nik, name);
-		} else {
-			//insert
-			//await createUser(name, email, password, nik, phone, role, createdBy);
-			console.log('create user...', nik, name);
-		}
-		result = true;
-	} catch (error) {
-		result = false;
-	}
-
-	return result;
-};
-
-const ping = text => {
-	return text;
 };
 
 module.exports = {
 	isUserAlreadyExist,
 	registerUser,
-	uploadUser,
 	createUser,
-	ping,
+	updateUserByEmployeeId,
 };

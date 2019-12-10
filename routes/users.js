@@ -293,87 +293,6 @@ router.post(
 	}
 );
 
-router.post(
-	'/test',
-	[
-		[
-			check('name', 'Please add name')
-				.not()
-				.isEmpty(),
-			check('email', 'Please enter valid email').isEmail(),
-			check('password', 'Please enter a password with 6 or more characters')
-				.isLength({ min: 6 })
-				.custom((value, { req, loc, path }) => {
-					if (value !== req.body.confirmPassword) {
-						// trow error if passwords do not match
-						throw new Error("Confirm passwords don't match");
-					} else {
-						return value;
-					}
-				}),
-			check('employeeId', 'Please enter your employee id (NIK)')
-				.not()
-				.isEmpty(),
-			check('role')
-				.not()
-				.isEmpty(),
-			check('isActive')
-				.not()
-				.isEmpty(),
-			check('phone', 'Please fill phone number')
-				.not()
-				.isEmpty(),
-		],
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
-
-		//console.log('req.body: ', req.body);
-
-		if (!errors.isEmpty()) {
-			//console.log('req.body: ', req.body);
-			//console.log('enter errors :', errors.array());
-
-			return res.status(400).json({
-				message: 'Bad request',
-				data: req.body,
-				errors: errors.array(),
-			});
-		}
-
-		try {
-			const { name, email, password, employeeId, role, isActive, phone, confirmPassword } = req.body;
-
-			let sql = 'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1';
-			let user = await db.query(sql, [email, employeeId]);
-
-			if (user.length > 0) {
-				return res.status(400).json({
-					message: 'User already exists',
-					data: req.body,
-					errors: [{ msg: 'User already exists, please change nik or email' }],
-				});
-			}
-
-			res.status(200).json({
-				status: 200,
-				message: 'Successfully add user',
-				data: req.body,
-				errors: null,
-			});
-
-			console.log('OK');
-		} catch (err) {
-			console.error('Add user error : ', err.message);
-			res.status(500).json({
-				message: 'Add user failed, internal server error',
-				data: req.body,
-				errors: err,
-			});
-		}
-	}
-);
-
 // @route   POST api/users/update
 // @desc    Update a user
 // @access  private, admin only
@@ -622,114 +541,6 @@ router.post(
 	}
 );
 
-router.post('/upload', async (req, res) => {
-	try {
-		var form = new IncomingForm();
-		let ok = 0;
-		let fail = 0;
-		let users = [];
-
-		form.parse(req, (err, fields, files) => {
-			var f = files[Object.keys(files)[0]];
-
-			readExcel(f.path).then(rows => {
-				for (i = 1; i < rows.length; i++) {
-					const row = rows[i];
-					const name = row[0];
-					const email = row[1];
-					const nik = row[2];
-					const role = row[3];
-					const phone = row[4];
-					const password = row[5];
-					const salt = bcrypt.genSaltSync(10);
-					const hashedPassword = bcrypt.hashSync(password.toString(), salt);
-					const userId = uuidv4();
-					//const token = req.header('x-auth-token');
-					//const decoded = jwt.verify(token, secretKey);
-					//const loggedUser = decoded.user;
-					const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-
-					db.query(
-						'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1',
-						[email, nik],
-						(error, results, fields) => {
-							if (results <= 0) {
-								const sql =
-									'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
-									'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-								db.query(
-									sql,
-									[
-										userId,
-										hashedPassword,
-										email,
-										name,
-										nik,
-										role,
-										'system upload',
-										now,
-										1,
-										phone,
-										password,
-									],
-									(error, results, fields) => {
-										if (error) {
-											fail++;
-											console.log(error);
-										} else {
-											ok++;
-											console.log('ok', ok);
-										}
-									}
-								);
-							} else {
-								//update
-								const sql =
-									'UPDATE user SET name = ?, email = ?, role = ?, phone = ?, password = ?, password_plain = ?, updated_by = ?, updated_on = ? WHERE employee_id = ?';
-								db.query(
-									sql,
-									[
-										name,
-										email,
-										role,
-										phone,
-										hashedPassword,
-										password,
-										'system upload',
-										timestamp,
-										nik,
-									],
-									(error, result, fields) => {
-										if (error) {
-											fail++;
-											console.log(error);
-										} else {
-											ok++;
-										}
-									}
-								);
-							}
-						}
-					);
-				}
-
-				const uploadMessage = 'Upload user data done, ok :' + ok + ', fail :' + fail;
-				console.log(uploadMessage);
-				return res.json({ message: uploadMessage });
-			});
-		});
-	} catch (error) {
-		console.log(error);
-		return res.status(500).json({
-			status: 500,
-			message: 'Failed to upload users',
-			data: req.body,
-			errors: error,
-		});
-	}
-});
-
 // @route   POST api/users/search
 // @desc    POST search
 // @access  Private
@@ -758,15 +569,15 @@ router.post('/search', auth, async (req, res) => {
 	}
 });
 
-router.post('/upload1', async (req, res) => {
+router.post('/upload', async (req, res) => {
 	var form = new IncomingForm();
 	let ok = 0;
 	let fail = 0;
 	let users = [];
 
-	form.parse(req, (err, fields, files) => {
+	form.parse(req, async (err, fields, files) => {
 		var f = files[Object.keys(files)[0]];
-		readExcel(f.path).then(rows => {
+		readExcel(f.path).then(async rows => {
 			for (i = 1; i < rows.length; i++) {
 				try {
 					const row = rows[i];
@@ -780,13 +591,24 @@ router.post('/upload1', async (req, res) => {
 					const hashedPassword = bcrypt.hashSync(password.toString(), salt);
 					const userId = uuidv4();
 
+					const isUserExists = await service.isUserAlreadyExist(nik);
+
+					if (!isUserExists) {
+						await service.createUser(name, email, password, nik, phone, role, 'system upload');
+					} else {
+						await service.updateUserByEmployeeId(nik, name, email, role, phone, password, 'system upload');
+					}
+
 					ok++;
-				} catch {
+				} catch (err) {
+					console.log(err.message);
 					fail++;
 				}
 			}
 
 			console.log('ok:', ok, ' fail:', fail);
+			const uploadMessage = 'Upload user done, OK :' + ok + ', FAIL :' + fail;
+			return res.json({ message: uploadMessage });
 		});
 	});
 });
