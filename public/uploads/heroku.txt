@@ -1,0 +1,7 @@
+Chuyuechan123.
+
+http://www.hrinformationsystem.com/
+sudo systemctl start payslipAPI
+sudo systemctl start payslipFRONTEND
+sudo systemctl start payslipCLIENT
+ netstat -anp | grep 3001

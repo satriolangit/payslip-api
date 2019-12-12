@@ -20,6 +20,9 @@ const secretKey = config.get('jwtSecretKey');
 router.post('/upload', (req, res) => {
 	try {
 		var form = new IncomingForm();
+		let logs = '';
+
+		console.log(req);
 
 		form.on('fileBegin', async (name, file) => {
 			file.path = __dirname + '/../public/payslip/' + file.name;
@@ -60,6 +63,8 @@ router.post('/upload', (req, res) => {
 				await db.query(sql, [employeeId, employeeName, year, month, pdf, now, 0]);
 
 				await addUploadLog(pdf, 'OK', '', employeeId);
+
+				logs = pdf + ' : OK';
 			} else {
 				//delete file
 				const path = './public/payslip/' + pdf;
@@ -67,11 +72,13 @@ router.post('/upload', (req, res) => {
 				fs.unlinkSync(path);
 
 				await addUploadLog(pdf, 'NOT OK', 'NIK not found', employeeId);
+
+				logs = pdf + ' : FAIL';
 			}
 		});
 
 		form.on('end', () => {
-			res.json();
+			res.json({ message: logs });
 		});
 		form.parse(req);
 	} catch (error) {
@@ -222,7 +229,7 @@ router.post(
 		}
 
 		const { id, filename } = req.body;
-		console.log(req.body);
+
 		try {
 			const sql = 'DELETE FROM payslip WHERE id = ?';
 			await db.query(sql, id);
