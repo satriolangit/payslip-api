@@ -346,11 +346,10 @@ router.post(
 router.post('/search', auth, async (req, res) => {
 	try {
 		const { keywords } = req.body;
-		const sql = 'SELECT * FROM announcement WHERE title LIKE ? OR text LIKE ? ORDER BY created_on DESC LIMIT ?,?';
+		const sql = 'SELECT * FROM announcement WHERE title LIKE ? OR text LIKE ? ORDER BY created_on DESC';
 		const data = await db.query(sql, ['%' + keywords + '%', '%' + keywords + '%']);
 
 		res.status(200).json({
-			status: 200,
 			message: 'OK',
 			data: data,
 			errors: null,
@@ -358,7 +357,6 @@ router.post('/search', auth, async (req, res) => {
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).json({
-			status: 500,
 			message: 'Failed to get announcements',
 			data: req.body,
 			errors: err,

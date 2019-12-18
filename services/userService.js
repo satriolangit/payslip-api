@@ -33,24 +33,41 @@ const registerUser = async (name, email, password, employeeId) => {
 	return userId;
 };
 
-const createUser = async (name, email, password, employeeId, phone, role, createdBy) => {
+const createUser = async (name, email, password, employeeId, phone, role, createdBy, photo, isActive) => {
 	//create new user
 	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 	const sql =
-		'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
-		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+		'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain, photo) ' +
+		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 	const salt = await bcrypt.genSalt(10);
 	const hashedPassword = bcrypt.hashSync(password.toString(), salt);
 	const userId = uuidv4();
 
-	db.query(sql, [userId, hashedPassword, email, name, employeeId, role, createdBy, timestamp, 1, phone, password]);
+	db.query(sql, [
+		userId,
+		hashedPassword,
+		email,
+		name,
+		employeeId,
+		role,
+		createdBy,
+		timestamp,
+		isActive,
+		phone,
+		password,
+		photo,
+	]);
 
 	return userId;
 };
 
-const updateUserByUserId = async (userId, name, role, phone, password) => {
-	console.log('update user service');
+const updateUserById = async (userId, name, email, employeeId, role, phone, photo, isActive, updatedBy) => {
+	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+	const sql =
+		'UPDATE user SET name = ?, email = ?, employee_id = ?, role = ?, phone = ?, photo = ?, is_active = ?, updated_by = ?, updated_on = ? WHERE user_id = ?';
+
+	await db.query(sql, [name, email, employeeId, role, phone, photo, isActive, updatedBy, timestamp, userId]);
 };
 
 const updateUserByEmployeeId = async (employeeId, name, email, role, phone, password, updatedBy) => {
@@ -71,4 +88,5 @@ module.exports = {
 	registerUser,
 	createUser,
 	updateUserByEmployeeId,
+	updateUserById,
 };

@@ -46,6 +46,7 @@ app.use(fileUpload());
 app.use('/public', express.static(__dirname + '/public'));
 app.use('/payslip', express.static(__dirname + '/public/payslip'));
 app.use('/files', express.static(__dirname + '/public/uploads'));
+app.use('/photos', express.static(__dirname + '/public/photos'));
 
 //port
 const PORT = process.env.PORT || 3001;

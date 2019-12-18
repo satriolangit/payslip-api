@@ -9,13 +9,18 @@ const moment = require('moment');
 const IncomingForm = require('formidable').IncomingForm;
 const fs = require('fs');
 const readExcel = require('read-excel-file/node');
+const multer = require('multer');
+const Joi = require('@hapi/joi');
 
 const auth = require('../middleware/auth');
 const db = require('../config/database');
 const adminOnly = require('../middleware/adminOnly');
 const service = require('../services/userService');
 
-const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+//filters
+const validateCreateUser = require('../filters/validateCreateUser');
+const validateUpdateUser = require('../filters/validateUpdateUser');
+
 const secretKey = config.get('jwtSecretKey');
 const tokenExpiryTime = config.get('tokenExpiryTime');
 
@@ -185,193 +190,103 @@ router.post(
 	}
 );
 
+//upload photo config
+const photoStorate = multer.diskStorage({
+	destination: function(req, file, cb) {
+		const path = __dirname + '/../public/photos';
+		cb(null, path);
+	},
+	filename: function(req, file, cb) {
+		cb(null, file.originalname);
+	},
+});
+
+var upload = multer({ storage: photoStorate });
+
 // @route   POST api/users/add
 // @desc    Add a user
 // @access  private, admin only
-router.post(
-	'/add',
-	[
-		auth,
-		adminOnly,
-		[
-			check('name', 'Please add name')
-				.not()
-				.isEmpty(),
-			check('email', 'Please enter valid email').isEmail(),
-			check('employeeId', 'Please enter your employee id (NIK)')
-				.not()
-				.isEmpty(),
-			check('role')
-				.not()
-				.isEmpty(),
-			check('isActive')
-				.not()
-				.isEmpty(),
-			check('phone', 'Please fill phone number')
-				.not()
-				.isEmpty(),
-			check('password', 'Please enter a password with 6 or more characters')
-				.isLength({ min: 6 })
-				.custom((value, { req, loc, path }) => {
-					if (value !== req.body.confirmPassword) {
-						// trow error if passwords do not match
-						throw new Error("Confirm passwords don't match");
-					} else {
-						return value;
-					}
-				}),
-		],
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
+router.post('/add', [auth, adminOnly, upload.single('photo'), validateCreateUser], async (req, res) => {
+	try {
+		const request = JSON.parse(req.body.data);
+		const { email, name, password, employeeId, role, isActive, phone } = request;
 
-		if (!errors.isEmpty()) {
-			console.log('errors :', errors.array());
+		const isUserExists = await service.isUserAlreadyExist(employeeId);
 
-			return res.status(400).json({
-				status: 400,
-				message: 'Bad request',
-				data: req.body,
-				errors: errors.array(),
-			});
-		}
-
-		try {
-			const { name, email, password, employeeId, role, isActive, phone } = req.body;
-
-			let sql = 'SELECT user_id, role FROM user WHERE email = ? OR employee_id = ? LIMIT 1';
-			let user = await db.query(sql, [email, employeeId]);
-
-			if (user.length > 0) {
-				return res.status(400).json({
-					message: 'User already exists',
-					data: req.body,
-					errors: [{ msg: 'User already exists, please change nik or email' }],
-				});
-			}
-
-			//create new user
-			sql =
-				'INSERT INTO user (user_id, password, email, name, employee_id, role, created_by, created_on, is_active, phone, password_plain) ' +
-				'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-
-			const salt = await bcrypt.genSalt(10);
-			const hashedPassword = await bcrypt.hash(password, salt);
-			const userId = uuidv4();
-
+		if (!isUserExists) {
 			const token = req.header('x-auth-token');
 			const decoded = jwt.verify(token, secretKey);
 			const loggedUser = decoded.user;
-			const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-			await db.query(sql, [
-				userId,
-				hashedPassword,
-				email,
-				name,
-				employeeId,
-				role,
-				loggedUser.id,
-				now,
-				isActive,
-				phone,
-				password,
-			]);
+			let baseUrl = config.get('photo_url');
+			let photo = '';
+
+			if (req.file) {
+				photo = baseUrl + req.file.originalname;
+				console.log(photo);
+			}
+			await service.createUser(name, email, password, employeeId, phone, role, loggedUser.id, photo, isActive);
 
 			res.status(200).json({
+				result: 'OK',
 				message: 'Successfully add user',
 				data: req.body,
 				errors: null,
 			});
-		} catch (err) {
-			console.error('Add user error : ', err.message);
-			res.status(500).json({
-				message: 'Add user failed, internal server error',
+		} else {
+			res.status(400).json({
+				result: 'FAIL',
+				message: 'N.I.K sudah dipakai oleh user lain, mohon diganti',
 				data: req.body,
-				errors: err,
+				errors: [{ message: 'N.I.K sudah dipakai oleh user lain, mohon diganti' }],
 			});
 		}
+	} catch (err) {
+		console.error('Add user error : ', err.message);
+		res.status(500).json({
+			result: 'FAIL',
+			message: 'Add user failed, internal server error',
+			data: req.body,
+			errors: err,
+		});
 	}
-);
+});
 
 // @route   POST api/users/update
 // @desc    Update a user
 // @access  private, admin only
+router.post('/update', [auth, adminOnly, upload.single('photo'), validateUpdateUser], async (req, res) => {
+	try {
+		const request = JSON.parse(req.body.data);
+		const { name, email, employeeId, role, isActive, userId, phone } = request;
+		let { photo } = request;
 
-router.post(
-	'/update',
-	[
-		auth,
-		adminOnly,
-		[
-			check('name', 'Please add name')
-				.not()
-				.isEmpty(),
-			check('email', 'Please enter valid email').isEmail(),
-			check('employeeId', 'Please enter your employee id (NIK)')
-				.not()
-				.isEmpty(),
-			check('userId')
-				.not()
-				.isEmpty(),
-			check('isActive')
-				.not()
-				.isEmpty(),
-			check('phone', 'Please fill phone number')
-				.not()
-				.isEmpty(),
-		],
-	],
-	async (req, res) => {
-		const errors = validationResult(req);
+		const token = req.header('x-auth-token');
+		const decoded = jwt.verify(token, secretKey);
+		const loggedUser = decoded.user;
+		let baseUrl = config.get('photo_url');
 
-		if (!errors.isEmpty()) {
-			return res.status(400).json({
-				message: 'Bad request',
-				data: req.body,
-				errors: errors.array(),
-			});
+		if (req.file) {
+			photo = baseUrl + req.file.originalname;
+			console.log(photo);
 		}
+		await service.updateUserById(userId, name, email, employeeId, role, phone, photo, isActive, loggedUser.id);
 
-		try {
-			const { name, email, employeeId, role, isActive, userId, phone } = req.body;
-			console.log(req.body);
-			//check user
-			let sql = 'SELECT user_id, role FROM user WHERE user_id != ? AND (email = ? OR employee_id = ?) LIMIT 1';
-			let user = await db.query(sql, [userId, email, employeeId]);
-
-			if (user.length > 0) {
-				return res.status(400).json({
-					message: 'User already exists',
-					data: req.body,
-					errors: [{ msg: 'User already exists, please change nik or email' }],
-				});
-			}
-
-			//update new user
-			sql =
-				'UPDATE user SET email = ?, name = ?, employee_id = ?, role = ? , updated_by = ?, updated_on = ?, is_active = ?, phone = ? WHERE user_id = ?';
-
-			const token = req.header('x-auth-token');
-			const decoded = jwt.verify(token, secretKey);
-			const loggedUser = decoded.user;
-			const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-			await db.query(sql, [email, name, employeeId, role, loggedUser.id, now, isActive, phone, userId]);
-
-			res.status(200).json({
-				message: 'Successfully update user',
-				data: req.body,
-				errors: null,
-			});
-		} catch (err) {
-			console.error('Update user error : ', err.message);
-			return res.status(500).json({
-				message: 'Update user failed, internal server error',
-				data: req.body,
-				errors: err,
-			});
-		}
+		res.status(200).json({
+			result: 'OK',
+			message: 'Successfully update user',
+			data: req.body,
+			errors: null,
+		});
+	} catch (err) {
+		console.error('Update user error : ', err.message);
+		return res.status(500).json({
+			result: 'FAIL',
+			message: 'Update user failed, internal server error',
+			data: req.body,
+			errors: err,
+		});
 	}
-);
+});
 
 // @route   POST api/users/changepwd
 // @desc    Update a user
@@ -577,6 +492,7 @@ router.post('/upload', async (req, res) => {
 
 	form.parse(req, async (err, fields, files) => {
 		var f = files[Object.keys(files)[0]];
+		console.log('f:', f, 'files:', files);
 		readExcel(f.path).then(async rows => {
 			for (i = 1; i < rows.length; i++) {
 				try {
@@ -588,13 +504,11 @@ router.post('/upload', async (req, res) => {
 					const phone = row[4];
 					const password = row[5];
 					const salt = bcrypt.genSaltSync(10);
-					const hashedPassword = bcrypt.hashSync(password.toString(), salt);
-					const userId = uuidv4();
 
 					const isUserExists = await service.isUserAlreadyExist(nik);
 
 					if (!isUserExists) {
-						await service.createUser(name, email, password, nik, phone, role, 'system upload');
+						await service.createUser(name, email, password, nik, phone, role, 'system upload', '', 1);
 					} else {
 						await service.updateUserByEmployeeId(nik, name, email, role, phone, password, 'system upload');
 					}
@@ -611,6 +525,84 @@ router.post('/upload', async (req, res) => {
 			return res.json({ message: uploadMessage });
 		});
 	});
+});
+
+router.post('/test', [upload.single('photo')], function(req, res, next) {
+	// req.file is the `avatar` file
+	// req.body will hold the text fields, if there were any
+
+	const userSchema = Joi.object({
+		name: Joi.string()
+			.min(2)
+			.max(100)
+			.required()
+			.messages({
+				'string.min': 'Nama harus lebih dari 2 karakter',
+				'string.max': 'Nama lebih dari 100 karakter',
+				'string.empty': 'Nama harus diisi',
+				'any.required': 'Nama harus diisi',
+			}),
+		email: Joi.string()
+			.email()
+			.required()
+			.messages({
+				'string.email': 'Alamat email tidak sesuai format',
+				'string.required': 'Email harus diisi',
+			}),
+		employeeId: Joi.string()
+			.required()
+			.pattern(/^[0-9]+$/)
+			.messages({
+				'string.empty': 'N.I.K harus diisi',
+				'any.required': 'N.I.K harus diisi',
+				'string.pattern.base': 'N.I.K harus diisi dengan angka',
+			}),
+		phone: Joi.string()
+			.required()
+			.messages({ 'any.required': 'No. telepon harus diisi', 'string.empty': 'No. telepon harus diisi' }),
+		password: Joi.string()
+			.min(6)
+			.messages({
+				'string.min': 'Password harus diisi minimal 6 karakter',
+			}),
+		confirmPassword: Joi.any()
+			.required()
+			.valid(Joi.ref('password'))
+			.messages({
+				'any.required': 'Confirm password harus diisi',
+				'any.only': 'Confirm password tidak sesuai',
+			}),
+		role: Joi.string(),
+		isActive: Joi.number(),
+	});
+
+	const request = JSON.parse(req.body.data);
+
+	try {
+		const user = JSON.parse(req.body.data);
+
+		const { name, email, employeeId, phone, password, confirmPassword, role, isActive } = user;
+
+		console.log(request);
+
+		if (req.file) {
+			console.log('file attached', req.file);
+		} else {
+			console.log('no file');
+		}
+
+		const { error, value } = userSchema.validate(request, { abortEarly: false });
+
+		if (error) {
+			console.log('request not valid :', error);
+			res.json({ msg: 'request not valid', error: error });
+		} else {
+			console.log('request valid no error');
+			res.json({ msg: 'request valid no error' });
+		}
+	} catch (err) {
+		res.status(400).json({ error: err });
+	}
 });
 
 module.exports = router;
