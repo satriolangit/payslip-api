@@ -38,8 +38,9 @@ router.post('/', (req, res) => {
 		form.parse(req);
 
 		form.on('fileBegin', function(name, file) {
-			file.path = __dirname + '/../public/uploads/' + file.name;
-			imageUrl += file.name;
+			const filename = file.name.replace(/\s+/g, '_').toLowerCase();
+			file.path = __dirname + '/../public/uploads/' + filename;
+			imageUrl += filename;
 		});
 
 		form.on('file', function(name, file) {
@@ -66,10 +67,10 @@ router.post('/files', async (req, res) => {
 		form.parse(req);
 
 		form.on('fileBegin', async (name, file) => {
-			file.path = __dirname + '/../public/uploads/' + file.name;
+			filename = file.name.replace(/\s+/g, '_').toLowerCase();
+			file.path = __dirname + '/../public/uploads/' + filename;
 
-			fileUrl = baseUrl + file.name;
-			filename = file.name;
+			fileUrl = baseUrl + filename;
 		});
 
 		form.on('file', function(name, file) {

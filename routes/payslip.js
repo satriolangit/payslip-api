@@ -13,6 +13,7 @@ const fs = require('fs');
 const auth = require('../middleware/auth');
 const db = require('../config/database');
 const adminOnly = require('../middleware/adminOnly');
+const service = require('../services/payslipService');
 
 //utils
 const secretKey = config.get('jwtSecretKey');
@@ -21,8 +22,6 @@ router.post('/upload', (req, res) => {
 	try {
 		var form = new IncomingForm();
 		let logs = '';
-
-		console.log(req);
 
 		form.on('fileBegin', async (name, file) => {
 			file.path = __dirname + '/../public/payslip/' + file.name;
@@ -46,32 +45,29 @@ router.post('/upload', (req, res) => {
 				.trim();
 
 			//save to db
-
 			// const token = req.header('x-auth-token');
 			// const decoded = jwt.verify(token, secretKey);
-			// const createdBy = decoded.user.id;
+			const createdBy = '0'; //decoded.user.id;
 
-			const sqlCheck = 'SELECT user_id from user WHERE employee_id = ?';
-			const res = await db.query(sqlCheck, employeeId);
-
-			if (res.length > 0) {
-				const sql =
-					'INSERT INTO payslip (employee_id, employee_name, year, month, filename, created_on, created_by) ' +
-					'VALUES (?, ?, ?, ?, ?, ?, ?)';
-
-				const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-				await db.query(sql, [employeeId, employeeName, year, month, pdf, now, 0]);
-
-				await addUploadLog(pdf, 'OK', '', employeeId);
-
+			const isEmployeeFound = await service.isEmployeeFound(employeeId);
+			const isPayslipAlreadyExist = await service.isFileExist(pdf);
+			console.log('isEmployeeFound: ', isEmployeeFound, ' isFileAlreadyExist:', isPayslipAlreadyExist);
+			if (isEmployeeFound && !isPayslipAlreadyExist) {
+				await service.createPayslip(employeeId, employeeName, year, month, pdf, createdBy);
+				await service.addUploadLog(pdf, 'OK', '', employeeId);
 				logs = pdf + ' : OK';
 			} else {
 				//delete file
-				const path = './public/payslip/' + pdf;
-				console.log('path:', path);
-				fs.unlinkSync(path);
+				if (!isEmployeeFound) {
+					const path = './public/payslip/' + pdf;
+					console.log('path:', path);
+					fs.unlinkSync(path);
+				}
 
-				await addUploadLog(pdf, 'NOT OK', 'NIK not found', employeeId);
+				let logMessage = 'NIK : ' + { employeeId } + ' NOT FOUND';
+				if (isPayslipAlreadyExist) logMessage = 'DOUBLE UPLOAD';
+
+				await service.addUploadLog(pdf, 'NOT OK', logMessage, employeeId);
 
 				logs = pdf + ' : FAIL';
 			}
@@ -85,17 +81,6 @@ router.post('/upload', (req, res) => {
 		console.log(error);
 	}
 });
-
-const addUploadLog = async (filename, status, reason, employeeId) => {
-	try {
-		const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-		const sql =
-			'INSERT INTO payslip_log (upload_time, filename, status, reason, employee_id) VALUES (?, ?, ?, ?, ?)';
-		await db.query(sql, [now, filename, status, reason, employeeId]);
-	} catch (error) {
-		console.log('Failed add upload log :', error);
-	}
-};
 
 router.get('/download/:filename', async (req, res) => {
 	try {

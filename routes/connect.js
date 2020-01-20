@@ -3,6 +3,7 @@ const router = express.Router();
 const config = require('config');
 const multer = require('multer');
 const validateCreateUser = require('../filters/validateCreateUser');
+const IncomingForm = require('formidable').IncomingForm;
 
 //upload photo config
 const photoStorate = multer.diskStorage({
@@ -16,6 +17,27 @@ const photoStorate = multer.diskStorage({
 });
 
 var upload = multer({ storage: photoStorate });
+
+router.post('/upload', (req, res) => {
+	console.log('/upload route');
+
+	var form = new IncomingForm();
+	const baseUrl = __dirname + '/../public/photos/';
+
+	form.on('fileBegin', async (name, file) => {
+		console.log('file begin...');
+	});
+
+	form.on('file', async (field, file) => {
+		file.path = baseUrl + 'avatar_' + file.name;
+	});
+
+	form.parse(req, async (err, fields, files) => {
+		//console.log('file:', files, 'field: ', fields);
+	});
+
+	res.json(req.body);
+});
 
 router.get('/', (req, res) => {
 	const uploadUrl = config.get('upload_url');
