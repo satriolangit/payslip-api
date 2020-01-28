@@ -109,6 +109,32 @@ router.get('/download/:filename', async (req, res) => {
 	}
 });
 
+router.get('/download2/:filename', async (req, res) => {
+	try {
+		const filename = req.params.filename;
+		const path = './public/payslip/' + filename;
+
+		//set lastdownload & downloadcount
+		let downloadCount = 0;
+		let sql = 'SELECT IFNULL(download_count, 0) AS download_count FROM payslip WHERE filename = ? LIMIT 1';
+		let result = await db.query(sql, filename);
+		const now = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+
+		if (result.length > 0) {
+			downloadCount = result[0].download_count;
+			const count = downloadCount + 1;
+			console.log('count :', count);
+			sql = 'UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?';
+			await db.query(sql, [count, now, filename]);
+		}
+
+		const url = config.get('payslip_url') + filename;
+		res.json({ url });
+	} catch (error) {
+		console.log('error download payslip:', error);
+	}
+});
+
 // @route   GET api/payslip
 // @desc    Get all payslip
 // @access  Private

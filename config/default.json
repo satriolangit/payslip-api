@@ -8,5 +8,6 @@
 	"jwtSecretKey": "f40c99635c2440a8a0fd0ba4fa98041f",
 	"tokenExpiryTime": 36000,
 	"upload_url": "http://localhost:3001/files/",
-	"photo_url": "http://localhost:3001/photos/"
+	"photo_url": "http://localhost:3001/photos/",
+	"payslip_url": "http://localhost:3001/payslip/"
 }
