@@ -73,7 +73,7 @@ router.get('/:id', auth, async (req, res) => {
 // @route   GET api/user/page/1
 // @desc    Get user per pages
 // @access  Private
-router.get('/page/:page', async (req, res) => {
+router.get('/page/:page', auth, async (req, res) => {
 	try {
 		const page = parseInt(req.params.page) || 1;
 		const numPerPage = 20;
