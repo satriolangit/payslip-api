@@ -70,6 +70,38 @@ router.get('/:id', auth, async (req, res) => {
 	}
 });
 
+// @route   GET api/user/page/1
+// @desc    Get user per pages
+// @access  Private
+router.get('/page/:page', async (req, res) => {
+	try {
+		const page = parseInt(req.params.page) || 1;
+		const numPerPage = 20;
+		const query = await db.query('SELECT COUNT(*) AS total FROM user');
+		const totalRows = query[0].total;
+
+		let sql = '';
+		let data = null;
+		if (page * numPerPage < totalRows) {
+			sql = 'SELECT * FROM user LIMIT ? OFFSET ?';
+			data = await db.query(sql, [numPerPage, page]);
+		}
+
+		res.status(200).json({
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			message: 'Failed to get users',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
 // @route   GET api/users/profile/:userId
 // @desc    Get user profile by id
 // @access  Private

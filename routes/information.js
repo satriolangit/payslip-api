@@ -92,6 +92,31 @@ router.get('/today', auth, async (req, res) => {
 	}
 });
 
+router.get('/today/count', auth, async (req, res) => {
+	try {
+		const sql = 'SELECT id FROM information WHERE created_on BETWEEN ? AND ? ORDER BY created_on DESC LIMIT 5';
+		const start = moment().format('YYYY-MM-DD 00:00:00');
+		const end = moment().format('YYYY-MM-DD 23:59:59');
+
+		const data = await db.query(sql, [start, end]);
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data.length,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get informations',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
 // @route   GET api/information/limit/:limit
 // @desc    Get 5 latest informations
 // @access  Private
@@ -117,8 +142,8 @@ router.get('/limit/:limit', auth, async (req, res) => {
 	}
 });
 
-// @route   GET api/information/:limit/:offset
-// @desc    Get pagination announcement
+// @route   GET api/information/
+// @desc    Get all
 // @access  Private
 router.get('/', auth, async (req, res) => {
 	try {
@@ -136,6 +161,40 @@ router.get('/', auth, async (req, res) => {
 		res.status(500).json({
 			status: 500,
 			message: 'Failed to get informations',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   GET api/information/page/:page
+// @desc    Get information per pages
+// @access  Private
+router.get('/page/:page', auth, async (req, res) => {
+	try {
+		const page = parseInt(req.params.page) || 1;
+		const numPerPage = 20;
+		const query = await db.query('SELECT COUNT(*) AS total FROM information');
+		const totalRows = query[0].total;
+
+		let sql = '';
+		let data = null;
+		if (page * numPerPage < totalRows) {
+			sql = 'SELECT * FROM information ORDER BY created_on DESC LIMIT ? OFFSET ?';
+			data = await db.query(sql, [numPerPage, page]);
+		}
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get information',
 			data: req.body,
 			errors: err,
 		});

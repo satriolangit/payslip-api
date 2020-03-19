@@ -8,6 +8,7 @@ const uuidv4 = require('uuid/v4');
 const moment = require('moment');
 const IncomingForm = require('formidable').IncomingForm;
 const fs = require('fs');
+const pdf2base64 = require('pdf-to-base64');
 
 //local lib
 const auth = require('../middleware/auth');
@@ -86,7 +87,7 @@ router.get('/download/:filename', async (req, res) => {
 	try {
 		const filename = req.params.filename;
 		const path = './public/payslip/' + filename;
-
+		console.log(path);
 		res.download(path);
 
 		console.log('filename: ', filename, 'path:', path);
@@ -114,6 +115,7 @@ router.get('/download2/:filename', async (req, res) => {
 		const filename = req.params.filename;
 		const path = './public/payslip/' + filename;
 
+		console.log(path);
 		//set lastdownload & downloadcount
 		let downloadCount = 0;
 		let sql = 'SELECT IFNULL(download_count, 0) AS download_count FROM payslip WHERE filename = ? LIMIT 1';
@@ -140,7 +142,11 @@ router.get('/download2/:filename', async (req, res) => {
 // @access  Private
 router.get('/', auth, async (req, res) => {
 	try {
-		let sql = "SELECT *, concat(id, ';', filename) as idx FROM payslip ORDER BY year, month DESC";
+		let sql = `SELECT p.id, p.employee_id, p.filename, p.download_count, p.last_download_on, p.created_on, p.created_by, 
+						p.year, p.month, u.name as employee_name, CONCAT(p.id, ';', p.filename) as idx 
+					FROM payslip p INNER JOIN user u ON u.employee_id = p.employee_id
+					ORDER BY year, month DESC`;
+
 		const data = await db.query(sql);
 
 		res.status(200).json({
@@ -168,6 +174,59 @@ router.get('/:employeeId', auth, async (req, res) => {
 		const sql =
 			"SELECT *, concat(id, ';', filename) as idx FROM payslip WHERE employee_id = ? ORDER BY year, month DESC";
 		const data = await db.query(sql, req.params.employeeId);
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get payslip',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   GET api/payslip/open/:filename
+// @desc    Get pdf base46
+// @access  Private
+router.get('/open/:filename', async (req, res) => {
+	const filename = req.params.filename;
+	const path = './public/payslip/' + filename;
+	console.log(filename, path);
+	pdf2base64(path)
+		.then(response => {
+			console.log(response); //cGF0aC90by9maWxlLmpwZw==
+			res.json({ response });
+		})
+		.catch(error => {
+			console.log(error); //Exepection error....
+			res.status(500).json({ error });
+		});
+});
+
+// @route   GET api/payslip/page/:page
+// @desc    Get payslip per pages
+// @access  Private
+router.get('/page/:page', auth, async (req, res) => {
+	try {
+		const page = parseInt(req.params.page) || 1;
+		const numPerPage = 30;
+		const query = await db.query('SELECT COUNT(*) AS total FROM payslip');
+		const totalRows = query[0].total;
+
+		let sql = '';
+		let data = null;
+		if (page * numPerPage < totalRows) {
+			sql = 'SELECT *, concat(id, ';
+			(', filename) as idx FROM payslip ORDER BY year, month DESC LIMIT ? OFFSET ?');
+			data = await db.query(sql, [numPerPage, page]);
+		}
 
 		res.status(200).json({
 			status: 200,
@@ -337,8 +396,12 @@ router.post('/search', auth, async (req, res) => {
 	try {
 		const { keywords } = req.body;
 
-		const sql =
-			"SELECT *, concat(id, ';', filename) as idx FROM payslip WHERE employee_name LIKE ? OR employee_id LIKE ? OR filename LIKE ? ORDER BY created_on DESC";
+		const sql = `SELECT p.id, p.employee_id, p.filename, p.download_count, p.last_download_on, p.created_on, p.created_by, 
+						p.year, p.month, u.name as employee_name, CONCAT(p.id, ';', p.filename) as idx 
+					FROM payslip p INNER JOIN user u ON u.employee_id = p.employee_id
+					WHERE u.name LIKE ? OR p.employee_id LIKE ? OR p.filename LIKE ?
+					ORDER BY year, month DESC`;
+
 		const data = await db.query(sql, ['%' + keywords + '%', '%' + keywords + '%', '%' + keywords + '%']);
 
 		res.status(200).json({

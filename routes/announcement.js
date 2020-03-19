@@ -177,6 +177,64 @@ router.get('/today', auth, async (req, res) => {
 	}
 });
 
+router.get('/today/count', auth, async (req, res) => {
+	try {
+		const sql = 'SELECT Id FROM announcement WHERE created_on BETWEEN ? AND ? ORDER BY created_on DESC LIMIT 5';
+		const start = moment().format('YYYY-MM-DD 00:00:00');
+		const end = moment().format('YYYY-MM-DD 23:59:59');
+		const data = await db.query(sql, [start, end]);
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data.length,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get today announcements',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
+// @route   GET api/announcement/page/:page
+// @desc    Get announcement per pages
+// @access  Private
+router.get('/page/:page', auth, async (req, res) => {
+	try {
+		const page = parseInt(req.params.page) || 1;
+		const numPerPage = 20;
+		const query = await db.query('SELECT COUNT(*) AS total FROM announcement');
+		const totalRows = query[0].total;
+
+		let sql = '';
+		let data = null;
+		if (page * numPerPage < totalRows) {
+			sql = 'SELECT * FROM announcement ORDER BY created_on DESC LIMIT ? OFFSET ?';
+			data = await db.query(sql, [numPerPage, page]);
+		}
+
+		res.status(200).json({
+			status: 200,
+			message: 'OK',
+			data: data,
+			errors: null,
+		});
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).json({
+			status: 500,
+			message: 'Failed to get announcements',
+			data: req.body,
+			errors: err,
+		});
+	}
+});
+
 // @route   POST api/announcement
 // @desc    Create new announcement
 // @access  Private, AdminOnly

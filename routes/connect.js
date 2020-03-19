@@ -4,6 +4,7 @@ const config = require('config');
 const multer = require('multer');
 const validateCreateUser = require('../filters/validateCreateUser');
 const IncomingForm = require('formidable').IncomingForm;
+const pdf2base64 = require('pdf-to-base64');
 
 //upload photo config
 const photoStorate = multer.diskStorage({
@@ -47,6 +48,21 @@ router.get('/', (req, res) => {
 	const cleanedText = rawText.replace(/(<([^>]+)>)/gi, '');
 
 	res.json({ result: 'OK', url: uploadUrl, cleanedText: cleanedText });
+});
+
+router.get('/openPdf', (req, res) => {
+	const filename = '201902_4632_RENDI_UNJIANTO.pdf';
+	const path = './public/payslip/' + filename;
+
+	pdf2base64(path)
+		.then(response => {
+			console.log(response); //cGF0aC90by9maWxlLmpwZw==
+			res.json({ response });
+		})
+		.catch(error => {
+			console.log(error); //Exepection error....
+			res.status(500).json({ error });
+		});
 });
 
 const schemas = require('./../filters/schemas');
