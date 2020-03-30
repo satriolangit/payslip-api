@@ -85,6 +85,9 @@ router.get('/page/:page', auth, async (req, res) => {
 		if (page * numPerPage < totalRows) {
 			sql = 'SELECT * FROM user LIMIT ? OFFSET ?';
 			data = await db.query(sql, [numPerPage, page]);
+		} else if (numPerPage > totalRows) {
+			sql = 'SELECT * FROM user';
+			data = await db.query(sql);
 		}
 
 		res.status(200).json({
