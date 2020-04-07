@@ -207,10 +207,10 @@ router.get("/today/count", auth, async (req, res) => {
 // @route   GET api/announcement/page/:page
 // @desc    Get announcement per pages
 // @access  Private
-router.get("/page/:page", auth, async (req, res) => {
+router.get("/page/:page/:size", auth, async (req, res) => {
   try {
     const page = parseInt(req.params.page) || 1;
-    const numPerPage = 20;
+    const numPerPage = parseInt(req.params.size) || 20;
     const query = await db.query("SELECT COUNT(*) AS total FROM announcement");
     const totalRows = query[0].total;
 

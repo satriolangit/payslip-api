@@ -17,7 +17,7 @@ router.get("/", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -25,15 +25,15 @@ router.get("/", auth, async (req, res) => {
       status: 500,
       message: "Failed to get files",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
 
-router.get("/page/:page", auth, async (req, res) => {
+router.get("/page/:page/:size", auth, async (req, res) => {
   try {
     const page = parseInt(req.params.page) || 1;
-    const numPerPage = 30;
+    const numPerPage = parseInt(req.params.size) || 20;
     const totalRows = await service.getUploadCount();
     let data = [];
 
@@ -47,7 +47,8 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
+      totalData: totalRows,
     });
   } catch (err) {
     console.error(err.message);
@@ -55,7 +56,7 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 500,
       message: "Failed to get files",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -67,13 +68,13 @@ router.post("/", (req, res) => {
     let imageUrl = config.get("upload_url");
     form.parse(req);
 
-    form.on("fileBegin", function(name, file) {
+    form.on("fileBegin", function (name, file) {
       const filename = file.name.replace(/\s+/g, "_").toLowerCase();
       file.path = __dirname + "/../public/uploads/" + filename;
       imageUrl += filename;
     });
 
-    form.on("file", function(name, file) {
+    form.on("file", function (name, file) {
       console.log("Uploaded " + file.name);
     });
 
@@ -107,7 +108,7 @@ router.post("/files", async (req, res) => {
       console.log("enter fileBegin:", filename);
     });
 
-    form.on("file", function(name, file) {
+    form.on("file", function (name, file) {
       console.log("Uploaded " + file.name);
     });
 
@@ -124,17 +125,7 @@ router.post("/files", async (req, res) => {
 
 router.post(
   "/delete",
-  [
-    auth,
-    [
-      check("id")
-        .not()
-        .isEmpty(),
-      check("filename")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, [check("id").not().isEmpty(), check("filename").not().isEmpty()]],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -143,7 +134,7 @@ router.post(
         return res.status(400).json({
           message: "Failed to delete file",
           data: req.body,
-          errors: errors.array()
+          errors: errors.array(),
         });
       }
 
@@ -159,14 +150,14 @@ router.post(
       return res.status(200).json({
         message: "Successfully delete file",
         data: req.body,
-        errors: null
+        errors: null,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         message: "Failed to delete file",
         data: req.body,
-        errors: error
+        errors: error,
       });
     }
   }
@@ -174,14 +165,7 @@ router.post(
 
 router.post(
   "/bulkdelete",
-  [
-    auth,
-    [
-      check("ids")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, [check("ids").not().isEmpty()]],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -190,7 +174,7 @@ router.post(
         return res.status(400).json({
           message: "Failed to delete file",
           data: req.body,
-          errors: errors.array()
+          errors: errors.array(),
         });
       }
 
@@ -211,14 +195,14 @@ router.post(
       return res.status(200).json({
         message: "Successfully delete files",
         data: req.body,
-        errors: null
+        errors: null,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         message: "Failed to delete files",
         data: req.body,
-        errors: error
+        errors: error,
       });
     }
   }
@@ -235,7 +219,7 @@ router.post("/search", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -243,7 +227,7 @@ router.post("/search", auth, async (req, res) => {
       status: 500,
       message: "Failed to get files",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });

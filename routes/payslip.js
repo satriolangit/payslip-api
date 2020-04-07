@@ -174,7 +174,7 @@ router.get("/", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -182,7 +182,7 @@ router.get("/", auth, async (req, res) => {
       status: 500,
       message: "Failed to get payslip",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -200,7 +200,7 @@ router.get("/:employeeId", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -208,7 +208,7 @@ router.get("/:employeeId", auth, async (req, res) => {
       status: 500,
       message: "Failed to get payslip",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -221,11 +221,11 @@ router.get("/open/:filename", async (req, res) => {
   const path = "./public/payslip/" + filename;
   console.log(filename, path);
   pdf2base64(path)
-    .then(response => {
+    .then((response) => {
       console.log(response); //cGF0aC90by9maWxlLmpwZw==
       res.json({ response });
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error); //Exepection error....
       res.status(500).json({ error });
     });
@@ -234,10 +234,10 @@ router.get("/open/:filename", async (req, res) => {
 // @route   GET api/payslip/page/:page
 // @desc    Get payslip per pages
 // @access  Private
-router.get("/page/:page", auth, async (req, res) => {
+router.get("/page/:page/:size", auth, async (req, res) => {
   try {
     const page = parseInt(req.params.page) || 1;
-    const numPerPage = 30;
+    const numPerPage = parseInt(req.params.size) || 20;
     const query = await db.query("SELECT COUNT(*) AS total FROM payslip");
     const totalRows = query[0].total;
 
@@ -261,7 +261,8 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
+      totalData: totalRows,
     });
   } catch (err) {
     console.error(err.message);
@@ -269,7 +270,7 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 500,
       message: "Failed to get payslip",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -288,7 +289,7 @@ router.get("/:employeeId/:limit", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -296,7 +297,7 @@ router.get("/:employeeId/:limit", auth, async (req, res) => {
       status: 500,
       message: "Failed to get payslip",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -306,15 +307,7 @@ router.get("/:employeeId/:limit", auth, async (req, res) => {
 // @access  private
 router.post(
   "/delete",
-  [
-    auth,
-    adminOnly,
-    [
-      check("id")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, adminOnly, [check("id").not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -323,7 +316,7 @@ router.post(
         status: 400,
         message: "Error",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -342,7 +335,7 @@ router.post(
         status: 200,
         message: "Successfully delete payslip",
         data: req.body,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.log("Failed to delete payslip, error : ", err.message);
@@ -350,7 +343,7 @@ router.post(
         status: 500,
         message: "Failed to delete user",
         data: req.body,
-        errors: err
+        errors: err,
       });
     }
   }
@@ -361,15 +354,7 @@ router.post(
 // @access  private
 router.post(
   "/deletes",
-  [
-    auth,
-    adminOnly,
-    [
-      check("ids")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, adminOnly, [check("ids").not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -378,7 +363,7 @@ router.post(
         status: 400,
         message: "Error",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -404,7 +389,7 @@ router.post(
         status: 200,
         message: "Successfully delete payslip",
         data: req.body,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.log("Failed to delete payslip, error : ", err.message);
@@ -412,7 +397,7 @@ router.post(
         status: 500,
         message: "Failed to delete user",
         data: req.body,
-        errors: err
+        errors: err,
       });
     }
   }
@@ -434,14 +419,14 @@ router.post("/search", auth, async (req, res) => {
     const data = await db.query(sql, [
       "%" + keywords + "%",
       "%" + keywords + "%",
-      "%" + keywords + "%"
+      "%" + keywords + "%",
     ]);
 
     res.status(200).json({
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -449,7 +434,7 @@ router.post("/search", auth, async (req, res) => {
       status: 500,
       message: "Failed to get users",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
