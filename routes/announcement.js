@@ -30,7 +30,7 @@ router.get("/", auth, async (req, res) => {
     // });
 
     res.status(200).json({
-      data
+      data,
     });
   } catch (err) {
     console.error(err.message);
@@ -38,7 +38,7 @@ router.get("/", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -63,7 +63,7 @@ router.get("/item/:id", auth, async (req, res) => {
     //console.log(data);
 
     res.status(200).json({
-      data: data
+      data: data,
     });
   } catch (err) {
     console.error(err.message);
@@ -71,7 +71,7 @@ router.get("/item/:id", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -88,7 +88,7 @@ router.get("/latest", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -96,7 +96,7 @@ router.get("/latest", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -113,7 +113,7 @@ router.get("/limit/:limit", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -121,7 +121,7 @@ router.get("/limit/:limit", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -138,7 +138,7 @@ router.get("/", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -146,7 +146,7 @@ router.get("/", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -166,7 +166,7 @@ router.get("/today", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -174,7 +174,7 @@ router.get("/today", auth, async (req, res) => {
       status: 500,
       message: "Failed to get today announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -191,7 +191,7 @@ router.get("/today/count", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data.length,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
@@ -199,7 +199,7 @@ router.get("/today/count", auth, async (req, res) => {
       status: 500,
       message: "Failed to get today announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -229,7 +229,8 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 200,
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
+      totalData: totalRows,
     });
   } catch (err) {
     console.error(err.message);
@@ -237,7 +238,7 @@ router.get("/page/:page", auth, async (req, res) => {
       status: 500,
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -247,15 +248,7 @@ router.get("/page/:page", auth, async (req, res) => {
 // @access  Private, AdminOnly
 router.post(
   "/",
-  [
-    auth,
-    adminOnly,
-    [
-      check("title", "Please enter title")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, adminOnly, [check("title", "Please enter title").not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -264,7 +257,7 @@ router.post(
         status: 400,
         message: "Bad request",
         data: null,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -285,7 +278,7 @@ router.post(
         status: 200,
         message: "OK",
         data: null,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.error(err.message);
@@ -293,7 +286,7 @@ router.post(
         status: 500,
         message: "Create new announcement failed",
         data: null,
-        errors: err
+        errors: err,
       });
     }
   }
@@ -308,13 +301,9 @@ router.post(
     auth,
     adminOnly,
     [
-      check("title", "Please enter title")
-        .not()
-        .isEmpty(),
-      check("id", "Please provide announcement id")
-        .not()
-        .isEmpty()
-    ]
+      check("title", "Please enter title").not().isEmpty(),
+      check("id", "Please provide announcement id").not().isEmpty(),
+    ],
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -324,7 +313,7 @@ router.post(
         status: 400,
         message: "Bad request",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -343,7 +332,7 @@ router.post(
         status: 200,
         message: "OK",
         data: null,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.error(err.message);
@@ -351,7 +340,7 @@ router.post(
         status: 500,
         message: "Update announcement failed",
         data: null,
-        errors: err
+        errors: err,
       });
     }
   }
@@ -362,15 +351,7 @@ router.post(
 // @access  private, admin only
 router.post(
   "/delete",
-  [
-    auth,
-    adminOnly,
-    [
-      check("id")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, adminOnly, [check("id").not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -379,7 +360,7 @@ router.post(
         status: 400,
         message: "Error",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -393,7 +374,7 @@ router.post(
         status: 200,
         message: "Delete announcement success.",
         data: req.body,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.log("Failed to delete announcement, error : ", err.message);
@@ -401,7 +382,7 @@ router.post(
         status: 500,
         message: "Failed to delete announcement",
         data: req.body,
-        errors: err
+        errors: err,
       });
     }
   }
@@ -417,20 +398,20 @@ router.post("/search", auth, async (req, res) => {
       "SELECT * FROM announcement WHERE title LIKE ? OR text LIKE ? ORDER BY created_on DESC";
     const data = await db.query(sql, [
       "%" + keywords + "%",
-      "%" + keywords + "%"
+      "%" + keywords + "%",
     ]);
 
     res.status(200).json({
       message: "OK",
       data: data,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({
       message: "Failed to get announcements",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -440,15 +421,7 @@ router.post("/search", auth, async (req, res) => {
 // @access  private
 router.post(
   "/multidelete",
-  [
-    auth,
-    adminOnly,
-    [
-      check("ids")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, adminOnly, [check("ids").not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
 
@@ -456,7 +429,7 @@ router.post(
       return res.status(400).json({
         message: "Error",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -473,14 +446,14 @@ router.post(
       return res.status(200).json({
         message: "Successfully delete announcement",
         data: null,
-        errors: null
+        errors: null,
       });
     } catch (err) {
       console.log("Failed to delete user, error : ", err.message);
       return res.status(500).json({
         message: "Failed to delete user",
         data: req.body,
-        errors: err
+        errors: err,
       });
     }
   }
