@@ -92,6 +92,7 @@ router.post("/upload", (req, res) => {
     });
 
     form.on("end", () => {
+      console.log("onEndFile", logs);
       res.json({ message: logs });
     });
     form.parse(req);
