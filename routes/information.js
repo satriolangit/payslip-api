@@ -187,7 +187,7 @@ router.get("/page/:page/:size", auth, async (req, res) => {
         "SELECT * FROM information ORDER BY created_on DESC LIMIT ? OFFSET ?";
       data = await db.query(sql, [numPerPage, page]);
     } else if (numPerPage > totalRows) {
-      sql = "SELECT * FROM information ORDER BY created_on";
+      sql = "SELECT * FROM information ORDER BY created_on DESC";
       data = await db.query(sql);
     }
 
