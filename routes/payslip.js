@@ -19,88 +19,6 @@ const service = require("../services/payslipService");
 //utils
 const secretKey = config.get("jwtSecretKey");
 
-router.post("/upload", (req, res) => {
-  try {
-    console.log("enter upload payslip");
-    var form = new IncomingForm();
-    let logs = "";
-
-    form.on("fileBegin", async (name, file) => {
-      file.path = __dirname + "/../public/payslip/" + file.name;
-
-      console.log(file);
-    });
-
-    form.on("file", async (field, file) => {
-      // Do something with the file
-      // e.g. save it to the database
-      // you can access it using file.path
-
-      console.log("ener on file");
-
-      var pdf = file.name;
-      var filenames = pdf.split(".");
-      var year = filenames[0].split("_")[0].substring(0, 4);
-      var month = filenames[0].split("_")[0].substring(4);
-      var employeeId = filenames[0].split("_")[1];
-      var employeeName = filenames[0]
-        .replace(year, "")
-        .replace(month, "")
-        .replace(employeeId, "")
-        .replace(/_/g, " ")
-        .trim();
-
-      //save to db
-      // const token = req.header('x-auth-token');
-      // const decoded = jwt.verify(token, secretKey);
-      const createdBy = "0"; //decoded.user.id;
-
-      const isEmployeeFound = await service.isEmployeeFound(employeeId);
-      const isPayslipAlreadyExist = await service.isFileExist(pdf);
-      console.log(
-        "isEmployeeFound: ",
-        isEmployeeFound,
-        " isFileAlreadyExist:",
-        isPayslipAlreadyExist
-      );
-      if (isEmployeeFound && !isPayslipAlreadyExist) {
-        await service.createPayslip(
-          employeeId,
-          employeeName,
-          year,
-          month,
-          pdf,
-          createdBy
-        );
-        await service.addUploadLog(pdf, "OK", "", employeeId);
-        logs = pdf + " : OK";
-      } else {
-        //delete file
-        if (!isEmployeeFound) {
-          const path = "./public/payslip/" + pdf;
-          console.log("path:", path);
-          fs.unlinkSync(path);
-        }
-
-        let logMessage = "NIK : " + { employeeId } + " NOT FOUND";
-        if (isPayslipAlreadyExist) logMessage = "DOUBLE UPLOAD";
-
-        await service.addUploadLog(pdf, "NOT OK", logMessage, employeeId);
-
-        logs = pdf + " : FAIL";
-      }
-    });
-
-    form.on("end", () => {
-      console.log("onEndFile", logs);
-      res.json({ message: logs });
-    });
-    form.parse(req);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
 router.get("/download/:filename", async (req, res) => {
   try {
     const filename = req.params.filename;
@@ -300,6 +218,114 @@ router.get("/:employeeId/:limit", auth, async (req, res) => {
       data: req.body,
       errors: err,
     });
+  }
+});
+
+router.post("/upload", (req, res) => {
+  try {
+    console.log("enter upload payslip");
+    var form = new IncomingForm();
+    let logs = "";
+
+    form.on("fileBegin", async (name, file) => {
+      file.path = __dirname + "/../public/payslip/" + file.name;
+
+      console.log(file);
+    });
+
+    form.on("file", async (field, file) => {
+      // Do something with the file
+      // e.g. save it to the database
+      // you can access it using file.path
+
+      console.log("ener on file");
+
+      var pdf = file.name;
+      var filenames = pdf.split(".");
+      var year = filenames[0].split("_")[0].substring(0, 4);
+      var month = filenames[0].split("_")[0].substring(4);
+      var employeeId = filenames[0].split("_")[1];
+      var employeeName = filenames[0]
+        .replace(year, "")
+        .replace(month, "")
+        .replace(employeeId, "")
+        .replace(/_/g, " ")
+        .trim();
+
+      //save to db
+      // const token = req.header('x-auth-token');
+      // const decoded = jwt.verify(token, secretKey);
+      const createdBy = "0"; //decoded.user.id;
+
+      const isEmployeeFound = await service.isEmployeeFound(employeeId);
+      const isPayslipAlreadyExist = await service.isFileExist(pdf);
+      console.log(
+        "isEmployeeFound: ",
+        isEmployeeFound,
+        " isFileAlreadyExist:",
+        isPayslipAlreadyExist
+      );
+      if (isEmployeeFound && !isPayslipAlreadyExist) {
+        await service.createPayslip(
+          employeeId,
+          employeeName,
+          year,
+          month,
+          pdf,
+          createdBy
+        );
+        await service.addUploadLog(pdf, "OK", "", employeeId);
+        logs = pdf + " : OK";
+      } else {
+        //delete file
+        if (!isEmployeeFound) {
+          const path = "./public/payslip/" + pdf;
+          console.log("path:", path);
+          fs.unlinkSync(path);
+        }
+
+        let logMessage = "NIK : " + { employeeId } + " NOT FOUND";
+        if (isPayslipAlreadyExist) logMessage = "DOUBLE UPLOAD";
+
+        await service.addUploadLog(pdf, "NOT OK", logMessage, employeeId);
+
+        logs = pdf + " : FAIL";
+      }
+    });
+
+    form.on("end", () => {
+      console.log("onEndFile", logs);
+      res.json({ message: logs });
+    });
+    form.parse(req);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post("/download", async (req, res) => {
+  try {
+    const { filename } = req.body;
+
+    console.log("filename: ", filename);
+
+    //set lastdownload & downloadcount
+    let downloadCount = 0;
+    let sql =
+      "SELECT IFNULL(download_count, 0) AS download_count FROM payslip WHERE filename = ? LIMIT 1";
+    let result = await db.query(sql, filename);
+    const now = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+
+    if (result.length > 0) {
+      downloadCount = result[0].download_count;
+      const count = downloadCount + 1;
+      console.log("count :", count);
+      sql =
+        "UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?";
+      await db.query(sql, [count, now, filename]);
+    }
+  } catch (error) {
+    console.log("error download payslip:", error);
   }
 });
 
