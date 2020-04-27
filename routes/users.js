@@ -531,8 +531,9 @@ router.post("/search", auth, async (req, res) => {
     const { keywords } = req.body;
 
     const sql =
-      "SELECT * FROM user WHERE name LIKE ? OR email LIKE ? OR employee_id LIKE ? ORDER BY created_on DESC";
+      "SELECT * FROM user WHERE name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ? ORDER BY created_on DESC";
     const data = await db.query(sql, [
+      "%" + keywords + "%",
       "%" + keywords + "%",
       "%" + keywords + "%",
       "%" + keywords + "%",
