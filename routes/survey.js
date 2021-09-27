@@ -56,9 +56,9 @@ router.post('/submit', upload.array("images"), async (req, res) => {
     try {
         
         const request = JSON.parse(req.body.data);
-        const {reason, result, submittedBy} = request;
-        console.log(reason, result, submittedBy);
-        let surveyId = await service.createSurvey(submittedBy, reason, result);
+        const {reason, result, submittedBy, department} = request;
+        console.log(reason, result, submittedBy, department);
+        let surveyId = await service.createSurvey(submittedBy, reason, result, department);
 
         if(req.files) {
             req.files.map(file => (
