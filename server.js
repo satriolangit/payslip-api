@@ -32,6 +32,8 @@ app.use('/api/todo', require('./routes/todo'));
 app.use('/api/role', require('./routes/role'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/connect', require('./routes/connect'));
+app.use('/api/catering', require('./routes/catering'));
+app.use('/api/survey', require('./routes/survey'));
 
 //test
 app.get('/xyz', (req, res) => res.send('Hello World!'));
@@ -41,6 +43,7 @@ app.use('/public', express.static(__dirname + '/public'));
 app.use('/payslip', express.static(__dirname + '/public/payslip'));
 app.use('/files', express.static(__dirname + '/public/uploads'));
 app.use('/photos', express.static(__dirname + '/public/photos'));
+app.use('/survey', express.static(__dirname + '/public/survey'));
 
 //port
 const PORT = process.env.PORT || 3001;
