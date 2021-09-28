@@ -38,9 +38,8 @@ const filter = (req, res, next) => {
 			.messages({ 'any.required': 'No. telepon harus diisi', 'string.empty': 'No. telepon harus diisi' }),
 		role: Joi.string(),
 		isActive: Joi.number(),
-		photo: Joi.string()
-			.allow('')
-			.optional(),
+		photo: Joi.string().allow('').optional(),
+		siteName: Joi.string()
 	});
 
 	try {

@@ -254,7 +254,10 @@ router.post(
         role,
         isActive,
         phone,
+        siteName
       } = request;
+
+      console.log(request);
 
       const isUserExists = await service.isUserAlreadyExist(employeeId);
 
@@ -278,7 +281,8 @@ router.post(
           role,
           loggedUser.id,
           photo,
-          isActive
+          isActive,
+          siteName
         );
 
         res.status(200).json({
@@ -326,7 +330,9 @@ router.post(
         isActive,
         userId,
         phone,
+        siteName
       } = request;
+
       let { photo } = request;
 
       const token = req.header("x-auth-token");
@@ -347,7 +353,8 @@ router.post(
         phone,
         photo,
         isActive,
-        loggedUser.id
+        loggedUser.id,
+        siteName
       );
 
       res.status(200).json({

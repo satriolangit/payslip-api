@@ -60,15 +60,26 @@ router.post(
       });
     }
 
-    const { nik, password } = req.body;
+    const { nik, password, siteName } = req.body;
+    console.log(req.body);
 
     try {
-      const sql =
-        "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ?  LIMIT 1";
-      let user = await db.query(sql, nik);
+      let sql = "";
+      let user = null;
+      
+      if(siteName !== "ALL") {
+        sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? AND (site_name = ? OR site_name = 'ALL') LIMIT 1";
+        //console.log(sql);
+        user = await db.query(sql, [nik, siteName]);
+      } else {
+        sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? LIMIT 1";
+        //console.log(sql);
+        user = await db.query(sql, nik);
+      }
+      
 
       if (user.length === 0) {
-        //console.log('user:', user);
+        console.log('user:', user);
         return res.status(400).json({
           status: 400,
           message: "Invalid credentials",
@@ -106,8 +117,6 @@ router.post(
           role: user.role
         }
       };
-
-      console.log("enter auth post");
 
       const secretKey = config.get("jwtSecretKey");
       const tokenExpiryTime = config.get("tokenExpiryTime");
