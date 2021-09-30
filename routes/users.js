@@ -47,6 +47,29 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
+// @route   GET api/user
+// @desc    Get all users by site name
+// @access  Private
+router.get("/site/:site", auth, async (req, res) => {
+  try {
+    const sql = "SELECT * FROM user WHERE site_name = ? ORDER BY name";
+    const data = await db.query(sql, req.params.site);
+
+    res.status(200).json({
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      message: "Failed to get users",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
 // @route   GET api/user/:userId
 // @desc    Get user by id
 // @access  Private
@@ -535,11 +558,16 @@ router.post(
 // @access  Private
 router.post("/search", auth, async (req, res) => {
   try {
-    const { keywords } = req.body;
+    const { keywords, siteName } = req.body;
 
     const sql =
       "SELECT * FROM user WHERE name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ? ORDER BY created_on DESC";
+      
+    if(siteName !== "ALL")
+      sql = "SELECT * FROM user WHERE site_name = ? AND (name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ?) ORDER BY created_on DESC";
+      
     const data = await db.query(sql, [
+      siteName,
       "%" + keywords + "%",
       "%" + keywords + "%",
       "%" + keywords + "%",
