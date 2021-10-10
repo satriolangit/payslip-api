@@ -44,7 +44,7 @@ const getReport = async () => {
     //     (SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ';') FROM survey_images WHERE surveyId = s.id) AS photos
     //     FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy`;
 
-	const sql = `SELECT MONTHNAME(s.submittedAt) AS bulan, YEAR(s.submittedAt) AS tahun, DATE_FORMAT(s.submittedAt, '%d/%m/%Y') AS submittedAt,s.submittedBy AS nik, usr.name AS nama, s.department, s.result, s.reason,(SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ',') FROM survey_images WHERE surveyId = s.id) AS photos FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy ORDER BY s.SubmittedAt`;
+	const sql = `SELECT id, MONTHNAME(s.submittedAt) AS bulan, YEAR(s.submittedAt) AS tahun, DATE_FORMAT(s.submittedAt, '%d/%m/%Y %H:%i') AS submittedAt,s.submittedBy AS nik, usr.name AS nama, s.department, s.result, s.reason,(SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ',') FROM survey_images WHERE surveyId = s.id) AS photos FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy ORDER BY s.SubmittedAt`;
 
 
 	// sql = `SET @row_number = 0;
@@ -59,14 +59,29 @@ const getReport = async () => {
 	// 		s.result, s.reason,
 	// 		(SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ';') FROM survey_images WHERE surveyId = s.id) AS photos
 	// 	FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy
-	// 	ORDER BY s.submittedAt`;
-
+	// 	ORDER BY s.submittedAt`;		
       return db.query(sql);
 }
 
+const getDepartment = async () => {
+	const sql = "SELECT id, department_code, department_name FROM department ORDER BY department_code"; 
+	const result = await db.query(sql);
+	return result;
+}
+
+const deleteSurvey = async (id) => {
+
+	const sql = `DELETE FROM survey WHERE id = ?`;
+	const sqlImages = `DELETE FROM survey_images WHERE surveyId = ?`;
+
+	db.query(sql, id);
+	db.query(sqlImages, id);
+}
 
 module.exports = {
 	createSurvey,
 	createSurveyImage,
-    getReport
+    getReport,
+	getDepartment,
+	deleteSurvey
 };

@@ -3,6 +3,8 @@ const router = express.Router();
 const config = require('config');
 const multer = require('multer');
 const service = require("../services/surveyService");
+const auth = require('../middleware/auth');
+const adminOnly = require('../middleware/adminOnly');
 
 
 router.get("/report", async (req, res) => {
@@ -21,6 +23,28 @@ router.get("/report", async (req, res) => {
       res.status(500).json({
         status: 500,
         message: "Failed to get survey report",
+        data: req.body,
+        errors: err,
+      });
+    }
+  });
+
+  router.get("/department", async (req, res) => {
+    try {
+      
+     const data = await service.getDepartment();   
+
+      res.status(200).json({
+        status: 200,
+        message: "OK",
+        data: data,
+        errors: null,
+      });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({
+        status: 500,
+        message: "Failed to get department",
         data: req.body,
         errors: err,
       });
@@ -84,6 +108,39 @@ router.post('/submit', upload.array("images"), async (req, res) => {
     }
 	
 });
+
+router.post(
+	'/delete',
+	[
+		auth,
+		adminOnly
+	],
+	async (req, res) => {
+		const { surveyId } = req.body;
+    console.log("delete survey : ", surveyId);
+
+		try {
+		  
+      await service.deleteSurvey(surveyId);
+
+			return res.status(200).json({
+				status: 200,
+				message: 'Delete survey success.',
+				data: req.body,
+				errors: null,
+			});
+		} catch (err) {
+			console.log('Failed to delete survey, error : ', err.message);
+			return res.status(500).json({
+				status: 500,
+				message: 'Failed to delete survey',
+				data: req.body,
+				errors: err,
+			});
+		}
+	}
+);
+
 
 
 
