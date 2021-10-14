@@ -3,9 +3,13 @@ const uuidv4 = require('uuid/v4');
 const moment = require('moment');
 
 const createSurvey = async (submittedBy, reason, result, department) => {
-	//create new user
-    
-	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+	
+	var date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+	console.log(date); // 2015-09-13 03:39:27
+	var stillUtc = moment.utc(date).toDate();
+	var timestamp = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
+
+	//const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 	const sql =
 		'INSERT INTO survey (id, submittedBy, submittedAt, result, reason, department) ' +
 		'VALUES (?, ?, ?, ?, ?, ?)';
