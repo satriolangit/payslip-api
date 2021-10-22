@@ -46,11 +46,16 @@ const filter = (req, res, next) => {
 			}),
 		role: Joi.string(),
 		isActive: Joi.number(),
+		siteName: Joi.string()
 	});
 
 	try {
 		const request = JSON.parse(req.body.data);
+
+		console.log(request);
+
 		const { error } = schema.validate(request);
+
 
 		if (error) {
 			console.log('request not valid :', error);
