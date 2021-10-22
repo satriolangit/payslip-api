@@ -12,10 +12,21 @@ const createSurvey = async (submittedBy, reason, result, department) => {
 
 	const id = uuidv4();
 
+	console.log(timestamp);
+
+	var date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+
+	console.log(date); // 2015-09-13 03:39:27
+
+	var stillUtc = moment.utc(date).toDate();
+	var local = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
+
+	console.log(local); // 2015-09-13 09:39:27
+
 	db.query(sql, [
 		id,
 		submittedBy,
-		timestamp,
+		local,
 		result,
 		reason,
 		department
@@ -61,6 +72,19 @@ const getReport = async () => {
 	// 	FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy
 	// 	ORDER BY s.submittedAt`;		
       return db.query(sql);
+}
+
+const getReportByDate = async (startDate, endDate) => {	
+
+   
+	const sql = `SELECT id, MONTHNAME(s.submittedAt) AS bulan, YEAR(s.submittedAt) AS tahun, 
+			DATE_FORMAT(s.submittedAt, '%d/%m/%Y %H:%i') AS submittedAt,s.submittedBy AS nik, usr.name AS nama, 
+			s.department, s.result, s.reason,(SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ',') 
+			FROM survey_images WHERE surveyId = s.id) AS photos 
+		FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy ORDER BY s.SubmittedAt
+		WHERE s.SubmittedAt >= ? AND s.SubmittedAt <= ?`;
+
+	return db.query(sql, [startDate, endDate]);
 }
 
 const getDepartment = async () => {
