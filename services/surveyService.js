@@ -85,8 +85,9 @@ const getReportByDate = async (startDate, endDate) => {
 			DATE_FORMAT(s.submittedAt, '%d/%m/%Y %H:%i') AS submittedAt,s.submittedBy AS nik, usr.name AS nama, 
 			s.department, s.result, s.reason,(SELECT GROUP_CONCAT(DISTINCT imageName SEPARATOR ',') 
 			FROM survey_images WHERE surveyId = s.id) AS photos 
-		FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy ORDER BY s.SubmittedAt
-		WHERE s.SubmittedAt >= ? AND s.SubmittedAt <= ?`;
+		FROM survey s INNER JOIN user usr ON usr.employee_id = s.submittedBy 
+		WHERE s.SubmittedAt >= ? AND s.SubmittedAt <= ?
+		ORDER BY s.SubmittedAt`;
 
 	return db.query(sql, [startDate, endDate]);
 }
@@ -111,5 +112,6 @@ module.exports = {
 	createSurveyImage,
     getReport,
 	getDepartment,
-	deleteSurvey
+	deleteSurvey,
+	getReportByDate
 };
