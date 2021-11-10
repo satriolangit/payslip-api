@@ -610,6 +610,8 @@ router.post("/upload", async (req, res) => {
           const role = row[3];
           const phone = row[4];
           const password = row[5];
+          const isActive = row[6].toLowerCase() == 'active' ? 1 : 0;
+          const site = row[7];
           const salt = bcrypt.genSaltSync(10);
 
           const isUserExists = await service.isUserAlreadyExist(nik);
@@ -624,7 +626,8 @@ router.post("/upload", async (req, res) => {
               role,
               "system upload",
               "",
-              1
+              isActive,
+              site
             );
           } else {
             await service.updateUserByEmployeeId(
@@ -634,7 +637,9 @@ router.post("/upload", async (req, res) => {
               role,
               phone,
               password,
-              "system upload"
+              "system upload",
+              isActive,
+              site
             );
           }
 

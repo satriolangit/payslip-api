@@ -72,7 +72,7 @@ const updateUserById = async (userId, name, email, employeeId, role, phone, phot
 	//await db.query(sql, [name, siteName]);
 };
 
-const updateUserByEmployeeId = async (employeeId, name, email, role, phone, password, updatedBy) => {
+const updateUserByEmployeeId = async (employeeId, name, email, role, phone, password, updatedBy, isActive, site) => {
 	console.log('update user by employeeId');
 
 	const timestamp = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
