@@ -1,6 +1,5 @@
 const db = require('../config/database');
 const moment = require('moment');
-const { query } = require('express');
 
 const generateNumber = async () => {
     
@@ -172,9 +171,9 @@ const remove = async (ideaboxId) => {
 	const query2 = "DELETE FROM ideabox_detail WHERE master_id = ?";
 	const query3 = "DELETE FROM ideabox_comment WHERE master_id = ?";
 
-	await db.query(query1);
-	await db.query(query2);
-	await db.query(query3);
+	await db.query(query1, ideaboxId);
+	await db.query(query2, ideaboxId);
+	await db.query(query3, ideaboxId);
 }
 
 module.exports = {
