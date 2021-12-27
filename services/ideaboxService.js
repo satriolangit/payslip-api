@@ -33,6 +33,10 @@ const generateNumber = async () => {
     return number;    
 }
 
+const getNextAssignee = async (employeeId) => {
+
+}
+
 const submit = async (master) => {
 	
 	var date = moment.utc().format('YYYY-MM-DD HH:mm:ss'); 
