@@ -1,6 +1,6 @@
 const db = require('../config/database');
-const uuidv4 = require('uuid/v4');
 const moment = require('moment');
+const { query } = require('express');
 
 const generateNumber = async () => {
     
@@ -88,8 +88,8 @@ const submit = async (master) => {
 	const {ideaType, submittedBy, tema, kaizenArea, isIdeaSheet, impactType, kaizenAmount, departmentId, employeeId} = master;
 
 	const sql =
-		'INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to) ' +
-		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+		'INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) ' +
+		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 		
 	const number = await generateNumber();
 	const assignedTo = await getNextAssignee(employeeId);
@@ -105,7 +105,8 @@ const submit = async (master) => {
 		impactType,
 		kaizenAmount,
 		departmentId,
-		assignedTo
+		assignedTo,
+		"OPEN"
 	]);
 
 	console.log("submit ideabox, insertId :", result.insertId);
@@ -149,11 +150,33 @@ const submitComment = async (ideaboxId, comment) => {
 	await db.query(sql, [ideaboxId, createdBy, timestamp, value]);
 }
 
-const approve = async (employeeId) => {
+const approve = async (ideaboxId, employeeId) => {
 	const approvalRole = await getApprovalRole(employeeId);
 	const {role_id : roleId, next_role: assignedTo} = approvalRole;
+	const now = moment.utc();
+
+	let sql = '';
+	if(roleId == 'SECTION_MANAGER') {
+		sql = `UPDATE ideabox SET reviewed_by = ?, reviewed_at = ?, assigned_to = ? WHERE id = ?`;				
+	} else if(roleId == 'DEPARTMENT_MANAGER') {
+		sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ? WHERE id = ?`;		
+	} else {
+		sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;		
+	}
+
+	await db.query(sql, [employeeId, now, assignedTo, ideaboxId]);
+}
+
+const remove = async (ideaboxId) => {
+	const query1 = "DELETE FROM ideabox WHERE id = ?";
+	const query2 = "DELETE FROM ideabox_detail WHERE master_id = ?";
+	const query3 = "DELETE FROM ideabox_comment WHERE master_id = ?";
+
+	await db.query(query1);
+	await db.query(query2);
+	await db.query(query3);
 }
 
 module.exports = {
-	submit, submitDetailUmum, submitDetailKyt, submitComment, generateNumber
+	submit, submitDetailUmum, submitDetailKyt, submitComment, generateNumber, approve, remove
 }
