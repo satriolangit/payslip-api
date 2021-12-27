@@ -34,7 +34,48 @@ const generateNumber = async () => {
 }
 
 const getNextAssignee = async (employeeId) => {
+	const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+	
+	const query = await db.query(sql, employeeId);
+	
+	let result = "NONE";
 
+	if(query.length > 0) {
+		result = query[0].next_role;
+	}
+
+	return result;
+}
+
+const getPrevAssignee = async (employeeId) => {
+	const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+	
+	const query = await db.query(sql, employeeId);
+	
+	let result = "NONE";
+
+	if(query.length > 0) {
+		result = query[0].prev_role;
+	}
+
+	return result;
+}
+
+const getApprovalRole = async (employeeId) => {
+	const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+	
+	const query = await db.query(sql, employeeId);
+
+	return query[0];
 }
 
 const submit = async (master) => {
@@ -44,13 +85,14 @@ const submit = async (master) => {
 	var stillUtc = moment.utc(date).toDate();
 	var timestamp = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
 
+	const {ideaType, submittedBy, tema, kaizenArea, isIdeaSheet, impactType, kaizenAmount, departmentId, employeeId} = master;
+
 	const sql =
 		'INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to) ' +
 		'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 		
 	const number = await generateNumber();
-	console.log('number: ', number);
-	const {ideaType, submittedBy, tema, kaizenArea, isIdeaSheet, impactType, kaizenAmount, departmentId} = master;
+	const assignedTo = await getNextAssignee(employeeId);
 	
 	var result = await db.query(sql, [
 		number,
@@ -63,7 +105,7 @@ const submit = async (master) => {
 		impactType,
 		kaizenAmount,
 		departmentId,
-		submittedBy
+		assignedTo
 	]);
 
 	console.log("submit ideabox, insertId :", result.insertId);
@@ -105,6 +147,11 @@ const submitComment = async (ideaboxId, comment) => {
 	var timestamp = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
 
 	await db.query(sql, [ideaboxId, createdBy, timestamp, value]);
+}
+
+const approve = async (employeeId) => {
+	const approvalRole = await getApprovalRole(employeeId);
+	const {role_id : roleId, next_role: assignedTo} = approvalRole;
 }
 
 module.exports = {

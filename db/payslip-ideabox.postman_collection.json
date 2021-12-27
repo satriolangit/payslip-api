@@ -1,0 +1,92 @@
+{
+	"info": {
+		"_postman_id": "e703cfb4-6339-4469-a182-2d023fb95845",
+		"name": "payslip-ideabox",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "submit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"master\":{\r\n    \"ideaType\":\"UMUM\",\r\n    \"submittedBy\":\"666\",\r\n    \"tema\":\"TEMA\",\r\n    \"kaizenArea\":\"KAIZEN_AREA\",\r\n    \"isIdeaSheet\":1,\r\n    \"impactType\":1,\r\n    \"kaizenAmount\":\"KAIZEN_AMOUNT\",\r\n    \"departmentId\":99,\r\n    \"employeeId\": 666\r\n  },\r\n  \"detail\":{\r\n    \"beforeValueSummary\":\"BEFORE_VALUE_SUMMARY\",\r\n    \"beforeValueImage\":\"BEFORE_IMAGE.jpg\",\r\n    \"beforeValueKapan\":\"BEFORE_KAPAN\",\r\n    \"beforeValueDimana\":\"BEFORE_DIMANA\",\r\n    \"beforeValueSiapa\":\"BEFORE_SIAPA\",\r\n    \"beforeValueBagaimana\":\"BEFORE_BAGAIMANA\",\r\n    \"beforeValueIncident\":\"BEFORE_INCIDENT\",\r\n    \"beforeValueSituation\":\"BEFORE_SITUATION\",\r\n    \"beforeValueSituationImage\":\"BEFORE_SITUATION_IMAGE\",\r\n    \"afterValueSummary\":\"AFTER_SUMMARY\",\r\n    \"afterValueImage\":\"AFTER_IMAGE\",\r\n    \"afterValueRank\":\"AFTER_RANK\"\r\n  },\r\n  \"comment\":{\r\n    \"value\":\"COMMENT_BLABLABLA\",\r\n    \"createdBy\":666\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/submit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"submit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "submit-qkyt",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"master\":{\r\n    \"ideaType\":\"QKYT\",\r\n    \"submittedBy\":\"666\",\r\n    \"tema\":\"TEMA\",\r\n    \"kaizenArea\":\"KAIZEN_AREA\",\r\n    \"isIdeaSheet\":1,\r\n    \"impactType\":1,\r\n    \"kaizenAmount\":\"KAIZEN_AMOUNT\",\r\n    \"departmentId\":99,\r\n    \"employeeId\": 666\r\n  },\r\n  \"detail\":{\r\n    \"beforeValueSummary\":\"BEFORE_VALUE_SUMMARY\",\r\n    \"beforeValueImage\":\"BEFORE_IMAGE.jpg\",\r\n    \"beforeValueKapan\":\"BEFORE_KAPAN\",\r\n    \"beforeValueDimana\":\"BEFORE_DIMANA\",\r\n    \"beforeValueSiapa\":\"BEFORE_SIAPA\",\r\n    \"beforeValueBagaimana\":\"BEFORE_BAGAIMANA\",\r\n    \"beforeValueIncident\":\"BEFORE_INCIDENT\",\r\n    \"beforeValueSituation\":\"BEFORE_SITUATION\",\r\n    \"beforeValueSituationImage\":\"BEFORE_SITUATION_IMAGE\",\r\n    \"afterValueSummary\":\"AFTER_SUMMARY\",\r\n    \"afterValueImage\":\"AFTER_IMAGE.jpg\",\r\n    \"afterValueRank\":1\r\n  },\r\n  \"comment\":{\r\n    \"value\":\"COMMENT_BLABLABLA\",\r\n    \"createdBy\":666\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/submit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"submit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "generate number",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/number",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"number"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
