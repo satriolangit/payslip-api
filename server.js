@@ -35,6 +35,7 @@ app.use('/api/connect', require('./routes/connect'));
 app.use('/api/catering', require('./routes/catering'));
 app.use('/api/survey', require('./routes/survey'));
 app.use('/api/ideabox', require('./routes/ideabox'));
+app.use('/api/master', require('./routes/master'));
 
 //test
 app.get('/xyz', (req, res) => res.send('Hello World!'));

@@ -152,18 +152,26 @@ const submitComment = async (ideaboxId, comment) => {
 const approve = async (ideaboxId, employeeId) => {
 	const approvalRole = await getApprovalRole(employeeId);
 	const {role_id : roleId, next_role: assignedTo} = approvalRole;
-	const now = moment.utc();
+	const now = moment.utc().format('YYYY-MM-DD HH:mm:ss');
 
 	let sql = '';
 	if(roleId == 'SECTION_MANAGER') {
-		sql = `UPDATE ideabox SET reviewed_by = ?, reviewed_at = ?, assigned_to = ? WHERE id = ?`;				
+		sql = `UPDATE ideabox SET reviewed_by = ?, reviewed_at = ?, assigned_to = ?, status='REVIEWED' WHERE id = ?`;				
 	} else if(roleId == 'DEPARTMENT_MANAGER') {
-		sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ? WHERE id = ?`;		
+		sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status='APPROVED' WHERE id = ?`;		
 	} else {
 		sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;		
 	}
 
 	await db.query(sql, [employeeId, now, assignedTo, ideaboxId]);
+}
+
+const reject = async (ideaboxId, employeeId) => {
+	const approvalRole = await getApprovalRole(employeeId);
+	const {role_id : roleId, prev_role: assignedTo} = approvalRole;
+	
+	const sql = `UPDATE ideabox SET assigned_to = ? WHERE id = ?`;
+	await db.query(sql, [assignedTo, ideaboxId]);
 }
 
 const remove = async (ideaboxId) => {
@@ -177,5 +185,5 @@ const remove = async (ideaboxId) => {
 }
 
 module.exports = {
-	submit, submitDetailUmum, submitDetailKyt, submitComment, generateNumber, approve, remove
+	submit, submitDetailUmum, submitDetailKyt, submitComment, generateNumber, approve, remove, reject
 }
