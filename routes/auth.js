@@ -13,9 +13,11 @@ const router = express.Router();
 // @desc    Get logged in user
 // @access  Private
 router.get("/", auth, async (req, res) => {
-  try {
-    const sql =
-      "SELECT user_id, email, name, employee_id, photo, role FROM user WHERE user_id = ?";
+  try {    
+    const  sql = `SELECT usr.user_id, usr.email, usr.name, usr.employee_id, usr.photo, usr.role, IFNULL(apr.role_id, 'NONE') AS approval_role 
+        FROM user usr LEFT JOIN approval_role_mapping apr ON apr.employee_id = usr.employee_id
+        WHERE usr.user_id = ?`;
+
     const user = await db.query(sql, [req.user.id]);
 
     res.status(200).json({
