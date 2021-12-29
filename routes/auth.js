@@ -67,6 +67,7 @@ router.post(
       let sql = "";
       let user = null;
       
+      
       if(siteName !== "ALL") {
         sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? AND (site_name = ? OR site_name = 'ALL') LIMIT 1";
         //console.log(sql);
@@ -75,7 +76,7 @@ router.post(
         sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? LIMIT 1";
         //console.log(sql);
         user = await db.query(sql, nik);
-      }
+      }      
       
 
       if (user.length === 0) {
@@ -111,10 +112,16 @@ router.post(
         });
       }
 
+      //add approval information to payload      
+      const query = await db.query("SELECT id FROM approval_role_mapping WHERE employee_id = ? LIMIT 1", nik);
+      const approvalRole = query.length > 0 ? query[0].id : "NONE";
+
       const payload = {
         user: {
           id: user.user_id,
-          role: user.role
+          role: user.role,
+          approvalRole: approvalRole,
+          employeeId: nik
         }
       };
 
