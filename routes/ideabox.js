@@ -27,16 +27,36 @@ router.get('/number', async (req, res) => {
     }
 });
 
-
-
 router.post('/list', async (req, res) => {
+    try {
+        
+        const {role, employeeId} = req.body;
+        const data = await repo.getIdeaboxList(role, employeeId);
+        
+        res.status(200).json({
+            result: "OK",
+            message: "OK",
+            data: data,
+            errors: null
+        });
+        
+    } catch (error) {
+        return res.status(500).json({
+            result: "FAIL",
+            message: "Internal server error, failed to get ideabox list",
+            data: req.body,
+            errors: error,
+          });
+    }
+});
+
+router.post('/listpage', async (req, res) => {
     try {
         
         const {page, numPerPage, role, employeeId} = req.body;
 
         const totalRows = await repo.getIdeaboxCount(role, employeeId);
-
-        let sql = "";
+        
         let data = null;
         if (page * numPerPage < totalRows) {
             data = await repo.getIdeaboxListPerPages(role, employeeId, numPerPage, page);
