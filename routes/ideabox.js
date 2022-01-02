@@ -23,6 +23,27 @@ router.get("/number", async (req, res) => {
   }
 });
 
+router.get("/closedIdeaCount/:year", async (req, res) => {
+  try {
+    const year = req.params.year;
+    const total = await repo.getTotalClosedIdeaboxByYear(year);
+
+    res.status(500).json({
+      result: "OK",
+      message: "Success",
+      data: total,
+      errors: error,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to generate ideabox number",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;
