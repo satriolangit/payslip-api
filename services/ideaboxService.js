@@ -193,6 +193,11 @@ const submitComment = async (ideaboxId, comment) => {
   await db.query(sql, [ideaboxId, createdBy, timestamp, value]);
 };
 
+const submitImpact = async (ideaboxId, impactId) => {
+  const command = "INSERT ideabox_impact (ideabox_id, impact_id) VALUES (?, ?)";
+  await db.query(command, [ideaboxId, impactId]);
+};
+
 const approve = async (ideaboxId, employeeId) => {
   const approvalRole = await getApprovalRole(employeeId);
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
@@ -247,4 +252,5 @@ module.exports = {
   approve,
   remove,
   reject,
+  submitImpact,
 };

@@ -132,6 +132,27 @@ router.post("/submit", async (req, res) => {
   }
 });
 
+router.post("/submit/impact", async (req, res) => {
+  try {
+    const { ideaboxId, impactId } = req.body;
+    var result = await service.submitImpact(ideaboxId, impactId);
+
+    res.status(200).json({
+      result: "OK",
+      message: "Successfully submit ideabox impact",
+      data: req.body,
+      errors: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to submit ideabox impact",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 router.post("/submit/kyt", async (req, res) => {
   try {
     console.log(req.body.data);
