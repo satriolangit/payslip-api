@@ -60,13 +60,13 @@ const getIdeaTypes = async () => {
 };
 
 const getIdeaRanks = async () => {
-  const sql = "SELECT id, description FROM ideabox_rank";
+  const sql = "SELECT id, description FROM ms_ideabox_rank";
 
   return await db.query(sql);
 };
 
 const getIdeaImpacts = async () => {
-  const sql = "SELECT id, description FROM ideabox_impact";
+  const sql = "SELECT id, description FROM ms_ideabox_impact";
 
   return await db.query(sql);
 };
