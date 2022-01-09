@@ -7,6 +7,7 @@ const service = require("../services/ideaboxService");
 const auth = require("../middleware/auth");
 const adminOnly = require("../middleware/adminOnly");
 const repo = require("../repositories/ideaboxRepository");
+const query = require("../queries/ideaboxViewQuery");
 
 router.get("/number", async (req, res) => {
   try {
@@ -42,6 +43,43 @@ router.get("/closedIdeaCount/:year", async (req, res) => {
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get total closed ideasheet",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+/* route for view ideabox  */
+router.get("/view/:id", async (req, res) => {
+  try {
+    const ideaboxId = req.params.id;
+    const master = await query.getIdeaboxById(ideaboxId);
+    const detail = await query.getIdeaboxDetailByIdeaboxId(ideaboxId);
+    const comments = await query.getCommentsByIdeaboxId(ideaboxId);
+    const impacts = await query.getImpactsByIdeaboxId(ideaboxId);
+
+    let arrImpact = [];
+    impacts.map((item) => {
+      arrImpact = [...arrImpact, item.impact_id];
+    });
+
+    const result = {
+      master,
+      detail,
+      comments,
+      impacts: arrImpact,
+    };
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: result,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get ideabox list",
       data: req.body,
       errors: error,
     });
