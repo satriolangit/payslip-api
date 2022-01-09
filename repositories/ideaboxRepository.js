@@ -86,7 +86,55 @@ const getTotalClosedIdeaboxByYear = async (year) => {
   const sql = `SELECT COUNT(id) AS Total FROM ideabox 
         WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED'`;
 
-  return await db.query(sql, [startDate, endDate]);
+  const query = await db.query(sql, [startDate, endDate]);
+  const result = query[0].Total;
+
+  return result;
+};
+
+const getNextAssignee = async (employeeId) => {
+  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+
+  const query = await db.query(sql, employeeId);
+
+  let result = "NONE";
+
+  if (query.length > 0) {
+    result = query[0].next_role;
+  }
+
+  return result;
+};
+
+const getPrevAssignee = async (employeeId) => {
+  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+
+  const query = await db.query(sql, employeeId);
+
+  let result = "NONE";
+
+  if (query.length > 0) {
+    result = query[0].prev_role;
+  }
+
+  return result;
+};
+
+const getApprovalRole = async (employeeId) => {
+  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
+		FROM approval_role_mapping map 
+			INNER JOIN approval_role apr ON apr.id = map.role_id
+		WHERE map.employee_id = ?`;
+
+  const query = await db.query(sql, employeeId);
+
+  return query[0];
 };
 
 module.exports = {
@@ -99,4 +147,7 @@ module.exports = {
   getIdeaboxListPerPages,
   getIdeaboxCount,
   getTotalClosedIdeaboxByYear,
+  getNextAssignee,
+  getPrevAssignee,
+  getApprovalRole,
 };

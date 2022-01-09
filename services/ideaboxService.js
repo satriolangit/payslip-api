@@ -1,15 +1,16 @@
 const db = require("../config/database");
 const moment = require("moment");
+const repo = require("./../repositories/ideaboxRepository");
 
 const generateNumber = async () => {
   const sql =
     "SELECT idea_number as number FROM ideabox ORDER BY submitted_at DESC LIMIT 1";
   let query = await db.query(sql);
-  const oldNumber = query[0].number;
 
   let number = `${moment.utc().format("YYYY-MM")}-0001`;
 
   if (query.length > 0) {
+    const oldNumber = query[0].number;
     let arrDate = oldNumber.split("-");
 
     const currYear = arrDate[0];
@@ -29,52 +30,9 @@ const generateNumber = async () => {
     }
   }
 
+  console.log("number:", number);
+
   return number;
-};
-
-const getNextAssignee = async (employeeId) => {
-  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
-		FROM approval_role_mapping map 
-			INNER JOIN approval_role apr ON apr.id = map.role_id
-		WHERE map.employee_id = ?`;
-
-  const query = await db.query(sql, employeeId);
-
-  let result = "NONE";
-
-  if (query.length > 0) {
-    result = query[0].next_role;
-  }
-
-  return result;
-};
-
-const getPrevAssignee = async (employeeId) => {
-  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
-		FROM approval_role_mapping map 
-			INNER JOIN approval_role apr ON apr.id = map.role_id
-		WHERE map.employee_id = ?`;
-
-  const query = await db.query(sql, employeeId);
-
-  let result = "NONE";
-
-  if (query.length > 0) {
-    result = query[0].prev_role;
-  }
-
-  return result;
-};
-
-const getApprovalRole = async (employeeId) => {
-  const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
-		FROM approval_role_mapping map 
-			INNER JOIN approval_role apr ON apr.id = map.role_id
-		WHERE map.employee_id = ?`;
-
-  const query = await db.query(sql, employeeId);
-
-  return query[0];
 };
 
 const submit = async (master) => {
@@ -88,19 +46,28 @@ const submit = async (master) => {
     submittedBy,
     tema,
     kaizenArea,
-    isIdeaSheet,
+    isIdeasheet,
     impactType,
     kaizenAmount,
     departmentId,
     employeeId,
+    approvalRole,
   } = master;
+
+  console.log("submit data:", master);
 
   const sql =
     "INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) " +
     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const number = await generateNumber();
-  const assignedTo = await getNextAssignee(employeeId);
+
+  const assignedTo =
+    approvalRole !== "NONE"
+      ? await repo.getNextAssignee(employeeId)
+      : "SECTION_MANAGER";
+
+  console.log(number, assignedTo);
 
   var result = await db.query(sql, [
     number,
@@ -109,7 +76,7 @@ const submit = async (master) => {
     timestamp,
     tema,
     kaizenArea,
-    isIdeaSheet,
+    isIdeasheet,
     impactType,
     kaizenAmount,
     departmentId,
@@ -117,71 +84,90 @@ const submit = async (master) => {
     "OPEN",
   ]);
 
+  const ideaboxId = result.insertId;
+
   console.log("submit ideabox, insertId :", result.insertId);
 
-  return result.insertId;
+  return ideaboxId;
 };
 
 const submitDetailUmum = async (ideaboxId, detail) => {
-  const {
-    beforeValueSummary,
-    beforeValueImage,
-    afterValueSummary,
-    afterValueImage,
-  } = detail;
+  console.log("submit detail umum");
+
+  const { beforeSummary, beforeImage, afterSummary, afterImage } = detail;
 
   const sql = `INSERT INTO ideabox_detail (master_id, before_value_summary, before_image, after_value_summary, after_image)
 		VALUES (?, ?, ?, ?, ?)`;
 
   await db.query(sql, [
     ideaboxId,
-    beforeValueSummary,
-    beforeValueImage,
-    afterValueSummary,
-    afterValueImage,
+    beforeSummary,
+    beforeImage,
+    afterSummary,
+    afterImage,
   ]);
 };
 
 const submitDetailKyt = async (ideaboxId, detail) => {
-  const sql = `INSERT INTO ideabox_detail (master_id, before_value_summary, before_image, before_value_kapan, before_value_dimana,
-		before_value_siapa, before_value_bagaimana, before_value_incident, before_value_situation, before_value_situation_image,
+  const sql = `INSERT INTO ideabox_detail (master_id, before_value_summary, before_image, before_value_kapan, 
+    before_value_dimana,
+		before_value_siapa, before_value_apa, before_value_bagaimana, before_value_incident, 
+    before_value_situation,
 		after_value_summary, after_image, after_value_rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  console.log(sql);
+  console.log("submit detail kyt");
 
   const {
-    beforeValueSummary,
-    beforeValueImage,
-    beforeValueKapan,
-    beforeValueDimana,
-    beforeValueSiapa,
-    beforeValueBagaimana,
-    beforeValueIncident,
-    beforeValueSituation,
-    beforeValueSituationImage,
-    afterValueSummary,
-    afterValueImage,
-    afterValueRank,
+    beforeSummary,
+    beforeImage,
+    beforeKapan,
+    beforeDimana,
+    beforeSiapa,
+    beforeApa,
+    beforeBagaimana,
+    beforeIncident,
+    beforeSituation,
+    afterSummary,
+    afterImage,
+    afterRank,
   } = detail;
 
   await db.query(sql, [
     ideaboxId,
-    beforeValueSummary,
-    beforeValueImage,
-    beforeValueKapan,
-    beforeValueDimana,
-    beforeValueSiapa,
-    beforeValueBagaimana,
-    beforeValueIncident,
-    beforeValueSituation,
-    beforeValueSituationImage,
-    afterValueSummary,
-    afterValueImage,
-    afterValueRank,
+    beforeSummary,
+    beforeImage,
+    beforeKapan,
+    beforeDimana,
+    beforeSiapa,
+    beforeApa,
+    beforeBagaimana,
+    beforeIncident,
+    beforeSituation,
+    afterSummary,
+    afterImage,
+    afterRank,
   ]);
 };
 
+const isCommentExist = async (ideaboxId, employeeId) => {
+  const sql =
+    "SELECT id FROM ideabox_comment WHERE master_id = ? AND created_by = ?";
+  const comment = await db.query(sql, [ideaboxId, employeeId]);
+  return comment.length > 0;
+};
+
 const submitComment = async (ideaboxId, comment) => {
+  const { value, createdBy } = comment;
+  const isExist = await isCommentExist(ideaboxId, createdBy);
+
+  if (isExist) {
+    await updateComment(ideaboxId, value, createdBy);
+  } else {
+    await insertComment(ideaboxId, comment);
+  }
+};
+
+const insertComment = async (ideaboxId, comment) => {
   const sql = `INSERT ideabox_comment (master_id, created_by, created_at, comment) VALUES (?,?,?,?)`;
 
   const { value, createdBy } = comment;
@@ -191,6 +177,17 @@ const submitComment = async (ideaboxId, comment) => {
   var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
   await db.query(sql, [ideaboxId, createdBy, timestamp, value]);
+};
+
+const updateComment = async (ideaboxId, comment, employeeId) => {
+  const sql =
+    "UPDATE ideabox_comment (comment) VALUES (?) WHERE master_id = ? AND created_by = ? ";
+  await db.query(sql, [comment, ideaboxId, employeeId]);
+};
+
+const deleteImpactByIdeaboxId = async (ideaboxId) => {
+  const sql = "DELETE FROM ideabox_impact WHERE ideabox_id = ?";
+  await db.query(sql, ideaboxId);
 };
 
 const submitImpact = async (ideaboxId, impactId) => {
