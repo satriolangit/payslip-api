@@ -8,6 +8,7 @@ const auth = require("../middleware/auth");
 const adminOnly = require("../middleware/adminOnly");
 const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
+const queryEdit = require("../queries/ideaboxEditQuery");
 
 router.get("/number", async (req, res) => {
   try {
@@ -79,13 +80,56 @@ router.get("/view/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       result: "FAIL",
-      message: "Internal server error, failed to get ideabox list",
+      message: "Internal server error, failed to get ideabox",
       data: req.body,
       errors: error,
     });
   }
 });
 
+/* routes from edit  */
+router.get("/edit/:id", async (req, res) => {
+  try {
+    const ideaboxId = req.params.id;
+    const employeeId = req.query.employee;
+
+    const master = await queryEdit.getIdeaboxById(ideaboxId);
+    const detail = await queryEdit.getIdeaboxDetailByIdeaboxId(ideaboxId);
+    const comment = await queryEdit.getCommentByEmployeeIdAndIdeaboxId(
+      employeeId,
+      ideaboxId
+    );
+    const impacts = await queryEdit.getImpactsByIdeaboxId(ideaboxId);
+
+    let arrImpact = [];
+    impacts.map((item) => {
+      arrImpact = [...arrImpact, item.impact_id];
+    });
+
+    const result = {
+      master,
+      detail,
+      comments,
+      impacts: arrImpact,
+    };
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: result,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get ideabox",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+/* routes for dashboard */
 router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;

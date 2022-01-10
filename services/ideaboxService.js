@@ -195,6 +195,11 @@ const submitImpact = async (ideaboxId, impactId) => {
   await db.query(command, [ideaboxId, impactId]);
 };
 
+const update = async (ideabox) => {
+  const sql = `UPDATE idea_number = ?, idea_type =?, submitted_by = ?, 
+    tema = ?, kaizen_area = ?, pelaksanaan_ideasheet = ?, `;
+};
+
 const approve = async (ideaboxId, employeeId) => {
   const approvalRole = await getApprovalRole(employeeId);
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
@@ -250,4 +255,6 @@ module.exports = {
   remove,
   reject,
   submitImpact,
+  update,
+  updateComment,
 };
