@@ -428,8 +428,11 @@ router.post("/submit/kyt", async (req, res) => {
 //approve
 router.post("/approve", async (req, res) => {
   try {
-    const { employeeId, ideaboxId } = req.body;
-    var result = await service.approve(ideaboxId, employeeId);
+    const { employeeId, ideaboxIds } = req.body;
+
+    ideaboxIds.map(async (id) => {
+      await service.approve(id, employeeId);
+    });
 
     res.status(200).json({
       result: "OK",
@@ -449,8 +452,11 @@ router.post("/approve", async (req, res) => {
 
 router.post("/posting", async (req, res) => {
   try {
-    const { employeeId, ideaboxId } = req.body;
-    var result = await service.posting(ideaboxId, employeeId);
+    const { employeeId, ideaboxIds } = req.body;
+
+    ideaboxIds.map(async (id) => {
+      await service.posting(id, employeeId);
+    });
 
     res.status(200).json({
       result: "OK",
@@ -470,8 +476,11 @@ router.post("/posting", async (req, res) => {
 
 router.post("/reject", async (req, res) => {
   try {
-    const { ideaboxId, employeeId } = req.body;
-    var result = await service.reject(ideaboxId, employeeId);
+    const { ideaboxIds, employeeId } = req.body;
+
+    ideaboxIds.map(async (id) => {
+      await service.reject(id, employeeId);
+    });
 
     res.status(200).json({
       result: "OK",

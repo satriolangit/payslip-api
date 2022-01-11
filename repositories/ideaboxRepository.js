@@ -17,7 +17,7 @@ const getIdeaboxList = async (role, employeeId) => {
             WHERE ibx.assigned_to = ?;
 		`;
 
-  return await db.query(sql, [role, employeeId]);
+  return await db.query(sql, [role]);
 };
 
 const searchIdeaboxList = async (role, employeeId, keywords) => {
@@ -38,7 +38,6 @@ const searchIdeaboxList = async (role, employeeId, keywords) => {
 
   return await db.query(sql, [
     role,
-    employeeId,
     "%" + keywords + "%",
     "%" + keywords + "%",
     "%" + keywords + "%",

@@ -267,7 +267,7 @@ const posting = async (ideaboxId, employeeId) => {
   );
 
   let sql =
-    "UPDATE ideabox SET assigned_to = 'SECTION_MANAGER', status = 'POSTED' WHERE id = ? AND status = 'OPEN'";
+    "UPDATE ideabox SET assigned_to = 'SECTION_MANAGER', status = 'POSTED' WHERE id = ? AND (status = 'OPEN' OR status = 'REJECTED')";
 
   console.log(sql);
   await db.query(sql, [ideaboxId]);
