@@ -185,13 +185,13 @@ router.post(
 
       //console.log("req.files", req.files.beforeImage[0]);
 
-      // if (beforeImageFile !== null) {
-      //   beforeImage = req.files.beforeImage[0].filename;
-      // }
+      if (beforeImageFile !== null) {
+        beforeImage = req.files.beforeImage[0].filename;
+      }
 
-      // if (afterImageFile !== null) {
-      //   afterImage = req.files.afterImage[0].filename;
-      // }
+      if (afterImageFile !== null) {
+        afterImage = req.files.afterImage[0].filename;
+      }
 
       const ideasheetDetail = {
         ...detail,
@@ -201,13 +201,12 @@ router.post(
 
       console.log(master);
 
-      const { id: ideaboxId } = master;
+      const { ideaboxId } = master;
 
       await service.update(master);
-      // await service.submitComment(ideaboxId, comment);
-
-      // await service.replaceImpacts(impact);
-      // await service.updateDetail(ideasheetDetail);
+      await service.submitComment(ideaboxId, comment);
+      await service.replaceImpacts(ideaboxId, impact);
+      await service.updateDetail(ideasheetDetail);
 
       res.status(200).json({
         result: "OK",

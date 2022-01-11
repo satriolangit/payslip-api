@@ -157,11 +157,12 @@ const isCommentExist = async (ideaboxId, employeeId) => {
 };
 
 const submitComment = async (ideaboxId, comment) => {
-  const { value, createdBy } = comment;
+
+  const { comment: message, createdBy } = comment;
   const isExist = await isCommentExist(ideaboxId, createdBy);
 
   if (isExist) {
-    await updateComment(ideaboxId, value, createdBy);
+    await updateComment(ideaboxId, comment);
   } else {
     await insertComment(ideaboxId, comment);
   }
@@ -170,19 +171,21 @@ const submitComment = async (ideaboxId, comment) => {
 const insertComment = async (ideaboxId, comment) => {
   const sql = `INSERT ideabox_comment (master_id, created_by, created_at, comment) VALUES (?,?,?,?)`;
 
-  const { value, createdBy } = comment;
+  const { comment: message, createdBy } = comment;
 
   var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
   var stillUtc = moment.utc(date).toDate();
   var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
-  await db.query(sql, [ideaboxId, createdBy, timestamp, value]);
+  await db.query(sql, [ideaboxId, createdBy, timestamp, message]);  
+  
 };
 
-const updateComment = async (ideaboxId, comment, employeeId) => {
-  const sql =
-    "UPDATE ideabox_comment (comment) VALUES (?) WHERE master_id = ? AND created_by = ? ";
-  await db.query(sql, [comment, ideaboxId, employeeId]);
+const updateComment = async (ideaboxId, comment) => {
+  const {comment: message, createdBy} = comment;
+  const sql = "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
+  await db.query(sql, [message, ideaboxId, createdBy]);
+  
 };
 
 const deleteImpactByIdeaboxId = async (ideaboxId) => {
@@ -196,13 +199,15 @@ const submitImpact = async (ideaboxId, impactId) => {
 };
 
 const update = async (ideabox) => {
-  const sql = `UPDATE IDEABOX SET idea_type =?, tema = ?, kaizen_area = ?, pelaksanaan_ideasheet = ?, kaizen_amount WHERE id = ?`;
+  const sql = `UPDATE ideabox SET idea_type =?, tema = ?, kaizen_area = ?, 
+    pelaksanaan_ideasheet = ?, kaizen_amount = ? WHERE id = ?`;
 
   console.log(ideabox);
   console.log(sql);
 
   const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, ideaboxId } =
     ideabox;
+
   await db.query(sql, [
     ideaType,
     tema,
@@ -262,7 +267,7 @@ const updateDetail = async (data) => {
   ]);
 };
 
-const replaceImpacts = async (impacts, ideaboxId) => {
+const replaceImpacts = async (ideaboxId, impacts) => {
   await deleteImpactByIdeaboxId(ideaboxId);
 
   impacts.map(async (item) => {

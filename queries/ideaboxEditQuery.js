@@ -50,8 +50,12 @@ const getCommentByEmployeeIdAndIdeaboxId = async (employeeId, ideaboxId) => {
     "SELECT id, comment, created_by AS createdBy FROM ideabox_comment WHERE master_id = ? AND created_by = ?";
   const query = await db.query(sql, [ideaboxId, employeeId]);
 
-  if (query.length > 0) return query[0];
-  else return "";
+  let result = {comment: "", createdBy: ""};
+
+  if (query.length > 0) result = {...result, ...query[0]};
+  
+  return result;
+
 };
 
 const getCommentsByIdeaboxId = async (ideaboxId) => {
