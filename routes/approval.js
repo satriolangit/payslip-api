@@ -4,7 +4,7 @@ const router = express.Router();
 const service = require("../services/approvalRoleService");
 const query = require("../queries/approvalRoleQuery");
 
-router.get("/mapping", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const result = await query.getApprovalRoleMapping();
 
@@ -24,7 +24,7 @@ router.get("/mapping", async (req, res) => {
   }
 });
 
-router.get("/user", async (req, res) => {
+router.get("/mapping", async (req, res) => {
   try {
     const result = await query.getUserThatNotMapped();
 
@@ -44,7 +44,7 @@ router.get("/user", async (req, res) => {
   }
 });
 
-router.post("/mapping/search", async (req, res) => {
+router.post("/search", async (req, res) => {
   try {
     const { keywords } = req.body;
     const result = await query.searchApprovalRoleMapping(keywords);
@@ -65,7 +65,7 @@ router.post("/mapping/search", async (req, res) => {
   }
 });
 
-router.post("/user/search", async (req, res) => {
+router.post("/mapping/search", async (req, res) => {
   try {
     const { keywords } = req.body;
     const result = await query.searchUser(keywords);
@@ -97,7 +97,7 @@ router.post("/mapping/add", async (req, res) => {
     res.status(200).json({
       result: "OK",
       message: "OK",
-      data: result,
+      data: null,
       errors: null,
     });
   } catch (error) {
@@ -110,7 +110,7 @@ router.post("/mapping/add", async (req, res) => {
   }
 });
 
-router.post("/mapping/remove", async (req, res) => {
+router.post("/remove", async (req, res) => {
   try {
     const { employees } = req.body;
 
@@ -121,7 +121,7 @@ router.post("/mapping/remove", async (req, res) => {
     res.status(200).json({
       result: "OK",
       message: "OK",
-      data: result,
+      data: null,
       errors: null,
     });
   } catch (error) {

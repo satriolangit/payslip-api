@@ -1,7 +1,7 @@
 const db = require("../config/database");
 
 const getApprovalRoleMapping = async () => {
-  const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS ApprovalRoleId, mapping.employee_id AS employeeId,
+  const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS approvalRoleId, mapping.employee_id AS employeeId,
         usr.name AS username, '' AS department, usr.email
         FROM approval_role_mapping mapping INNER JOIN user usr ON usr.employee_id = mapping.employee_id`;
 
@@ -10,7 +10,7 @@ const getApprovalRoleMapping = async () => {
 };
 
 const searchApprovalRoleMapping = async (keywords) => {
-  const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS ApprovalRoleId, mapping.employee_id AS employeeId,
+  const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS approvalRoleId, mapping.employee_id AS employeeId,
             usr.name AS username, '' AS department, usr.email
         FROM approval_role_mapping mapping INNER JOIN user usr ON usr.employee_id = mapping.employee_id
         WHERE mapping.role_id LIKE ? OR mapping.employee_id LIKE ? OR usr.name LIKE ?`;
@@ -25,7 +25,7 @@ const searchApprovalRoleMapping = async (keywords) => {
 };
 
 const getUserThatNotMapped = async () => {
-  const sql = `SELECT user_id, name, employee_id, email
+  const sql = `SELECT user_id AS userId, name, employee_id AS employeeId, email
         FROM user 
         WHERE employee_id NOT IN (SELECT employee_id FROM approval_role_mapping)
             AND is_active = 1`;
@@ -36,7 +36,7 @@ const getUserThatNotMapped = async () => {
 };
 
 const searchUser = async (keywords) => {
-  const sql = `SELECT user_id, name, employee_id, email
+  const sql = `SELECT user_id AS userId, name, employee_id AS employeeId, email
         FROM user 
         WHERE employee_id NOT IN (SELECT employee_id FROM approval_role_mapping)
             AND is_active = 1 AND (name LIKE ? OR employee_id LIKE ? OR email LIKE ?)`;
