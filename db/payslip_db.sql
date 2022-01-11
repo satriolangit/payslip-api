@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `payslip` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `payslip`;
 -- MySQL dump 10.13  Distrib 8.0.26, for Win64 (x86_64)
 --
 -- Host: localhost    Database: payslip
@@ -66,7 +68,7 @@ CREATE TABLE `approval_role` (
 
 LOCK TABLES `approval_role` WRITE;
 /*!40000 ALTER TABLE `approval_role` DISABLE KEYS */;
-INSERT INTO `approval_role` VALUES ('DEPARTMENT_MANAGER','Department Manager','KOMITE_IDEABOX','SECTION_MANAGER'),('EMPLOYEE','Employee','SECTION_MANAGER','NONE'),('KOMITE_IDEABOX','Komite Ideabox',NULL,'DEPARTMENT_MANAGER'),('SECTION_MANAGER','Section Manager / Group Head','DEPARTMENT_MANAGER','EMPLOYEE');
+INSERT INTO `approval_role` VALUES ('DEPARTMENT_MANAGER','Department Manager','KOMITE_IDEABOX','SECTION_MANAGER'),('EMPLOYEE','Employee','SECTION_MANAGER','NONE'),('KOMITE_IDEABOX','Komite Ideabox','KOMITE_IDEABOX','DEPARTMENT_MANAGER'),('SECTION_MANAGER','Section Manager / Group Head','DEPARTMENT_MANAGER','EMPLOYEE');
 /*!40000 ALTER TABLE `approval_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,7 +150,7 @@ CREATE TABLE `ideabox` (
   `department_id` int DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL COMMENT 'OPEN : sebelum diapprove oleh komite\nCLOSED : setelah diapprove oleh komite',
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -157,7 +159,7 @@ CREATE TABLE `ideabox` (
 
 LOCK TABLES `ideabox` WRITE;
 /*!40000 ALTER TABLE `ideabox` DISABLE KEYS */;
-INSERT INTO `ideabox` VALUES (1,'2022-01-0001','UMUM','2010','2022-01-09 18:50:06','tema 123','area 123',1,NULL,'1500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',3,'OPEN'),(2,'2022-01-0002','UMUM','2010','2022-01-09 18:55:23','tema 345','area 345',0,NULL,'2500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',1,'OPEN'),(3,'2022-01-0003','UMUM','2010','2022-01-09 19:38:34','tema 345','area 345',0,NULL,'2500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',1,'OPEN'),(4,'2022-01-0004','UMUM','2010','2022-01-09 19:39:59','tema 345','area 345',0,NULL,'2500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',1,'OPEN'),(5,'2022-01-0005','Q-KYT','2010','2022-01-09 19:46:00','tema kyt','area kyt',1,NULL,'999999',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',3,'OPEN');
+INSERT INTO `ideabox` VALUES (1,'2022-01-0001','Q-KYT','2010','2022-01-09 18:50:06','tema 123 edit','area 123 editlagi',1,NULL,'1500000','9992','2022-01-11 07:59:16','9993','2022-01-11 07:59:42','9994','2022-01-11 08:00:22','KOMITE_IDEABOX',3,'CLOSED'),(2,'2022-01-0002','UMUM','2010','2022-01-09 18:55:23','tema 345','area 345',0,NULL,'2500000','9992','2022-01-11 07:59:16','9993','2022-01-11 07:59:42',NULL,NULL,'KOMITE_IDEABOX',1,'APPROVED'),(3,'2022-01-0003','UMUM','2010','2022-01-09 19:38:34','tema 345','area 345',0,NULL,'2500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',1,'POSTED'),(4,'2022-01-0004','UMUM','2010','2022-01-09 19:39:59','tema 345','area 345',0,NULL,'2500000',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',1,'POSTED'),(5,'2022-01-0005','Q-KYT','2010','2022-01-09 19:46:00','tema kyt','area kyt',1,NULL,'999999',NULL,NULL,NULL,NULL,NULL,NULL,'EMPLOYEE',3,'OPEN'),(6,'2022-01-0006','UMUM','2010','2022-01-11 16:23:03','test','jakarta',1,NULL,'500000','9992','2022-01-11 09:24:32',NULL,NULL,NULL,NULL,'DEPARTMENT_MANAGER',2,'REVIEWED');
 /*!40000 ALTER TABLE `ideabox` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,7 +177,7 @@ CREATE TABLE `ideabox_comment` (
   `created_at` datetime DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,7 +186,7 @@ CREATE TABLE `ideabox_comment` (
 
 LOCK TABLES `ideabox_comment` WRITE;
 /*!40000 ALTER TABLE `ideabox_comment` DISABLE KEYS */;
-INSERT INTO `ideabox_comment` VALUES (1,1,'2010','2022-01-09 18:50:06','komentar 123'),(2,2,'2010','2022-01-09 18:55:23','komentar qkyt'),(3,3,'2010','2022-01-09 19:38:34','komentar qkyt'),(4,4,'2010','2022-01-09 19:39:59','komentar qkyt'),(5,5,'2010','2022-01-09 19:46:00','komentar kyt');
+INSERT INTO `ideabox_comment` VALUES (1,1,'2010','2022-01-09 18:50:06','komentar 123'),(2,2,'2010','2022-01-09 18:55:23','komentar qkyt'),(3,3,'2010','2022-01-09 19:38:34','komentar qkyt'),(4,4,'2010','2022-01-09 19:39:59','komentar qkyt'),(5,5,'2010','2022-01-09 19:46:00','komentar kyt'),(6,NULL,NULL,'2022-01-11 10:47:32',NULL),(7,NULL,NULL,'2022-01-11 10:52:10',NULL),(8,NULL,NULL,'2022-01-11 11:19:14',NULL),(9,NULL,NULL,'2022-01-11 11:19:37',NULL),(10,NULL,'9992','2022-01-11 11:26:59',NULL),(11,NULL,'9992','2022-01-11 11:31:07',NULL),(12,NULL,'9992','2022-01-11 11:32:50',NULL),(13,NULL,'9992','2022-01-11 11:36:18','komen 123 edit'),(14,NULL,'9992','2022-01-11 11:39:19','komen 123 edit'),(15,NULL,'9992','2022-01-11 11:41:00','komen 123 edit'),(16,1,'9992','2022-01-11 11:42:02','komen 123 edit lagi'),(17,6,'2010','2022-01-11 16:23:03',NULL),(18,6,'','2022-01-11 16:24:09','');
 /*!40000 ALTER TABLE `ideabox_comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -212,7 +214,7 @@ CREATE TABLE `ideabox_detail` (
   `after_value_rank` int DEFAULT NULL COMMENT 'harus ada table rank type',
   `before_value_apa` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -221,7 +223,7 @@ CREATE TABLE `ideabox_detail` (
 
 LOCK TABLES `ideabox_detail` WRITE;
 /*!40000 ALTER TABLE `ideabox_detail` DISABLE KEYS */;
-INSERT INTO `ideabox_detail` VALUES (1,1,'before 123','beforeImage_20220109065006_2021-10-10_08h34_23.png',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 123','afterImage_20220109065006_2021-10-14_06h26_06.png',NULL,NULL),(2,2,'before 345','beforeImage_20220109065523_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109065523_pwm.PNG',NULL,NULL),(3,3,'before 345','beforeImage_20220109073833_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109073833_pwm.PNG',NULL,NULL),(4,4,'before 345','beforeImage_20220109073959_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109073959_pwm.PNG',NULL,NULL),(5,5,'before kyt','beforeImage_20220109074600_Icon-Alun-Alun-Ponorogo.jpg','kapan kyt','dimana kyt','siapa kyt','bagaimana kyt','terjadi kyt','masalah kyt',NULL,'after kyt','afterImage_20220109074600_Capture.PNG',2,'apa kyt');
+INSERT INTO `ideabox_detail` VALUES (1,1,'before 123 edit','beforeImage_20220111120647_01.AddWebsite.PNG','kapan edit','dimana edit','siapa edeit','bgmna edit','apa yg terjadi terjadilah','bagaiman bisa jadi masalah',NULL,'after 123 edit','afterImage_20220111120647_02.AddWebsite.SetPort.PNG',2,'apaedit'),(2,2,'before 345','beforeImage_20220109065523_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109065523_pwm.PNG',NULL,NULL),(3,3,'before 345','beforeImage_20220109073833_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109073833_pwm.PNG',NULL,NULL),(4,4,'before 345','beforeImage_20220109073959_Icon-Alun-Alun-Ponorogo.jpg',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after 345','afterImage_20220109073959_pwm.PNG',NULL,NULL),(5,5,'before kyt','beforeImage_20220109074600_Icon-Alun-Alun-Ponorogo.jpg','kapan kyt','dimana kyt','siapa kyt','bagaimana kyt','terjadi kyt','masalah kyt',NULL,'after kyt','afterImage_20220109074600_Capture.PNG',2,'apa kyt'),(6,6,'before edit','beforeImage_20220111042303_01.AddWebsite.PNG','','','','','','',NULL,'after edit','afterImage_20220111042303_04.appsetting.userpassword.PNG',NULL,'');
 /*!40000 ALTER TABLE `ideabox_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -245,8 +247,56 @@ CREATE TABLE `ideabox_impact` (
 
 LOCK TABLES `ideabox_impact` WRITE;
 /*!40000 ALTER TABLE `ideabox_impact` DISABLE KEYS */;
-INSERT INTO `ideabox_impact` VALUES (1,1),(1,2),(2,3),(2,4),(2,5),(3,3),(3,4),(3,5),(4,3),(4,4),(4,5),(5,4),(5,5);
+INSERT INTO `ideabox_impact` VALUES (1,4),(1,5),(2,3),(2,4),(2,5),(3,3),(3,4),(3,5),(4,3),(4,4),(4,5),(5,4),(5,5),(6,2),(6,3);
 /*!40000 ALTER TABLE `ideabox_impact` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ideabox_rank`
+--
+
+DROP TABLE IF EXISTS `ideabox_rank`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ideabox_rank` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `description` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ideabox_rank`
+--
+
+LOCK TABLES `ideabox_rank` WRITE;
+/*!40000 ALTER TABLE `ideabox_rank` DISABLE KEYS */;
+INSERT INTO `ideabox_rank` VALUES (1,'Rank 1 Jarang Terjadi'),(2,'Rank 2 Terjadi Sewaktu-waktu'),(3,'Rank 3 Frekuensi Bertambah');
+/*!40000 ALTER TABLE `ideabox_rank` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ideabox_type`
+--
+
+DROP TABLE IF EXISTS `ideabox_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ideabox_type` (
+  `id` varchar(20) NOT NULL,
+  `description` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ideabox_type`
+--
+
+LOCK TABLES `ideabox_type` WRITE;
+/*!40000 ALTER TABLE `ideabox_type` DISABLE KEYS */;
+INSERT INTO `ideabox_type` VALUES ('QKYT','Q KYT'),('UMUM','UMUM');
+/*!40000 ALTER TABLE `ideabox_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -661,4 +711,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-10  8:15:52
+-- Dump completed on 2022-01-11 17:37:39
