@@ -14,7 +14,7 @@ const getIdeaboxList = async (role, employeeId) => {
             LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
             LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
             LEFT JOIN department dept ON dept.id = ibx.department_id
-            WHERE ibx.assigned_to = ? OR ibx.submitted_by = ?;
+            WHERE ibx.assigned_to = ?;
 		`;
 
   return await db.query(sql, [role, employeeId]);
@@ -33,7 +33,7 @@ const searchIdeaboxList = async (role, employeeId, keywords) => {
             LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
             LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
             LEFT JOIN department dept ON dept.id = ibx.department_id
-        WHERE ibx.assigned_to = ? OR ibx.submitted_by = ? AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
+        WHERE ibx.assigned_to = ? AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
               OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?);`;
 
   return await db.query(sql, [
@@ -63,7 +63,7 @@ const getIdeaboxListForEmployee = async (employeeId) => {
       LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
       LEFT JOIN department dept ON dept.id = ibx.department_id
-      WHERE ibx.assigned_to = 'EMPLOYEE' AND ibx.submitted_by = ?;
+      WHERE ibx.submitted_by = ?;
     `;
 
   return await db.query(sql, [employeeId]);
@@ -82,7 +82,7 @@ const searchIdeaboxListForEmployee = async (employeeId, keywords) => {
       LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
       LEFT JOIN department dept ON dept.id = ibx.department_id
-    WHERE ibx.assigned_to = 'EMPLOYEE' AND ibx.submitted_by = ? 
+    WHERE ibx.submitted_by = ? 
       AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
         OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?);
     `;
