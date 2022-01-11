@@ -174,7 +174,7 @@ router.post(
       const { beforeImageFile, afterImageFile } = detail;
       let { beforeImage, afterImage } = detail;
 
-      //console.log(detail);
+      console.log(master);
 
       // console.log("master", master);
       // console.log("detail", detail);
@@ -216,9 +216,10 @@ router.post(
         errors: null,
       });
     } catch (error) {
+      console.log("error:", error);
       res.status(500).json({
         result: "FAIL",
-        message: "Internal server error, failed to edit ideabox",
+        message: "Internal server error, failed to edit ideabox 123",
         data: req.body,
         errors: error,
       });

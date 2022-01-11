@@ -196,19 +196,20 @@ const submitImpact = async (ideaboxId, impactId) => {
 };
 
 const update = async (ideabox) => {
-  const sql = `UPDATE IDEABOX SET idea_type =?, tema = ?, kaizen_area = ?, 
-    pelaksanaan_ideasheet = ?, kaizen_amount WHERE id = ?`;
+  const sql = `UPDATE IDEABOX SET idea_type =?, tema = ?, kaizen_area = ?, pelaksanaan_ideasheet = ?, kaizen_amount WHERE id = ?`;
 
+  console.log(ideabox);
   console.log(sql);
 
-  const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, id } = ideabox;
-  await db.sql(sql, [
+  const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, ideaboxId } =
+    ideabox;
+  await db.query(sql, [
     ideaType,
     tema,
     kaizenArea,
     isIdeasheet,
     kaizenAmount,
-    id,
+    ideaboxId,
   ]);
 };
 
