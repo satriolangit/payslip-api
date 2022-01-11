@@ -2,7 +2,7 @@ const db = require("../config/database");
 
 const getIdeaboxById = async (id) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaType, ibx.submitted_by AS submittedBy,
-        ibx.submitted_at AS submittedAt, submitter.name AS submitterName, ibx.tema, ibx.kaizen_area AS kaizenArea,
+        DATE_FORMAT(submitted_at, '%Y-%m-%d') AS submittedAt, submitter.name AS submitterName, ibx.tema, ibx.kaizen_area AS kaizenArea,
         ibx.kaizen_amount AS kaizenAmount, ibx.department_id AS departmentId,
         reviewer.name AS reviewerName, approver.name AS approverName, receiver.name AS receiverName,
         ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName

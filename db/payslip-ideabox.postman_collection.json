@@ -18,7 +18,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"master\":{\r\n    \"ideaType\":\"UMUM\",\r\n    \"submittedBy\":\"666\",\r\n    \"tema\":\"TEMA\",\r\n    \"kaizenArea\":\"KAIZEN_AREA\",\r\n    \"isIdeaSheet\":1,\r\n    \"impactType\":1,\r\n    \"kaizenAmount\":\"KAIZEN_AMOUNT\",\r\n    \"departmentId\":99,\r\n    \"employeeId\": 666\r\n  },\r\n  \"detail\":{\r\n    \"beforeValueSummary\":\"BEFORE_VALUE_SUMMARY\",\r\n    \"beforeValueImage\":\"BEFORE_IMAGE.jpg\",\r\n    \"beforeValueKapan\":\"BEFORE_KAPAN\",\r\n    \"beforeValueDimana\":\"BEFORE_DIMANA\",\r\n    \"beforeValueSiapa\":\"BEFORE_SIAPA\",\r\n    \"beforeValueBagaimana\":\"BEFORE_BAGAIMANA\",\r\n    \"beforeValueIncident\":\"BEFORE_INCIDENT\",\r\n    \"beforeValueSituation\":\"BEFORE_SITUATION\",\r\n    \"beforeValueSituationImage\":\"BEFORE_SITUATION_IMAGE\",\r\n    \"afterValueSummary\":\"AFTER_SUMMARY\",\r\n    \"afterValueImage\":\"AFTER_IMAGE\",\r\n    \"afterValueRank\":\"AFTER_RANK\"\r\n  },\r\n  \"comment\":{\r\n    \"value\":\"COMMENT_BLABLABLA\",\r\n    \"createdBy\":666\r\n  }\r\n}"
+					"raw": "{\r\n  \"master\":{\r\n    \"ideaType\":\"UMUM\",\r\n    \"ideaNumber\":\"2022-01-0001\",\r\n    \"submittedBy\":\"2010\",\r\n    \"submitterName\":\"PURWONO\",\r\n    \"submittedAt\":\"2022-01-09\",\r\n    \"tema\":\"tema test 123\",\r\n    \"kaizenArea\":\"area test 123\",\r\n    \"isIdeasheet\":1,\r\n    \"kaizenAmount\":\"123123\",\r\n    \"departmentId\":\"3\",\r\n    \"impact\":[\r\n      1,\r\n      2,\r\n      3\r\n    ]\r\n  },\r\n  \"detail\":{\r\n    \"beforeSummary\":\"before 123\",\r\n    \"beforeImage\":\"wallpaperflare.com_wallpaper (1).jpg\",\r\n    \"beforeKapan\":\"\",\r\n    \"beforeDimana\":\"\",\r\n    \"beforeSiapa\":\"\",\r\n    \"beforeApa\":\"\",\r\n    \"beforeBagaimana\":\"\",\r\n    \"beforeIncident\":\"\",\r\n    \"beforeSituation\":\"\",\r\n    \"afterSummary\":\"after 123\",\r\n    \"afterImage\":\"wallpaperflare.com_wallpaper.jpg\",\r\n    \"afterRank\":0,\r\n    \"beforeImageFile\":{\r\n      \r\n    },\r\n    \"afterImageFile\":{\r\n      \r\n    }\r\n  },\r\n  \"comment\":{\r\n    \"value\":\"\",\r\n    \"createdBy\":\"2010\",\r\n    \"comment\":\"comment 123\"\r\n  }\r\n}"
 				},
 				"url": {
 					"raw": "http://localhost:3001/api/ideabox/submit",
@@ -83,6 +83,145 @@
 						"api",
 						"ideabox",
 						"number"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "submitImage",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "beforeImage",
+							"type": "file",
+							"src": "/C:/Users/wahyu/Pictures/Icon-Alun-Alun-Ponorogo.jpg"
+						},
+						{
+							"key": "afterImage",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/submit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"submit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get total ideasheet",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/closedIdeaCount/2022",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"closedIdeaCount",
+						"2022"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "view_ideabox",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/view/5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"view",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "edit",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/edit/1?employee=9992",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"edit",
+						"1"
+					],
+					"query": [
+						{
+							"key": "employee",
+							"value": "9992"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "edit",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"master\": {\r\n        \"ideaboxId\": 1,\r\n        \"ideaNumber\": \"2022-01-0001\",\r\n        \"ideaType\": \"UMUM\",\r\n        \"submittedBy\": \"2010\",\r\n        \"submittedAt\": \"2022-01-09\",\r\n        \"submitterName\": \"PURWONO\",\r\n        \"tema\": \"tema 123 edit\",\r\n        \"kaizenArea\": \"area 123 edit\",\r\n        \"kaizenAmount\": \"1500000\",\r\n        \"departmentId\": 3,\r\n        \"reviewedBy\": null,\r\n        \"reviewerName\": \"\",\r\n        \"approvedBy\": null,\r\n        \"approverName\": \"\",\r\n        \"acceptedBy\": null,\r\n        \"receiverName\": \"\",\r\n        \"status\": \"OPEN\",\r\n        \"isIdeasheet\": 1,\r\n        \"departmentName\": \"PC\"\r\n    },\r\n    \"detail\": {\r\n        \"id\": 1,\r\n        \"ideaboxId\": 1,\r\n        \"beforeSummary\": \"before 123 edit\",\r\n        \"beforeImage\": \"beforeImage_20220109065006_2021-10-10_08h34_23.png\",\r\n        \"beforeKapan\": \"\",\r\n        \"beforeDimana\": \"\",\r\n        \"beforeSiapa\": \"\",\r\n        \"beforeApa\": \"\",\r\n        \"beforeBagaimana\": \"\",\r\n        \"beforeIncident\": \"\",\r\n        \"beforeSituation\": \"\",\r\n        \"afterSummary\": \"after 123 edit\",\r\n        \"afterImage\": \"afterImage_20220109065006_2021-10-14_06h26_06.png\",\r\n        \"afterRank\": null,\r\n        \"beforeImageFile\": null,\r\n        \"afterImageFile\": null\r\n    },\r\n    \"comment\": {\r\n        \"comment\": \"edit comment\"\r\n    },\r\n    \"impact\": [\r\n        3\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/ideabox/edit/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"ideabox",
+						"edit",
+						""
 					]
 				}
 			},

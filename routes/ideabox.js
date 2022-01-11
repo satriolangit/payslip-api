@@ -10,6 +10,36 @@ const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
 
+//upload photo config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const path = __dirname + "/../public/ideabox";
+    cb(null, path);
+  },
+  filename: function (req, file, cb) {
+    var filename = `${file.fieldname}_${moment().format("YYYYMMDDhhmmss")}_${
+      file.originalname
+    }`;
+    cb(null, filename);
+  },
+});
+
+var upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype == "image/png" ||
+      file.mimetype == "image/jpg" ||
+      file.mimetype == "image/jpeg"
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+      return cb(new Error("File type not accepted (.png, .jpg, .jpeg)"));
+    }
+  },
+});
+
 router.get("/number", async (req, res) => {
   try {
     const number = await service.generateNumber();
@@ -106,10 +136,12 @@ router.get("/edit/:id", async (req, res) => {
       arrImpact = [...arrImpact, item.impact_id];
     });
 
+    console.log(comment);
+
     const result = {
       master,
       detail,
-      comments,
+      comment,
       impacts: arrImpact,
     };
 
@@ -128,6 +160,71 @@ router.get("/edit/:id", async (req, res) => {
     });
   }
 });
+
+router.post(
+  "/edit",
+  upload.fields([
+    { name: "beforeImage", maxCount: 1 },
+    { name: "afterImage", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const request = JSON.parse(req.body.data);
+      const { master, detail, comment, impact } = request;
+      const { beforeImageFile, afterImageFile } = detail;
+      let { beforeImage, afterImage } = detail;
+
+      //console.log(detail);
+
+      // console.log("master", master);
+      // console.log("detail", detail);
+      // console.log("comment", comment);
+      // console.log("impact", impact);
+
+      console.log("file: ", beforeImageFile, afterImageFile);
+
+      //console.log("req.files", req.files.beforeImage[0]);
+
+      // if (beforeImageFile !== null) {
+      //   beforeImage = req.files.beforeImage[0].filename;
+      // }
+
+      // if (afterImageFile !== null) {
+      //   afterImage = req.files.afterImage[0].filename;
+      // }
+
+      const ideasheetDetail = {
+        ...detail,
+        beforeImage: beforeImage,
+        afterImage: afterImage,
+      };
+
+      console.log(master);
+
+      const { id: ideaboxId } = master;
+
+      await service.update(master);
+      // await service.submitComment(ideaboxId, comment);
+
+      // await service.replaceImpacts(impact);
+      // await service.updateDetail(ideasheetDetail);
+
+      res.status(200).json({
+        result: "OK",
+        message: "OK",
+        data: request,
+        errors: null,
+      });
+    } catch (error) {
+      res.status(500).json({
+        result: "FAIL",
+        message: "Internal server error, failed to edit ideabox",
+        data: req.body,
+        errors: error,
+      });
+    }
+  }
+);
 
 /* routes for dashboard */
 router.post("/list", async (req, res) => {
@@ -183,36 +280,6 @@ router.post("/listpage", async (req, res) => {
       errors: error,
     });
   }
-});
-
-//upload photo config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const path = __dirname + "/../public/ideabox";
-    cb(null, path);
-  },
-  filename: function (req, file, cb) {
-    var filename = `${file.fieldname}_${moment().format("YYYYMMDDhhmmss")}_${
-      file.originalname
-    }`;
-    cb(null, filename);
-  },
-});
-
-var upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (
-      file.mimetype == "image/png" ||
-      file.mimetype == "image/jpg" ||
-      file.mimetype == "image/jpeg"
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(new Error("File type not accepted (.png, .jpg, .jpeg)"));
-    }
-  },
 });
 
 router.post(

@@ -196,8 +196,77 @@ const submitImpact = async (ideaboxId, impactId) => {
 };
 
 const update = async (ideabox) => {
-  const sql = `UPDATE idea_number = ?, idea_type =?, submitted_by = ?, 
-    tema = ?, kaizen_area = ?, pelaksanaan_ideasheet = ?, `;
+  const sql = `UPDATE IDEABOX SET idea_type =?, tema = ?, kaizen_area = ?, 
+    pelaksanaan_ideasheet = ?, kaizen_amount WHERE id = ?`;
+
+  console.log(sql);
+
+  const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, id } = ideabox;
+  await db.sql(sql, [
+    ideaType,
+    tema,
+    kaizenArea,
+    isIdeasheet,
+    kaizenAmount,
+    id,
+  ]);
+};
+
+const updateDetail = async (data) => {
+  const {
+    beforeSummary,
+    beforeImage,
+    beforeKapan,
+    beforeDimana,
+    beforeSiapa,
+    beforeApa,
+    beforeBagaimana,
+    beforeIncident,
+    beforeSituation,
+    afterSummary,
+    afterImage,
+    afterRank,
+    id,
+  } = data;
+
+  const sql = `UPDATE ideabox_detail SET
+      before_value_summary = ?
+      ,before_image = ?
+      ,before_value_kapan=?
+      ,before_value_dimana=?
+      ,before_value_siapa=?
+      ,before_value_apa=?
+      ,before_value_bagaimana=?
+      ,before_value_incident=?
+      ,before_value_situation=?
+      ,after_value_summary=?
+      ,after_image=?
+      ,after_value_rank=?
+      WHERE id=?`;
+
+  await db.query(sql, [
+    beforeSummary,
+    beforeImage,
+    beforeKapan,
+    beforeDimana,
+    beforeSiapa,
+    beforeApa,
+    beforeBagaimana,
+    beforeIncident,
+    beforeSituation,
+    afterSummary,
+    afterImage,
+    afterRank,
+    id,
+  ]);
+};
+
+const replaceImpacts = async (impacts, ideaboxId) => {
+  await deleteImpactByIdeaboxId(ideaboxId);
+
+  impacts.map(async (item) => {
+    await submitImpact(ideaboxId, item);
+  });
 };
 
 const approve = async (ideaboxId, employeeId) => {
@@ -257,4 +326,6 @@ module.exports = {
   submitImpact,
   update,
   updateComment,
+  replaceImpacts,
+  updateDetail,
 };
