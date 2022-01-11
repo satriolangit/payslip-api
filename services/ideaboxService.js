@@ -30,14 +30,12 @@ const generateNumber = async () => {
     }
   }
 
-  console.log("number:", number);
-
+  
   return number;
 };
 
 const submit = async (master) => {
   var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
-  console.log(date); // 2015-09-13 03:39:27
   var stillUtc = moment.utc(date).toDate();
   var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
@@ -54,8 +52,6 @@ const submit = async (master) => {
     approvalRole,
   } = master;
 
-  console.log("submit data:", master);
-
   const sql =
     "INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) " +
     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -67,8 +63,7 @@ const submit = async (master) => {
       ? await repo.getNextAssignee(employeeId)
       : "SECTION_MANAGER";
 
-  console.log(number, assignedTo);
-
+  
   var result = await db.query(sql, [
     number,
     ideaType,
@@ -86,13 +81,11 @@ const submit = async (master) => {
 
   const ideaboxId = result.insertId;
 
-  console.log("submit ideabox, insertId :", result.insertId);
-
+  
   return ideaboxId;
 };
 
 const submitDetailUmum = async (ideaboxId, detail) => {
-  console.log("submit detail umum");
 
   const { beforeSummary, beforeImage, afterSummary, afterImage } = detail;
 
@@ -115,8 +108,7 @@ const submitDetailKyt = async (ideaboxId, detail) => {
     before_value_situation,
 		after_value_summary, after_image, after_value_rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  console.log("submit detail kyt");
-
+  
   const {
     beforeSummary,
     beforeImage,
@@ -202,9 +194,7 @@ const update = async (ideabox) => {
   const sql = `UPDATE ideabox SET idea_type =?, tema = ?, kaizen_area = ?, 
     pelaksanaan_ideasheet = ?, kaizen_amount = ? WHERE id = ?`;
 
-  console.log(ideabox);
-  console.log(sql);
-
+  
   const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, ideaboxId } =
     ideabox;
 
