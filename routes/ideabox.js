@@ -230,7 +230,15 @@ router.post(
 router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;
-    const data = await repo.getIdeaboxList(approvalRole, employeeId);
+    
+    const data;
+    if(approvalRole === 'EMPLOYEE') {
+      data = await repo.getIdeaboxListForEmployee(employeeId);
+    } else if(approvalRole === 'ADMIN') {
+      data = await repo.getIdeaboxListForAdmin();
+    } else {
+      data = await repo.getIdeaboxList(approvalRole, employeeId);
+    }    
 
     res.status(200).json({
       result: "OK",
@@ -247,6 +255,38 @@ router.post("/list", async (req, res) => {
     });
   }
 });
+
+router.post("/list/search", auth, async (req, res) => {
+  try {
+    const { keywords, approvalRole, employeeId } = req.body;
+
+    const data;
+
+    if(approvalRole === "ADMIN") {
+      data = await repo.searchIdeaboxListForAdmin(keywords);
+    } else if(approvalRole === "EMPLOYEE") {
+      data = await repo.searchIdeaboxListForEmployee(employeeId, keywords);
+    } else {
+      data = await repo.searchIdeaboxList(approvalRole, employeeId, keywords)
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      status: 500,
+      message: "Failed to search ideabox list",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
 
 router.post("/listpage", async (req, res) => {
   try {

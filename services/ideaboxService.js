@@ -30,7 +30,6 @@ const generateNumber = async () => {
     }
   }
 
-  
   return number;
 };
 
@@ -61,9 +60,8 @@ const submit = async (master) => {
   const assignedTo =
     approvalRole !== "NONE"
       ? await repo.getNextAssignee(employeeId)
-      : "SECTION_MANAGER";
+      : "EMPLOYEE";
 
-  
   var result = await db.query(sql, [
     number,
     ideaType,
@@ -81,12 +79,10 @@ const submit = async (master) => {
 
   const ideaboxId = result.insertId;
 
-  
   return ideaboxId;
 };
 
 const submitDetailUmum = async (ideaboxId, detail) => {
-
   const { beforeSummary, beforeImage, afterSummary, afterImage } = detail;
 
   const sql = `INSERT INTO ideabox_detail (master_id, before_value_summary, before_image, after_value_summary, after_image)
@@ -108,7 +104,6 @@ const submitDetailKyt = async (ideaboxId, detail) => {
     before_value_situation,
 		after_value_summary, after_image, after_value_rank) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  
   const {
     beforeSummary,
     beforeImage,
@@ -149,7 +144,6 @@ const isCommentExist = async (ideaboxId, employeeId) => {
 };
 
 const submitComment = async (ideaboxId, comment) => {
-
   const { comment: message, createdBy } = comment;
   const isExist = await isCommentExist(ideaboxId, createdBy);
 
@@ -169,15 +163,14 @@ const insertComment = async (ideaboxId, comment) => {
   var stillUtc = moment.utc(date).toDate();
   var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
-  await db.query(sql, [ideaboxId, createdBy, timestamp, message]);  
-  
+  await db.query(sql, [ideaboxId, createdBy, timestamp, message]);
 };
 
 const updateComment = async (ideaboxId, comment) => {
-  const {comment: message, createdBy} = comment;
-  const sql = "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
+  const { comment: message, createdBy } = comment;
+  const sql =
+    "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
   await db.query(sql, [message, ideaboxId, createdBy]);
-  
 };
 
 const deleteImpactByIdeaboxId = async (ideaboxId) => {
@@ -194,7 +187,6 @@ const update = async (ideabox) => {
   const sql = `UPDATE ideabox SET idea_type =?, tema = ?, kaizen_area = ?, 
     pelaksanaan_ideasheet = ?, kaizen_amount = ? WHERE id = ?`;
 
-  
   const { ideaType, tema, kaizenArea, isIdeasheet, kaizenAmount, ideaboxId } =
     ideabox;
 
@@ -265,8 +257,24 @@ const replaceImpacts = async (ideaboxId, impacts) => {
   });
 };
 
+const posting = async (ideaboxId, employeeId) => {
+  console.log(
+    "posting: ",
+    ideaboxId,
+    employeeId,
+    "EMPLOYEE",
+    "SECTION_MANAGER"
+  );
+
+  let sql =
+    "UPDATE ideabox SET assigned_to = 'SECTION_MANAGER', status = 'POSTED' WHERE id = ? AND status = 'OPEN'";
+
+  console.log(sql);
+  await db.query(sql, [ideaboxId]);
+};
+
 const approve = async (ideaboxId, employeeId) => {
-  const approvalRole = await getApprovalRole(employeeId);
+  const approvalRole = await repo.getApprovalRole(employeeId);
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
   const now = moment.utc().format("YYYY-MM-DD HH:mm:ss");
 
@@ -285,7 +293,7 @@ const approve = async (ideaboxId, employeeId) => {
   } else if (roleId === "DEPARTMENT_MANAGER") {
     sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status='APPROVED' WHERE id = ?`;
   } else if (roleId === "KOMITE_IDEABOX") {
-    sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
+    sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
   }
 
   console.log(sql);
@@ -293,7 +301,7 @@ const approve = async (ideaboxId, employeeId) => {
 };
 
 const reject = async (ideaboxId, employeeId) => {
-  const approvalRole = await getApprovalRole(employeeId);
+  const approvalRole = await repo.getApprovalRole(employeeId);
   const { role_id: roleId, prev_role: assignedTo } = approvalRole;
 
   const sql = `UPDATE ideabox SET assigned_to = ?, status = 'REJECTED' WHERE id = ?`;
@@ -324,4 +332,5 @@ module.exports = {
   updateComment,
   replaceImpacts,
   updateDetail,
+  posting,
 };
