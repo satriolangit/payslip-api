@@ -58,7 +58,7 @@ const submit = async (master) => {
   const number = await generateNumber();
 
   const assignedTo =
-    approvalRole !== "NONE"
+    approvalRole !== "EMPLOYEE"
       ? await repo.getNextAssignee(employeeId)
       : "EMPLOYEE";
 
