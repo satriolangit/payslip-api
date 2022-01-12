@@ -231,6 +231,8 @@ router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;
 
+    console.log(req.body);
+
     let data = [];
     if (approvalRole === "EMPLOYEE") {
       data = await repo.getIdeaboxListForEmployee(employeeId);
@@ -333,9 +335,9 @@ router.post(
       const request = JSON.parse(req.body.data);
       const { master, detail, comment } = request;
 
-      console.log("master", master);
-      console.log("detail", detail);
-      console.log("comment", comment);
+      // console.log("master", master);
+      // console.log("detail", detail);
+      // console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];

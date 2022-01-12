@@ -224,7 +224,7 @@ const getNextAssignee = async (employeeId) => {
 
   const query = await db.query(sql, employeeId);
 
-  let result = "NONE";
+  let result = "EMPLOYEE";
 
   if (query.length > 0) {
     result = query[0].next_role;
