@@ -9,15 +9,19 @@ const app = express();
 app.use(express.json({ extended: false }));
 
 /* Use cors and fileUpload*/
-app.use(
-  cors({
-    allowedHeaders: ["sessionId", "Content-Type", "x-auth-token"],
-    exposedHeaders: ["sessionId"],
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
-  })
-);
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, sessionId, x-auth-token"
+  );
+  if ("OPTIONS" == req.method) {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(
