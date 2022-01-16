@@ -1,2 +1,6 @@
 node_modules
 public/survey/*
+public/ideabox/*
+public/payslip/*
+public/photos/*
+public/uploads/*

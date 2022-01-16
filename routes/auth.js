@@ -14,15 +14,17 @@ const router = express.Router();
 // @access  Private
 router.get("/", auth, async (req, res) => {
   try {
-    const sql =
-      "SELECT user_id, email, name, employee_id, photo, role FROM user WHERE user_id = ?";
+    const sql = `SELECT usr.user_id, usr.email, usr.name, usr.employee_id, usr.photo, usr.role, IFNULL(apr.role_id, 'EMPLOYEE') AS approval_role 
+        FROM user usr LEFT JOIN approval_role_mapping apr ON apr.employee_id = usr.employee_id
+        WHERE usr.user_id = ?`;
+
     const user = await db.query(sql, [req.user.id]);
 
     res.status(200).json({
       status: 200,
       message: "OK",
       data: user,
-      errors: null
+      errors: null,
     });
   } catch (err) {
     console.log(err.message);
@@ -30,7 +32,7 @@ router.get("/", auth, async (req, res) => {
       status: 500,
       message: "Get logged user fail",
       data: req.body,
-      errors: err
+      errors: err,
     });
   }
 });
@@ -43,8 +45,8 @@ router.post(
   [
     [
       check("nik", "NIK is required"),
-      check("password", "Password is required").exists()
-    ]
+      check("password", "Password is required").exists(),
+    ],
   ],
 
   async (req, res) => {
@@ -56,7 +58,7 @@ router.post(
         status: 400,
         message: "bad request",
         data: req.body,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -66,25 +68,26 @@ router.post(
     try {
       let sql = "";
       let user = null;
-      
-      if(siteName !== "ALL") {
-        sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? AND (site_name = ? OR site_name = 'ALL') LIMIT 1";
+
+      if (siteName !== "ALL") {
+        sql =
+          "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? AND (site_name = ? OR site_name = 'ALL') LIMIT 1";
         //console.log(sql);
         user = await db.query(sql, [nik, siteName]);
       } else {
-        sql = "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? LIMIT 1";
+        sql =
+          "SELECT user_id, role, password, is_active FROM user WHERE employee_id = ? LIMIT 1";
         //console.log(sql);
         user = await db.query(sql, nik);
       }
-      
 
       if (user.length === 0) {
-        console.log('user:', user);
+        console.log("user:", user);
         return res.status(400).json({
           status: 400,
           message: "Invalid credentials",
           data: req.body,
-          errors: null
+          errors: null,
         });
       }
 
@@ -96,7 +99,7 @@ router.post(
           status: 400,
           message: "User not active",
           data: req.body,
-          errors: null
+          errors: null,
         });
       }
 
@@ -107,15 +110,24 @@ router.post(
           status: 400,
           message: "Invalid credentials",
           data: req.body,
-          errors: null
+          errors: null,
         });
       }
+
+      //add approval information to payload
+      const query = await db.query(
+        "SELECT id FROM approval_role_mapping WHERE employee_id = ? LIMIT 1",
+        nik
+      );
+      const approvalRole = query.length > 0 ? query[0].id : "NONE";
 
       const payload = {
         user: {
           id: user.user_id,
-          role: user.role
-        }
+          role: user.role,
+          approvalRole: approvalRole,
+          employeeId: nik,
+        },
       };
 
       const secretKey = config.get("jwtSecretKey");
@@ -136,7 +148,7 @@ router.post(
         status: 500,
         message: "Failed to get token",
         data: req.body,
-        errors: err
+        errors: err,
       });
     }
   }
