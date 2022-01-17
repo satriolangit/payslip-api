@@ -3,6 +3,7 @@ const router = express.Router();
 
 const service = require("../services/approvalRoleService");
 const query = require("../queries/approvalRoleQuery");
+const repo = require("../repositories/ideaboxRepository");
 
 router.get("/", async (req, res) => {
   try {
@@ -38,6 +39,53 @@ router.get("/mapping", async (req, res) => {
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get user mapping list",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+router.get("/mapping/users", async (req, res) => {
+  try {
+    const result = await query.getActiveUsers();
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: result,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get user list",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+router.get("/mapping/users", async (req, res) => {
+  try {
+    const result = await query.getActiveUsers();
+
+    const users = result.map((user) => {
+      return {
+        employeeId,
+        name,
+      };
+    });
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: users,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get user list",
       data: req.body,
       errors: error,
     });

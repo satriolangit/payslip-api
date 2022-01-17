@@ -50,9 +50,17 @@ const searchUser = async (keywords) => {
   return result;
 };
 
+const getActiveUsers = async () => {
+  const sql = `SELECT user_id AS userId, employee_id AS employeeId, name, site_name AS siteName
+    FROM user 
+    WHERE is_active = 1 AND (site_name = 'ALL' OR site_name = 'IDEABOX')
+    ORDER BY name, employee_id`;
+};
+
 module.exports = {
   getApprovalRoleMapping,
   getUserThatNotMapped,
   searchApprovalRoleMapping,
   searchUser,
+  getActiveUsers,
 };
