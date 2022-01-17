@@ -80,6 +80,29 @@ router.get("/closedIdeaCount/:year", async (req, res) => {
   }
 });
 
+router.get("/closedIdeaCount", async (req, res) => {
+  try {
+    const year = req.query.year;
+    const employeeId = req.query.employeeId;
+
+    const total = await repo.getTotalClosedIdeaboxByYear(year);
+
+    res.status(200).json({
+      result: "OK",
+      message: "Success",
+      data: total,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get total closed ideasheet",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 /* route for view ideabox  */
 router.get("/view/:id", async (req, res) => {
   try {

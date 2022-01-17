@@ -2,8 +2,10 @@ const db = require("../config/database");
 
 const getApprovalRoleMapping = async () => {
   const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS approvalRoleId, mapping.employee_id AS employeeId,
-        usr.name AS username, '' AS department, usr.email
-        FROM approval_role_mapping mapping INNER JOIN user usr ON usr.employee_id = mapping.employee_id`;
+        usr.name AS username, dept.department_name AS department, usr.email
+        FROM approval_role_mapping mapping 
+          INNER JOIN user usr ON usr.employee_id = mapping.employee_id
+          LEFT JOIN department dept ON dept.id = mapping.department_id`;
 
   const result = await db.query(sql);
   return result;
@@ -11,8 +13,9 @@ const getApprovalRoleMapping = async () => {
 
 const searchApprovalRoleMapping = async (keywords) => {
   const sql = `SELECT mapping.id AS mappingId, mapping.role_id AS approvalRoleId, mapping.employee_id AS employeeId,
-            usr.name AS username, '' AS department, usr.email
+            usr.name AS username, dept.department_name AS department, usr.email
         FROM approval_role_mapping mapping INNER JOIN user usr ON usr.employee_id = mapping.employee_id
+        LEFT JOIN department dept ON dept.id = mapping.department_id
         WHERE mapping.role_id LIKE ? OR mapping.employee_id LIKE ? OR usr.name LIKE ?`;
 
   const result = await db.query(sql, [
@@ -55,6 +58,9 @@ const getActiveUsers = async () => {
     FROM user 
     WHERE is_active = 1 AND (site_name = 'ALL' OR site_name = 'IDEABOX')
     ORDER BY name, employee_id`;
+
+  const result = await db.query(sql);
+  return result;
 };
 
 module.exports = {

@@ -216,6 +216,19 @@ const getTotalClosedIdeaboxByYear = async (year) => {
   return result;
 };
 
+const getTotalClosedIdeaboxByYearAndEmployee = async (year, employeeId) => {
+  const startDate = moment.utc(`${year.toString()}-01-01`).format("YYYY-MM-DD");
+  const endDate = moment.utc(`${year.toString()}-12-31`).format("YYYY-MM-DD");
+
+  const sql = `SELECT COUNT(id) AS Total FROM ideabox 
+        WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED' AND submitteed_by = ?`;
+
+  const query = await db.query(sql, [startDate, endDate, employeeId]);
+  const result = query[0].Total;
+
+  return result;
+};
+
 const getNextAssignee = async (employeeId) => {
   const sql = `SELECT map.employee_id, apr.id as role_id, apr.next_role, apr.prev_role
 		FROM approval_role_mapping map 
