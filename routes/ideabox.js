@@ -261,8 +261,13 @@ router.post("/list", async (req, res) => {
       data = await repo.getIdeaboxListForEmployee(employeeId);
     } else if (approvalRole === "ADMIN") {
       data = await repo.getIdeaboxListForAdmin();
+    } else if (
+      approvalRole === "SECTION_MANAGER" ||
+      approvalRole === "DEPARTMENT_MANAGER"
+    ) {
+      data = await repo.getIdeaboxListForManager(approvalRole, employeeId);
     } else {
-      data = await repo.getIdeaboxList(approvalRole, employeeId);
+      data = await repo.getIdeaboxList(approvalRole);
     }
 
     res.status(200).json({
@@ -292,6 +297,15 @@ router.post("/list/search", auth, async (req, res) => {
       data = await repo.searchIdeaboxListForAdmin(keywords);
     } else if (approvalRole === "EMPLOYEE") {
       data = await repo.searchIdeaboxListForEmployee(employeeId, keywords);
+    } else if (
+      approvalRole === "SECTION_MANAGER" ||
+      approvalRole === "DEPARTMENT_MANAGER"
+    ) {
+      data = await repo.searchIdeaboxListForManager(
+        approvalRole,
+        employeeId,
+        keywords
+      );
     } else {
       data = await repo.searchIdeaboxList(approvalRole, employeeId, keywords);
     }
