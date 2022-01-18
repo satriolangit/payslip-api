@@ -154,6 +154,10 @@ const getApprovalDepartments = async (employeeId) => {
 };
 
 const getIdeaboxListForManager = async (role, employeeId) => {
+  const departments = await getApprovalDepartments(employeeId);
+
+  const departmentIds = departments.join(",").toString();
+
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
@@ -166,18 +170,18 @@ const getIdeaboxListForManager = async (role, employeeId) => {
       LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
       LEFT JOIN department dept ON dept.id = ibx.department_id
-      WHERE ibx.department_id IN ( ? ) AND ibx.assigned_to = ? ;
+      WHERE ibx.department_id IN ( ${departmentIds} ) AND ibx.assigned_to = ? ;
     `;
 
-  console.log(role, employeeId, sql);
-  const departments = await getApprovalDepartments(employeeId);
+  //console.log(sql, departmentIds, role);
 
-  console.log(sql, departments.join(","), role);
-
-  return await db.query(sql, [departments.join(), role]);
+  return await db.query(sql, [role]);
 };
 
 const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
+  const departments = await getApprovalDepartments(employeeId);
+  const departmentIds = departments.join(",").toString();
+
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
@@ -190,14 +194,11 @@ const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
       LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
       LEFT JOIN department dept ON dept.id = ibx.department_id
-    WHERE ibx.department_id IN ( ? ) AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
+    WHERE ibx.department_id IN ( ${departmentIds} ) AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
       OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?) AND ibx.assigned_to = ?;
     `;
 
-  const departments = await getApprovalDepartments(employeeId);
-
   return await db.query(sql, [
-    departments.join(),
     "%" + keywords + "%",
     "%" + keywords + "%",
     "%" + keywords + "%",
