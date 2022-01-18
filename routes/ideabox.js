@@ -159,7 +159,7 @@ router.get("/edit/:id", async (req, res) => {
       arrImpact = [...arrImpact, item.impact_id];
     });
 
-    console.log(comment);
+    //console.log(comment);
 
     const result = {
       master,
@@ -269,6 +269,8 @@ router.post("/list", async (req, res) => {
     } else {
       data = await repo.getIdeaboxList(approvalRole);
     }
+
+    console.log("data : ", data);
 
     res.status(200).json({
       result: "OK",
