@@ -51,7 +51,7 @@ const submit = async (master) => {
     approvalRole,
   } = master;
 
-  console.log("master", master);
+  //console.log("master", master);
 
   const sql =
     "INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) " +
@@ -59,12 +59,14 @@ const submit = async (master) => {
 
   const number = await generateNumber();
 
-  console.log("employeeId :", employeeId);
+  //console.log("employeeId :", employeeId);
 
   const assignedTo =
     approvalRole !== "EMPLOYEE"
       ? await repo.getNextAssignee(submittedBy)
-      : "EMPLOYEE";
+      : "SECTION_MANAGER";
+
+  console.log(assignedTo);
 
   var result = await db.query(sql, [
     number,
