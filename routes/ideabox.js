@@ -159,8 +159,6 @@ router.get("/edit/:id", async (req, res) => {
       arrImpact = [...arrImpact, item.impact_id];
     });
 
-    //console.log(comment);
-
     const result = {
       master,
       detail,
@@ -197,17 +195,6 @@ router.post(
       const { beforeImageFile, afterImageFile } = detail;
       let { beforeImage, afterImage } = detail;
 
-      console.log(master);
-
-      // console.log("master", master);
-      // console.log("detail", detail);
-      // console.log("comment", comment);
-      // console.log("impact", impact);
-
-      console.log("file: ", beforeImageFile, afterImageFile);
-
-      //console.log("req.files", req.files.beforeImage[0]);
-
       if (beforeImageFile !== null) {
         beforeImage = req.files.beforeImage[0].filename;
       }
@@ -221,8 +208,6 @@ router.post(
         beforeImage: beforeImage,
         afterImage: afterImage,
       };
-
-      console.log(master);
 
       const { ideaboxId } = master;
 
@@ -254,8 +239,6 @@ router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;
 
-    console.log(req.body);
-
     let data = [];
     if (approvalRole === "EMPLOYEE") {
       data = await repo.getIdeaboxListForEmployee(employeeId);
@@ -269,8 +252,6 @@ router.post("/list", async (req, res) => {
     } else {
       data = await repo.getIdeaboxList(approvalRole);
     }
-
-    console.log("data : ", data);
 
     res.status(200).json({
       result: "OK",
@@ -376,7 +357,7 @@ router.post(
 
       // console.log("master", master);
       // console.log("detail", detail);
-      // console.log("comment", comment);
+      console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];
@@ -442,12 +423,7 @@ router.post("/submit/impact", async (req, res) => {
 
 router.post("/submit/kyt", async (req, res) => {
   try {
-    console.log(req.body.data);
     const { master, detail, comment } = req.body;
-
-    console.log("master", master);
-    console.log("detail", detail);
-    console.log("comment", comment);
 
     var result = await service.submit(master, detail, comment);
 

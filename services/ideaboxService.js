@@ -150,7 +150,7 @@ const isCommentExist = async (ideaboxId, employeeId) => {
 };
 
 const submitComment = async (ideaboxId, comment) => {
-  const { comment: message, createdBy } = comment;
+  const { createdBy } = comment;
   const isExist = await isCommentExist(ideaboxId, createdBy);
 
   if (isExist) {
@@ -163,7 +163,7 @@ const submitComment = async (ideaboxId, comment) => {
 const insertComment = async (ideaboxId, comment) => {
   const sql = `INSERT ideabox_comment (master_id, created_by, created_at, comment) VALUES (?,?,?,?)`;
 
-  const { comment: message, createdBy } = comment;
+  const { value: message, createdBy } = comment;
 
   var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
   var stillUtc = moment.utc(date).toDate();
@@ -173,7 +173,7 @@ const insertComment = async (ideaboxId, comment) => {
 };
 
 const updateComment = async (ideaboxId, comment) => {
-  const { comment: message, createdBy } = comment;
+  const { value: message, createdBy } = comment;
   const sql =
     "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
   await db.query(sql, [message, ideaboxId, createdBy]);
