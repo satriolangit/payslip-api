@@ -51,7 +51,7 @@ const submit = async (master) => {
     approvalRole,
   } = master;
 
-  console.log("master", master);
+  //console.log("master", master);
 
   const sql =
     "INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) " +
@@ -59,12 +59,14 @@ const submit = async (master) => {
 
   const number = await generateNumber();
 
-  console.log("employeeId :", employeeId);
+  //console.log("employeeId :", employeeId);
 
   const assignedTo =
     approvalRole !== "EMPLOYEE"
       ? await repo.getNextAssignee(submittedBy)
-      : "EMPLOYEE";
+      : "SECTION_MANAGER";
+
+  console.log(assignedTo);
 
   var result = await db.query(sql, [
     number,
@@ -148,7 +150,7 @@ const isCommentExist = async (ideaboxId, employeeId) => {
 };
 
 const submitComment = async (ideaboxId, comment) => {
-  const { comment: message, createdBy } = comment;
+  const { createdBy } = comment;
   const isExist = await isCommentExist(ideaboxId, createdBy);
 
   if (isExist) {
@@ -161,7 +163,7 @@ const submitComment = async (ideaboxId, comment) => {
 const insertComment = async (ideaboxId, comment) => {
   const sql = `INSERT ideabox_comment (master_id, created_by, created_at, comment) VALUES (?,?,?,?)`;
 
-  const { comment: message, createdBy } = comment;
+  const { value: message, createdBy } = comment;
 
   var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
   var stillUtc = moment.utc(date).toDate();
@@ -171,7 +173,7 @@ const insertComment = async (ideaboxId, comment) => {
 };
 
 const updateComment = async (ideaboxId, comment) => {
-  const { comment: message, createdBy } = comment;
+  const { value: message, createdBy } = comment;
   const sql =
     "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
   await db.query(sql, [message, ideaboxId, createdBy]);

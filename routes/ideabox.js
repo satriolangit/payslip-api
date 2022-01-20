@@ -80,6 +80,29 @@ router.get("/closedIdeaCount/:year", async (req, res) => {
   }
 });
 
+router.get("/closedIdeaCount", async (req, res) => {
+  try {
+    const year = req.query.year;
+    const employeeId = req.query.employeeId;
+
+    const total = await repo.getTotalClosedIdeaboxByYear(year);
+
+    res.status(200).json({
+      result: "OK",
+      message: "Success",
+      data: total,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get total closed ideasheet",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 /* route for view ideabox  */
 router.get("/view/:id", async (req, res) => {
   try {
@@ -136,8 +159,6 @@ router.get("/edit/:id", async (req, res) => {
       arrImpact = [...arrImpact, item.impact_id];
     });
 
-    console.log(comment);
-
     const result = {
       master,
       detail,
@@ -174,17 +195,6 @@ router.post(
       const { beforeImageFile, afterImageFile } = detail;
       let { beforeImage, afterImage } = detail;
 
-      console.log(master);
-
-      // console.log("master", master);
-      // console.log("detail", detail);
-      // console.log("comment", comment);
-      // console.log("impact", impact);
-
-      console.log("file: ", beforeImageFile, afterImageFile);
-
-      //console.log("req.files", req.files.beforeImage[0]);
-
       if (beforeImageFile !== null) {
         beforeImage = req.files.beforeImage[0].filename;
       }
@@ -198,8 +208,6 @@ router.post(
         beforeImage: beforeImage,
         afterImage: afterImage,
       };
-
-      console.log(master);
 
       const { ideaboxId } = master;
 
@@ -231,15 +239,18 @@ router.post("/list", async (req, res) => {
   try {
     const { approvalRole, employeeId } = req.body;
 
-    console.log(req.body);
-
     let data = [];
     if (approvalRole === "EMPLOYEE") {
       data = await repo.getIdeaboxListForEmployee(employeeId);
     } else if (approvalRole === "ADMIN") {
       data = await repo.getIdeaboxListForAdmin();
+    } else if (
+      approvalRole === "SECTION_MANAGER" ||
+      approvalRole === "DEPARTMENT_MANAGER"
+    ) {
+      data = await repo.getIdeaboxListForManager(approvalRole, employeeId);
     } else {
-      data = await repo.getIdeaboxList(approvalRole, employeeId);
+      data = await repo.getIdeaboxList(approvalRole);
     }
 
     res.status(200).json({
@@ -269,6 +280,15 @@ router.post("/list/search", auth, async (req, res) => {
       data = await repo.searchIdeaboxListForAdmin(keywords);
     } else if (approvalRole === "EMPLOYEE") {
       data = await repo.searchIdeaboxListForEmployee(employeeId, keywords);
+    } else if (
+      approvalRole === "SECTION_MANAGER" ||
+      approvalRole === "DEPARTMENT_MANAGER"
+    ) {
+      data = await repo.searchIdeaboxListForManager(
+        approvalRole,
+        employeeId,
+        keywords
+      );
     } else {
       data = await repo.searchIdeaboxList(approvalRole, employeeId, keywords);
     }
@@ -337,7 +357,7 @@ router.post(
 
       // console.log("master", master);
       // console.log("detail", detail);
-      // console.log("comment", comment);
+      console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];
@@ -403,12 +423,7 @@ router.post("/submit/impact", async (req, res) => {
 
 router.post("/submit/kyt", async (req, res) => {
   try {
-    console.log(req.body.data);
     const { master, detail, comment } = req.body;
-
-    console.log("master", master);
-    console.log("detail", detail);
-    console.log("comment", comment);
 
     var result = await service.submit(master, detail, comment);
 

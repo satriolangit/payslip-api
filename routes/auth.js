@@ -16,7 +16,7 @@ router.get("/", auth, async (req, res) => {
   try {
     const sql = `SELECT usr.user_id, usr.email, usr.name, usr.employee_id, usr.photo, usr.role, IFNULL(apr.role_id, 'EMPLOYEE') AS approval_role 
         FROM user usr LEFT JOIN approval_role_mapping apr ON apr.employee_id = usr.employee_id
-        WHERE usr.user_id = ?`;
+        WHERE usr.user_id = ? LIMIT 1`;
 
     const user = await db.query(sql, [req.user.id]);
 
