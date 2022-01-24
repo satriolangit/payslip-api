@@ -83,7 +83,7 @@ CREATE TABLE `approval_role_mapping` (
   `employee_id` varchar(45) DEFAULT NULL,
   `department_id` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +92,7 @@ CREATE TABLE `approval_role_mapping` (
 
 LOCK TABLES `approval_role_mapping` WRITE;
 /*!40000 ALTER TABLE `approval_role_mapping` DISABLE KEYS */;
-INSERT INTO `approval_role_mapping` VALUES (11,'KOMITE_IDEABOX','9994',6),(12,'KOMITE_IDEABOX','9994',5),(13,'KOMITE_IDEABOX','9994',2),(14,'KOMITE_IDEABOX','9994',1),(15,'KOMITE_IDEABOX','9994',7),(16,'KOMITE_IDEABOX','9994',3),(17,'KOMITE_IDEABOX','9994',8),(18,'KOMITE_IDEABOX','9994',4),(19,'KOMITE_IDEABOX','9994',9),(20,'SECTION_MANAGER','9992',5),(22,'ADMIN','9991',9),(23,'ADMIN','9991',5),(24,'ADMIN','9991',2),(25,'ADMIN','9991',1),(26,'ADMIN','9991',7),(27,'ADMIN','9991',3),(28,'ADMIN','9991',8),(29,'ADMIN','9991',6),(30,'ADMIN','9991',4),(31,'SECTION_MANAGER','9995',2),(32,'DEPARTMENT_MANAGER','9993',5),(33,'DEPARTMENT_MANAGER','9993',2);
+INSERT INTO `approval_role_mapping` VALUES (31,'SECTION_MANAGER','9995',2),(34,'SECTION_MANAGER','9992',3),(37,'KOMITE_IDEABOX','9994',9),(38,'KOMITE_IDEABOX','9994',5),(39,'KOMITE_IDEABOX','9994',2),(40,'KOMITE_IDEABOX','9994',7),(41,'KOMITE_IDEABOX','9994',1),(42,'KOMITE_IDEABOX','9994',3),(43,'KOMITE_IDEABOX','9994',8),(44,'KOMITE_IDEABOX','9994',6),(45,'KOMITE_IDEABOX','9994',4),(49,'DEPARTMENT_MANAGER','9993',5),(50,'DEPARTMENT_MANAGER','9993',2),(51,'DEPARTMENT_MANAGER','9993',1),(52,'DEPARTMENT_MANAGER','9993',7),(53,'DEPARTMENT_MANAGER','9993',3);
 /*!40000 ALTER TABLE `approval_role_mapping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -149,7 +149,7 @@ CREATE TABLE `ideabox` (
   `department_id` int DEFAULT NULL,
   `status` varchar(20) DEFAULT NULL COMMENT 'OPEN : sebelum diapprove oleh komite\nCLOSED : setelah diapprove oleh komite',
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,7 +158,7 @@ CREATE TABLE `ideabox` (
 
 LOCK TABLES `ideabox` WRITE;
 /*!40000 ALTER TABLE `ideabox` DISABLE KEYS */;
-INSERT INTO `ideabox` VALUES (1,'2022-01-0001','UMUM','2010','2022-01-18 08:01:08','test FA','area FA',1,NULL,'12345',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',5,'POSTED'),(2,'2022-01-0002','UMUM','2010','2022-01-18 08:02:16','test GA','area GA',0,NULL,'54321','9995','2022-01-18 01:59:17',NULL,NULL,NULL,NULL,'DEPARTMENT_MANAGER',2,'REVIEWED');
+INSERT INTO `ideabox` VALUES (1,'2022-01-0001','UMUM','2010','2022-01-20 07:29:58','tema test','area ',0,NULL,'tes',NULL,NULL,NULL,NULL,NULL,NULL,'SECTION_MANAGER',2,'OPEN');
 /*!40000 ALTER TABLE `ideabox` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +176,7 @@ CREATE TABLE `ideabox_comment` (
   `created_at` datetime DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -185,7 +185,7 @@ CREATE TABLE `ideabox_comment` (
 
 LOCK TABLES `ideabox_comment` WRITE;
 /*!40000 ALTER TABLE `ideabox_comment` DISABLE KEYS */;
-INSERT INTO `ideabox_comment` VALUES (1,1,'2010','2022-01-18 08:01:08',NULL),(2,2,'2010','2022-01-18 08:02:16',NULL);
+INSERT INTO `ideabox_comment` VALUES (1,1,'2010','2022-01-20 07:29:58','tes comment');
 /*!40000 ALTER TABLE `ideabox_comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -213,7 +213,7 @@ CREATE TABLE `ideabox_detail` (
   `after_value_rank` int DEFAULT NULL COMMENT 'harus ada table rank type',
   `before_value_apa` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,7 +222,7 @@ CREATE TABLE `ideabox_detail` (
 
 LOCK TABLES `ideabox_detail` WRITE;
 /*!40000 ALTER TABLE `ideabox_detail` DISABLE KEYS */;
-INSERT INTO `ideabox_detail` VALUES (1,1,'tres','beforeImage_20220118080108_2021-10-10_08h34_23.png',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'after','afterImage_20220118080108_2021-10-14_06h26_06.png',NULL,NULL),(2,2,'ga cuy','beforeImage_20220118080216_2021-11-14_18h48_30.png',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'ga cuy','afterImage_20220118080216_2021-10-15_09h36_04.png',NULL,NULL);
+INSERT INTO `ideabox_detail` VALUES (1,1,'before','beforeImage_20220120072957_2021-11-14_18h48_30.png',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'before','afterImage_20220120072957_2021-10-10_08h34_23.png',NULL,NULL);
 /*!40000 ALTER TABLE `ideabox_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -246,7 +246,7 @@ CREATE TABLE `ideabox_impact` (
 
 LOCK TABLES `ideabox_impact` WRITE;
 /*!40000 ALTER TABLE `ideabox_impact` DISABLE KEYS */;
-INSERT INTO `ideabox_impact` VALUES (1,1),(1,2),(2,1),(2,2);
+INSERT INTO `ideabox_impact` VALUES (1,1);
 /*!40000 ALTER TABLE `ideabox_impact` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -384,7 +384,7 @@ DROP TABLE IF EXISTS `ms_ideabox_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ms_ideabox_type` (
   `id` varchar(20) NOT NULL,
-  `description` varchar(45) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -407,9 +407,11 @@ DROP TABLE IF EXISTS `notification_mapping`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notification_mapping` (
-  `notification_id` varchar(20) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `notification_type` int NOT NULL,
   `employee_id` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`notification_id`)
+  `department_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -431,7 +433,7 @@ DROP TABLE IF EXISTS `notification_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notification_type` (
   `type` varchar(20) NOT NULL,
-  `description` varchar(50) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -442,6 +444,7 @@ CREATE TABLE `notification_type` (
 
 LOCK TABLES `notification_type` WRITE;
 /*!40000 ALTER TABLE `notification_type` DISABLE KEYS */;
+INSERT INTO `notification_type` VALUES ('1','Menerima semua notifikasi'),('2','Menerima satu kalo notifikasi untuk total record yang masuk dalam satu hari (07.00 page esok hari)'),('3','Tidak menerima sama sekali');
 /*!40000 ALTER TABLE `notification_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -735,4 +738,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-18  9:03:30
+-- Dump completed on 2022-01-24  8:14:53
