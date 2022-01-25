@@ -2,7 +2,8 @@ const db = require("../config/database");
 
 const getNotificationMappingsByEmployeeId = async (employeeId) => {
   const sql = `SELECT map.id, map.notification_type AS notificationType, map.employee_id AS employeeId,
-        map.department_id AS departmentId, dept.department_name AS departmentName, notif.description AS notifTypeDescription
+        map.department_id AS departmentId, dept.department_name AS departmentName, notif.description AS notifTypeDescription,
+        usr.name AS name
     FROM notification_mapping map 
         INNER JOIN user usr ON usr.employee_id = map.employee_id
         INNER JOIN department dept ON dept.id = map.department_id

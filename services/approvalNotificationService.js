@@ -12,7 +12,7 @@ const createMapping = async (notificationType, employeeId, departmentId) => {
 const removeMappingById = async (id) => {
   const sql = "DELETE FROM notification_mapping WHERE id = ?";
 
-  await db.query(sql);
+  await db.query(sql, id);
 };
 
 const notifySectionManager = (departmentId, departmentName, employeeName) => {

@@ -104,11 +104,13 @@ router.post("/mapping/remove", async (req, res) => {
 
     res.status(200).json({
       result: "OK",
-      message: "Successfully create remove mapping",
-      data: result,
+      message: "Successfully remove mapping",
+      data: req.body,
       errors: null,
     });
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to remove notification mapping",
