@@ -1,5 +1,6 @@
 const express = require("express");
 const query = require("../queries/approvalNotificationQuery");
+const service = require("../services/approvalNotificationService");
 
 const router = express.Router();
 
@@ -80,7 +81,7 @@ router.post("/mapping/add", async (req, res) => {
     res.status(200).json({
       result: "OK",
       message: "Successfully create notification mapping",
-      data: result,
+      data: req.body,
       errors: null,
     });
   } catch (error) {

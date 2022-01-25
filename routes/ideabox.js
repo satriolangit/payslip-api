@@ -388,10 +388,12 @@ router.post(
         master.departmentId
       );
 
-      notifService.notifySectionManager(
+      console.log("master:", master);
+
+      await notifService.notifySectionManager(
         master.departmentId,
-        master.submitter.name,
-        departmentName
+        departmentName,
+        master.submitterName
       );
 
       res.status(200).json({
@@ -523,6 +525,22 @@ router.post("/reject", async (req, res) => {
       message: "Internal server error, failed to reject ideabox",
       data: req.body,
       errors: error,
+    });
+  }
+});
+
+router.post("/notify", async (req, res) => {
+  try {
+    await notifService.notifySectionManager(3, "PC", "WAHYU TES");
+
+    res.status(200).json({
+      result: "OK",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      result: "ERROR",
+      message: error,
     });
   }
 });

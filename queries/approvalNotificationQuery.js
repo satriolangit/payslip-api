@@ -80,6 +80,45 @@ const getTotalIdeasheetOfKomite = async (
   return query[0].totalIdeasheet;
 };
 
+const getSectionManagerTobeNotified = async (
+  departmentId,
+  notificationType
+) => {
+  const sql = `SELECT usr.employee_id AS employeeId, apr.id AS approvalRole, usr.email
+    FROM approval_role apr 
+      INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
+        INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+        INNER JOIN user usr ON usr.employee_id = apm.employee_id
+    WHERE apr.id = 'SECTION_MANAGER' AND apm.department_id = ? AND ntm.notification_type = ?`;
+
+  return await db.query(sql, [departmentId, notificationType]);
+};
+
+const getDepartmentManagerTobeNotified = async (
+  departmentId,
+  notificationType
+) => {
+  const sql = `SELECT usr.employee_id AS employeeId, apr.id AS approvalRole, usr.email
+    FROM approval_role apr 
+      INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
+        INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+        INNER JOIN user usr ON usr.employee_id = apm.employee_id
+    WHERE apr.id = 'DEPARTMENT_MANAGER' AND apm.department_id = ? AND ntm.notification_type = ?`;
+
+  return await db.query(sql, [departmentId, notificationType]);
+};
+
+const getKomiteTobeNotified = async (notificationType) => {
+  const sql = `SELECT usr.employee_id AS employeeId, apr.id AS approvalRole, usr.email
+    FROM approval_role apr 
+      INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
+        INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+        INNER JOIN user usr ON usr.employee_id = apm.employee_id
+    WHERE apr.id = 'KOMITE_IDEABOX' AND ntm.notification_type = ?`;
+
+  return await db.query(sql, [notificationType]);
+};
+
 module.exports = {
   getDepartmentByApprovalRoleEmployee,
   getNotificationMappingsByEmployeeId,
@@ -88,4 +127,7 @@ module.exports = {
   getTotalIdeasheetOfSectionManager,
   getTotalIdeasheetOfDepartmentManager,
   getTotalIdeasheetOfKomite,
+  getSectionManagerTobeNotified,
+  getDepartmentManagerTobeNotified,
+  getKomiteTobeNotified,
 };

@@ -15,51 +15,71 @@ const removeMappingById = async (id) => {
   await db.query(sql, id);
 };
 
-const notifySectionManager = (departmentId, departmentName, employeeName) => {
-  const tos = query.getMailAddressByRoleAndDepartment(
-    "SECTION_MANAGER",
-    departmentId
+const notifySectionManager = async (
+  departmentId,
+  departmentName,
+  employeeName
+) => {
+  console.log("notify section manager start");
+  const sectionManagers = await query.getSectionManagerTobeNotified(
+    departmentId,
+    1
   );
+
+  console.log("section manager:", sectionManagers);
+
+  const tos = sectionManagers.map((item) => {
+    return item.email;
+  });
 
   const subject = "Ideasheet yang harus diperiksa";
 
   const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk diperiksa`;
 
-  if (tos.length > 0) {
-    console.log("notifySectionManager: ", tos.join(","), message);
-    mailSender.sendBulk(subject, tos, message);
-  } else {
-    console.log("notifySectionManager: no section manager found");
+  try {
+    if (tos.length > 0) {
+      console.log("notifySectionManager: ", tos, message);
+      mailSender.sendBulk(subject, tos, message);
+    } else {
+      console.log("notifySectionManager: no section manager found");
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
-const notifyDepartmentManager = (
+const notifyDepartmentManager = async (
   departmentId,
   departmentName,
   employeeName
 ) => {
-  const tos = query.getMailAddressByRoleAndDepartment(
-    "DEPARTMENT_MANAGER",
-    departmentId
+  const deptManagers = await query.getDepartmentManagerTobeNotified(
+    departmentId,
+    1
   );
+
+  const tos = deptManagers.map((item) => {
+    return item.email;
+  });
 
   const subject = "Ideasheet yang harus disetujui";
 
   const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk disetujui`;
 
   if (tos.length > 0) {
-    console.log("notifyDeptManager: ", tos.join(","), message);
+    console.log("notifyDeptManager: ", tos, message);
     mailSender.sendBulk(subject, tos, message);
   } else {
     console.log("notifyDeptManager: no dept manager found");
   }
 };
 
-const notifyKomite = (departmentId, departmentName, employeeName) => {
-  const tos = query.getMailAddressByRoleAndDepartment(
-    "KOMITE_IDEABOX",
-    departmentId
-  );
+const notifyKomite = async (departmentName, employeeName) => {
+  const komite = await query.getKomiteTobeNotified(1);
+
+  const tos = komite.map((item) => {
+    return item.email;
+  });
 
   const subject = "Ideasheet yang harus diterima";
 
