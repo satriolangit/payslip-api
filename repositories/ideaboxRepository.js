@@ -229,6 +229,25 @@ const getIdeaboxListPerPages = async (role, employeeId, limit, offset) => {
   return await db.query(sql, [role, employeeId, limit, offset]);
 };
 
+const geetIdeaboxByid = async (id) => {
+  const sql = `
+    SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaType, ibx.submitted_by AS submittedBy,
+            DATE_FORMAT(submitted_at, '%Y-%m-%d') AS submittedAt, submitter.name AS submitterName, ibx.tema, ibx.kaizen_area AS kaizenArea,
+            ibx.kaizen_amount AS kaizenAmount, ibx.department_id AS departmentId,
+            reviewer.name AS reviewerName, approver.name AS approverName, receiver.name AS receiverName,
+            ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName
+            FROM ideabox ibx LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
+            LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
+            LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
+            LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
+            LEFT JOIN department dept ON dept.id = ibx.department_id
+    WHERE ibx.id = ?`;
+
+  const query = await db.query(sql, id);
+
+  return query[0];
+};
+
 const getIdeaboxCount = async (role, employeeId) => {
   const sql =
     "SELECT COUNT(id) FROM ideabox WHERE assigned_to = ? OR submitted_by = ?";
@@ -242,6 +261,14 @@ const getDepartments = async () => {
     "SELECT id, department_name as departmentName FROM department ORDER by department_name";
 
   return await db.query(sql);
+};
+
+const getDepartmentNameById = async (id) => {
+  const sql =
+    "SELECT department_name AS departmentName FROM department WHERE id = ?";
+
+  const query = await db.query(sql, id);
+  return query[0].departmentName;
 };
 
 const getIdeaTypes = async () => {
@@ -362,4 +389,6 @@ module.exports = {
   getIdeaboxListForManager,
   searchIdeaboxListForManager,
   getTotalClosedIdeaboxByYearAndEmployee,
+  getDepartmentNameById,
+  geetIdeaboxByid,
 };

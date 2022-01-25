@@ -9,6 +9,7 @@ const adminOnly = require("../middleware/adminOnly");
 const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
+const notifService = require("../services/approvalNotificationService");
 
 //upload photo config
 const storage = multer.diskStorage({
@@ -382,6 +383,16 @@ router.post(
       } else {
         await service.submitDetailKyt(ideaboxId, ideasheetDetail);
       }
+
+      const departmentName = await repo.getDepartmentNameById(
+        master.departmentId
+      );
+
+      notifService.notifySectionManager(
+        master.departmentId,
+        master.submitter.name,
+        departmentName
+      );
 
       res.status(200).json({
         result: "OK",

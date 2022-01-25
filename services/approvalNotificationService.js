@@ -27,6 +27,7 @@ const notifySectionManager = (departmentId, departmentName, employeeName) => {
 
   if (tos.length > 0) {
     console.log("notifySectionManager: ", tos.join(","), message);
+    mailSender.sendBulk(subject, tos, message);
   } else {
     console.log("notifySectionManager: no section manager found");
   }
@@ -48,6 +49,7 @@ const notifyDepartmentManager = (
 
   if (tos.length > 0) {
     console.log("notifyDeptManager: ", tos.join(","), message);
+    mailSender.sendBulk(subject, tos, message);
   } else {
     console.log("notifyDeptManager: no dept manager found");
   }
@@ -64,9 +66,10 @@ const notifyKomite = (departmentId, departmentName, employeeName) => {
   const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk diterima`;
 
   if (tos.length > 0) {
-    console.log("notifySectionManager: ", tos.join(","), message);
+    console.log("notifyKomite: ", tos.join(","), message);
+    mailSender.sendBulk(subject, tos, message);
   } else {
-    console.log("notifySectionManager: no section manager found");
+    console.log("notifyKomite: no komite found");
   }
 };
 

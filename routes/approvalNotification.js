@@ -1,5 +1,4 @@
 const express = require("express");
-const service = require("../services/approvalNotificationService");
 const query = require("../queries/approvalNotificationQuery");
 
 const router = express.Router();
