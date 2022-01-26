@@ -531,7 +531,9 @@ router.post("/reject", async (req, res) => {
 
 router.post("/notify", async (req, res) => {
   try {
-    await notifService.notifySectionManager(3, "PC", "WAHYU TES");
+    //await notifService.notifySectionManager(3, "PC", "WAHYU TES");
+
+    await notifService.dailyNotification();
 
     res.status(200).json({
       result: "OK",

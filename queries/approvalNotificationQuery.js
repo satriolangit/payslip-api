@@ -37,18 +37,20 @@ const getMailAddressByRoleAndDepartment = async (role, departmentId) => {
 };
 
 const getTotalIdeasheetOfSectionManager = async (
-  departmentIds,
+  departmentId,
   submittedTimeStart,
   submittedTimeEnd
 ) => {
-  let departments = "0";
-  if (departmentIds.length > 0) departments = departmentIds.join(",");
   const sql = `SELECT COUNT(id) AS totalIdeasheet
     FROM ideabox 
-    WHERE status = 'OPEN' AND department_id IN (${departments}) 
+    WHERE status = 'OPEN' AND department_id = ?) 
     AND submitted_at BETWEEN ? AND ?`;
 
-  const query = await db.query(submittedTimeStart, submittedTimeEnd);
+  const query = await db.query(
+    departmentId,
+    submittedTimeStart,
+    submittedTimeEnd
+  );
 
   return query[0].totalIdeasheet;
 };
@@ -62,7 +64,7 @@ const getTotalIdeasheetOfDepartmentManager = async (
   if (departmentIds.length > 0) departments = departmentIds.join(",");
   const sql = `SELECT COUNT(id) AS totalIdeasheet
     FROM ideabox 
-    WHERE status = 'REVIEWED' AND department_id IN (1,2) AND reviewed_at BETWEEN ? AND '2022-01-20 23:59'`;
+    WHERE status = 'REVIEWED' AND department_id IN (${departments}) AND reviewed_at BETWEEN ? AND ?`;
 
   const query = await db.query(reviewedTimeStart, reviewedTimeEnd);
   return query[0].totalIdeasheet;
@@ -94,6 +96,17 @@ const getSectionManagerTobeNotified = async (
   return await db.query(sql, [departmentId, notificationType]);
 };
 
+const getAllSectionManagerTobeNotified = async (notificationType) => {
+  const sql = `SELECT usr.employee_id AS employeeId, apr.id AS approvalRole, usr.email
+    FROM approval_role apr 
+      INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
+        INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+        INNER JOIN user usr ON usr.employee_id = apm.employee_id
+    WHERE apr.id = 'SECTION_MANAGER' AND ntm.notification_type = ?`;
+
+  return await db.query(sql, [notificationType]);
+};
+
 const getDepartmentManagerTobeNotified = async (
   departmentId,
   notificationType
@@ -106,6 +119,29 @@ const getDepartmentManagerTobeNotified = async (
     WHERE apr.id = 'DEPARTMENT_MANAGER' AND apm.department_id = ? AND ntm.notification_type = ?`;
 
   return await db.query(sql, [departmentId, notificationType]);
+};
+
+const getAllDepartmentManagerTobeNotified = async (notificationType) => {
+  const sql = `SELECT usr.employee_id AS employeeId, apr.id AS approvalRole, usr.email
+  FROM approval_role apr 
+    INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
+      INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+      INNER JOIN user usr ON usr.employee_id = apm.employee_id
+  WHERE apr.id = 'DEPARTMENT_MANAGER' AND ntm.notification_type = ?
+  GROUP BY usr.employee_id`;
+
+  return await db.query(sql, [notificationType]);
+};
+
+const getNotificationMappingDepartmentsByEmployeeId = async (
+  employeeId,
+  notificationType
+) => {
+  const sql = `SELECT DISTINCT department_id AS departmentId 
+      FROM notification_mapping 
+      WHERE employee_id = ? AND notification_type = ?`;
+
+  return await db.query(sql, [employeeId, notificationType]);
 };
 
 const getKomiteTobeNotified = async (notificationType) => {
@@ -130,4 +166,7 @@ module.exports = {
   getSectionManagerTobeNotified,
   getDepartmentManagerTobeNotified,
   getKomiteTobeNotified,
+  getAllDepartmentManagerTobeNotified,
+  getNotificationMappingDepartmentsByEmployeeId,
+  getAllSectionManagerTobeNotified,
 };
