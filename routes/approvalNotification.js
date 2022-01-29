@@ -72,6 +72,7 @@ router.get("/notiftype", async (req, res) => {
 router.post("/mapping/add", async (req, res) => {
   try {
     const { notificationType, employeeId, departmentId } = req.body;
+
     const result = await service.createMapping(
       notificationType,
       employeeId,
