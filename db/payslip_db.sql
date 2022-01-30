@@ -186,6 +186,7 @@ CREATE TABLE `ideabox_comment` (
 LOCK TABLES `ideabox_comment` WRITE;
 /*!40000 ALTER TABLE `ideabox_comment` DISABLE KEYS */;
 INSERT INTO `ideabox_comment` VALUES (1,1,'2010','2022-01-20 07:29:58','tes comment');
+
 /*!40000 ALTER TABLE `ideabox_comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -214,6 +215,7 @@ CREATE TABLE `ideabox_detail` (
   `before_value_apa` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,6 +225,7 @@ CREATE TABLE `ideabox_detail` (
 LOCK TABLES `ideabox_detail` WRITE;
 /*!40000 ALTER TABLE `ideabox_detail` DISABLE KEYS */;
 INSERT INTO `ideabox_detail` VALUES (1,1,'before','beforeImage_20220120072957_2021-11-14_18h48_30.png',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'before','afterImage_20220120072957_2021-10-10_08h34_23.png',NULL,NULL);
+
 /*!40000 ALTER TABLE `ideabox_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -247,6 +250,7 @@ CREATE TABLE `ideabox_impact` (
 LOCK TABLES `ideabox_impact` WRITE;
 /*!40000 ALTER TABLE `ideabox_impact` DISABLE KEYS */;
 INSERT INTO `ideabox_impact` VALUES (1,1);
+
 /*!40000 ALTER TABLE `ideabox_impact` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -739,3 +743,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2022-01-24  8:14:53
+
