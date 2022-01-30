@@ -111,7 +111,8 @@ const getIdeaboxListForAdmin = async () => {
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
       LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
-      LEFT JOIN department dept ON dept.id = ibx.department_id`;
+      LEFT JOIN department dept ON dept.id = ibx.department_id
+    ORDER BY ibx.idea_number`;
 
   return await db.query(sql);
 };
@@ -130,7 +131,8 @@ const searchIdeaboxListForAdmin = async (keywords) => {
       LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
       LEFT JOIN department dept ON dept.id = ibx.department_id 
     WHERE (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
-      OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?)`;
+      OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?)
+    ORDER BY ibx.idea_number`;
 
   return await db.query(sql, [
     "%" + keywords + "%",
@@ -246,6 +248,15 @@ const geetIdeaboxByid = async (id) => {
   const query = await db.query(sql, id);
 
   return query[0];
+};
+
+const getIdeaboxImageById = async (ideaboxId) => {
+  const sql = ` SELECT before_image AS beforeImage, after_image AS afterImage
+    FROM ideabox_detail
+    WHERE master_id = ?`;
+
+  const result = await db.query(sql, ideaboxId);
+  return result[0];
 };
 
 const getIdeaboxCount = async (role, employeeId) => {
@@ -391,4 +402,5 @@ module.exports = {
   getTotalClosedIdeaboxByYearAndEmployee,
   getDepartmentNameById,
   geetIdeaboxByid,
+  getIdeaboxImageById,
 };
