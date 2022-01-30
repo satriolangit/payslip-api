@@ -47,6 +47,7 @@ app.use("/api/survey", require("./routes/survey"));
 app.use("/api/ideabox", require("./routes/ideabox"));
 app.use("/api/master", require("./routes/master"));
 app.use("/api/approval", require("./routes/approval"));
+app.use("/api/ideabox/notification", require("./routes/approvalNotification"));
 
 //test
 app.get("/xyz", (req, res) => res.send("Hello World!"));

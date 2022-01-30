@@ -11,4 +11,5 @@
   "photo_url": "http://localhost:3001/photos/",
   "payslip_url": "http://localhost:3001/payslip/",
   "survey_upload_url": "http://localhost:3001/survey/"
+  
 }

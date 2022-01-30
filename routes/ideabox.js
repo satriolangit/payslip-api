@@ -9,6 +9,7 @@ const adminOnly = require("../middleware/adminOnly");
 const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
+const notifService = require("../services/approvalNotificationService");
 
 //upload photo config
 const storage = multer.diskStorage({
@@ -383,6 +384,18 @@ router.post(
         await service.submitDetailKyt(ideaboxId, ideasheetDetail);
       }
 
+      const departmentName = await repo.getDepartmentNameById(
+        master.departmentId
+      );
+
+      console.log("master:", master);
+
+      await notifService.notifySectionManager(
+        master.departmentId,
+        departmentName,
+        master.submitterName
+      );
+
       res.status(200).json({
         result: "OK",
         message: "Successfully submit ideabox",
@@ -512,6 +525,53 @@ router.post("/reject", async (req, res) => {
       message: "Internal server error, failed to reject ideabox",
       data: req.body,
       errors: error,
+    });
+  }
+});
+
+router.post("/delete", async (req, res) => {
+  try {
+    const { ideaboxIds } = req.body;
+
+    ideaboxIds.map(async (id) => {
+      const image = await repo.getIdeaboxImageById(id);
+      console.log(image);
+
+      service.deleteFile(image.beforeImage, image.afterImage);
+
+      await service.remove(id);
+    });
+
+    res.status(200).json({
+      result: "OK",
+      message: "Successfully remove ideabox",
+      data: req.body,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to remove ideabox",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+router.post("/notify", async (req, res) => {
+  try {
+    //await notifService.notifySectionManager(3, "PC", "WAHYU TES");
+
+    await notifService.dailyNotification();
+
+    res.status(200).json({
+      result: "OK",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      result: "ERROR",
+      message: error,
     });
   }
 });
