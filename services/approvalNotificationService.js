@@ -8,7 +8,6 @@ const isMappingExist = async (employeeId, departmentId) => {
     WHERE employee_id = ? AND department_id = ?`;
 
   const result = await db.query(sql, [employeeId, departmentId]);
-
   return result[0].total > 0;
 };
 
