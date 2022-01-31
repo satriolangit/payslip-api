@@ -26,27 +26,6 @@ router.get("/mapping", async (req, res) => {
   }
 });
 
-router.get("/mapping/list", async (req, res) => {
-  try {
-    const result = await query.getNotificationMappings();
-
-    res.status(200).json({
-      result: "OK",
-      message: "OK",
-      data: result,
-      errors: null,
-    });
-  } catch (error) {
-    res.status(500).json({
-      result: "FAIL",
-      message:
-        "Internal server error, failed to get approval notification mapping list",
-      data: req.body,
-      errors: error,
-    });
-  }
-});
-
 router.get("/mapping/department", async (req, res) => {
   try {
     const employeeId = req.query.employeeId;

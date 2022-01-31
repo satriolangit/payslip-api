@@ -1,4 +1,3 @@
-const fs = require("fs");
 const db = require("../config/database");
 const moment = require("moment");
 const repo = require("./../repositories/ideaboxRepository");
@@ -330,29 +329,9 @@ const remove = async (ideaboxId) => {
   const query2 = "DELETE FROM ideabox_detail WHERE master_id = ?";
   const query3 = "DELETE FROM ideabox_comment WHERE master_id = ?";
 
-  console.log(query1, query2, query3);
-
   await db.query(query1, ideaboxId);
   await db.query(query2, ideaboxId);
   await db.query(query3, ideaboxId);
-};
-
-const deleteFile = (beforeImage, afterImage) => {
-  const path = "./public/ideabox/";
-
-  try {
-    const beforeImagePath = path + beforeImage;
-    const afterImagePath = path + afterImage;
-
-    console.log("delete: ", beforeImagePath);
-    console.log("delete: ", afterImagePath);
-    //console.log(beforeImagePath, afterImagePath);
-
-    fs.unlinkSync(beforeImagePath);
-    fs.unlinkSync(afterImagePath);
-  } catch (error) {
-    console.log("Failed to delete ideabox file, Error :", error);
-  }
 };
 
 module.exports = {
@@ -370,5 +349,4 @@ module.exports = {
   replaceImpacts,
   updateDetail,
   posting,
-  deleteFile,
 };

@@ -529,35 +529,6 @@ router.post("/reject", async (req, res) => {
   }
 });
 
-router.post("/delete", async (req, res) => {
-  try {
-    const { ideaboxIds } = req.body;
-
-    ideaboxIds.map(async (id) => {
-      const image = await repo.getIdeaboxImageById(id);
-      console.log(image);
-
-      service.deleteFile(image.beforeImage, image.afterImage);
-
-      await service.remove(id);
-    });
-
-    res.status(200).json({
-      result: "OK",
-      message: "Successfully remove ideabox",
-      data: req.body,
-      errors: null,
-    });
-  } catch (error) {
-    res.status(500).json({
-      result: "FAIL",
-      message: "Internal server error, failed to remove ideabox",
-      data: req.body,
-      errors: error,
-    });
-  }
-});
-
 router.post("/notify", async (req, res) => {
   try {
     //await notifService.notifySectionManager(3, "PC", "WAHYU TES");
