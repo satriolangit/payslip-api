@@ -13,6 +13,7 @@ const getNotificationMappings = async () => {
   return await db.query(sql);
 };
 
+
 const getNotificationMappingsByEmployeeId = async (employeeId) => {
   const sql = `SELECT map.id, map.notification_type AS notificationType, map.employee_id AS employeeId,
         map.department_id AS departmentId, dept.department_name AS departmentName, notif.description AS notifTypeDescription,
@@ -183,4 +184,5 @@ module.exports = {
   getNotificationMappingDepartmentsByEmployeeId,
   getAllSectionManagerTobeNotified,
   getNotificationMappings,
+
 };

@@ -470,4 +470,5 @@ module.exports = {
   getDepartmentNameById,
   geetIdeaboxByid,
   getIdeaboxImageById,
+
 };

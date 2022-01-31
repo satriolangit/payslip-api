@@ -3,25 +3,16 @@ const query = require("../queries/approvalNotificationQuery");
 const mailSender = require("../services/mailSender");
 const moment = require("moment");
 
-const isMappingExist = async (notificationType, employeeId, departmentId) => {
+const isMappingExist = async (employeeId, departmentId) => {
   const sql = `SELECT COUNT(id) total FROM notification_mapping 
-    WHERE notification_type = ? AND employee_id = ? AND department_id = ?`;
+    WHERE employee_id = ? AND department_id = ?`;
 
-  const result = await db.query(sql, [
-    notificationType,
-    employeeId,
-    departmentId,
-  ]);
-
+  const result = await db.query(sql, [employeeId, departmentId]);
   return result[0].total > 0;
 };
 
 const createMapping = async (notificationType, employeeId, departmentId) => {
-  const isExist = await isMappingExist(
-    notificationType,
-    employeeId,
-    departmentId
-  );
+  const isExist = await isMappingExist(employeeId, departmentId);
 
   const sql = `INSERT INTO notification_mapping (notification_type, employee_id, department_id) 
         VALUES (?, ?, ?)`;
