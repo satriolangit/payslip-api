@@ -213,73 +213,6 @@ const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
   ]);
 };
 
-const getApprovalDepartments = async (employeeId) => {
-  const sql = `SELECT department_id FROM approval_role_mapping WHERE employee_id = ?`;
-
-  const query = await db.query(sql, employeeId);
-  const result = query.map((x) => x.department_id);
-  console.log("department:", result);
-  return result;
-};
-
-const getIdeaboxListForManager = async (role, employeeId) => {
-  const departments = await getApprovalDepartments(employeeId);
-
-  const departmentIds = departments.join(",").toString();
-
-  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
-      ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
-      CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status
-    FROM ideabox ibx 
-      LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
-      LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
-      LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
-      LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
-      LEFT JOIN department dept ON dept.id = ibx.department_id
-      WHERE ibx.department_id IN ( ${departmentIds} ) AND ibx.assigned_to = ? ;
-    `;
-
-  //console.log(sql, departmentIds, role);
-
-  return await db.query(sql, [role]);
-};
-
-const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
-  const departments = await getApprovalDepartments(employeeId);
-  const departmentIds = departments.join(",").toString();
-
-  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
-      ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
-      CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status
-    FROM ideabox ibx 
-      LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
-      LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
-      LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
-      LEFT JOIN user receiver ON receiver.employee_id = ibx.accepted_by
-      LEFT JOIN department dept ON dept.id = ibx.department_id
-    WHERE ibx.department_id IN ( ${departmentIds} ) AND (ibx.idea_number LIKE ? OR ibx.idea_type LIKE ? OR submitter.name LIKE ? OR dept.department_name LIKE ?
-      OR ibx.status LIKE ? OR reviewer.name LIKE ? OR approver.name LIKE ? OR receiver.name LIKE ?) AND ibx.assigned_to = ?;
-    `;
-
-  return await db.query(sql, [
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    "%" + keywords + "%",
-    role,
-  ]);
-};
-
 const getIdeaboxListPerPages = async (role, employeeId, limit, offset) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, ibx.submitted_by AS submittedBy, 
 			CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
@@ -470,5 +403,4 @@ module.exports = {
   getDepartmentNameById,
   geetIdeaboxByid,
   getIdeaboxImageById,
-
 };
