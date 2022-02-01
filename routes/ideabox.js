@@ -141,7 +141,7 @@ router.get("/view/:id", async (req, res) => {
   }
 });
 
-/* routes from edit  */
+/* routes for edit  */
 router.get("/edit/:id", async (req, res) => {
   try {
     const ideaboxId = req.params.id;
@@ -554,6 +554,49 @@ router.post("/delete", async (req, res) => {
       message: "Internal server error, failed to remove ideabox",
       data: req.body,
       errors: error,
+    });
+  }
+});
+
+// route for users
+router.get("/user", auth, async (req, res) => {
+  try {
+    const data = await repo.getAdminUsers();
+
+    res.status(200).json({
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      message: "Failed to get users",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
+router.post("/user/search", auth, async (req, res) => {
+  try {
+    const { keywords } = req.body;
+
+    const data = await repo.searchAdminUsers(keywords);
+
+    res.status(200).json({
+      status: 200,
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      status: 500,
+      message: "Failed search users",
+      data: req.body,
+      errors: err,
     });
   }
 });

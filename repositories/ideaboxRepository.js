@@ -379,6 +379,28 @@ const getApprovalRole = async (employeeId) => {
   return query[0];
 };
 
+const getAdminUsers = async () => {
+  const sql =
+    "SELECT * FROM user WHERE site_name = 'IDEABOX' AND role = 'admin' ORDER BY name";
+  const data = await db.query(sql);
+
+  return data;
+};
+
+const searchAdminUsers = async (keywords) => {
+  const sql = `SELECT * FROM user 
+    WHERE site_name = 'IDEABOX' AND role = 'admin' 
+    AND (name LIKE ? OR email LIKE ? OR employee_id LIKE ? ) ORDER BY name`;
+
+  const data = await db.query(sql, [
+    "%" + keywords + "%",
+    "%" + keywords + "%",
+    "%" + keywords + "%",
+  ]);
+
+  return data;
+};
+
 module.exports = {
   getDepartments,
   getIdeaboxList,
@@ -403,4 +425,6 @@ module.exports = {
   getDepartmentNameById,
   geetIdeaboxByid,
   getIdeaboxImageById,
+  getAdminUsers,
+  searchAdminUsers,
 };
