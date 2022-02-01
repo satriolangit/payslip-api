@@ -104,10 +104,13 @@ const notifyKomite = async (departmentName, employeeName) => {
 
 const dailyNotification = async () => {
   //notify section manager
+  const departments = await query.
+
   const sectionManagers = await query.getAllSectionManagerTobeNotified(2);
 
   sectionManagers.map(async (item) => {
-    await sendDailyNotifForSectionManager(item.departmentId, item.email);
+    //await sendDailyNotifForSectionManager(item.departmentId, item.email);
+    console.log(item.departmentId, item.email);
   });
 
   //notify department manager
