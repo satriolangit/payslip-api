@@ -358,7 +358,7 @@ router.post(
 
       // console.log("master", master);
       // console.log("detail", detail);
-      console.log("comment", comment);
+      //console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];
@@ -388,7 +388,7 @@ router.post(
         master.departmentId
       );
 
-      console.log("master:", master);
+      //console.log("master:", master);
 
       await notifService.notifySectionManager(
         master.departmentId,

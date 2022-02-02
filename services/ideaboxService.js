@@ -308,7 +308,11 @@ const approve = async (ideaboxId, employeeId) => {
   } else if (roleId === "DEPARTMENT_MANAGER") {
     sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status='APPROVED' WHERE id = ?`;
 
-    notifService.notifyKomite(ideabox.departmentName, ideabox.submitterName);
+    notifService.notifyKomite(
+      ideabox.departmentId,
+      ideabox.departmentName,
+      ideabox.submitterName
+    );
   } else if (roleId === "KOMITE_IDEABOX") {
     sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
   }
