@@ -10,6 +10,7 @@ const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
 const notifService = require("../services/approvalNotificationService");
+const queryPdf = require("../queries/ideaboxPdfQuery");
 
 //upload photo config
 const storage = multer.diskStorage({
@@ -615,6 +616,30 @@ router.post("/notify", async (req, res) => {
     res.status(500).json({
       result: "ERROR",
       message: error,
+    });
+  }
+});
+
+/* route for view pdf ideabox  */
+router.get("/pdf/:id", async (req, res) => {
+  try {
+    const ideaboxId = req.params.id;
+    const data = await queryPdf.getData(ideaboxId);
+
+    //console.log(data);
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get ideabox",
+      data: req.body,
+      errors: error,
     });
   }
 });
