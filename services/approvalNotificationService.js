@@ -81,8 +81,8 @@ const notifyDepartmentManager = async (
   }
 };
 
-const notifyKomite = async (departmentName, employeeName) => {
-  const komite = await query.getKomiteTobeNotified(1);
+const notifyKomite = async (departmentId, departmentName, employeeName) => {
+  const komite = await query.getKomiteTobeNotified(departmentId, 1);
 
   if (komite.length > 0) {
     const tos = komite.map((item) => {
@@ -103,35 +103,59 @@ const notifyKomite = async (departmentName, employeeName) => {
 };
 
 const dailyNotification = async () => {
+  const yesterday = moment().add(-1, "days");
+  let start = yesterday.format("YYYY-MM-DD 00:00");
+  let end = yesterday.format("YYYY-MM-DD 23:59");
+  let date = yesterday.format("DD MMMM YYYY");
+
+  start = "2022-01-01 00:00";
+  end = "2022-02-28 00:00";
+
   //notify section manager
-  const sectionManagers = await query.getAllSectionManagerTobeNotified(2);
+  const sectionManagers = await query.getSectionManagerTobeNotifiedDaily();
 
   sectionManagers.map(async (item) => {
-    await sendDailyNotifForSectionManager(item.departmentId, item.email);
+    await sendDailyNotifForSectionManager(
+      item.departmentId,
+      item.email,
+      start,
+      end,
+      date
+    );
+
+    //console.log("item : ", item);
   });
 
   //notify department manager
-  // const departmentManagers = await query.getAllDepartmentManagerTobeNotified(2);
+  const departmentManagers =
+    await query.getDepartmentManagerToBeNotifiedDaily();
 
-  // departmentManagers.map(async (item) => {
-  //   await sendDailyNotifForDepartmentManager(item.employeeId, item.email);
-  // });
+  departmentManagers.map(async (item) => {
+    await sendDailyNotifForDepartmentManager(
+      item.departmentIds,
+      item.email,
+      start,
+      end,
+      date
+    );
+  });
 
-  // //notify komite
-  // const komite = await query.getKomiteTobeNotified(2);
+  //notify komite
+  const komite = await query.getKomiteToBeNotifiedDaily();
 
-  // komite.map(async (item) => {
-  //   await sendDailyNotifForKomite(item.email);
-  // });
+  komite.map(async (item) => {
+    await sendDailyNotifForKomite(item.email, start, end, date);
+  });
 };
 
-const sendDailyNotifForSectionManager = async (departmentId, email) => {
+const sendDailyNotifForSectionManager = async (
+  departmentId,
+  email,
+  start,
+  end,
+  date
+) => {
   try {
-    const yesterday = moment().add(-1, "days");
-    const start = yesterday.format("YYYY-MM-DD 00:00");
-    const end = yesterday.format("YYYY-MM-DD 23:59");
-    const date = yesterday.format("DD MMMM YYYY");
-
     const total = await query.getTotalIdeasheetOfSectionManager(
       departmentId,
       start,
@@ -140,54 +164,59 @@ const sendDailyNotifForSectionManager = async (departmentId, email) => {
     const subject = "Ideasheet yang harus diperiksa";
     const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang disubmit tanggal ${date} untuk diperiksa`;
 
-    if (total > 0) mailSender.send(subject, email, message);
-  } catch (error) {
-    console.log(error);
-  }
-};
+    if (total > 0) {
+      console.log("send mail to section manager :", email);
+      console.log("subject : ", subject);
+      console.log("message : ", message);
 
-const sendDailyNotifForDepartmentManager = async (employeeId, email) => {
-  try {
-    const yesterday = moment().add(-1, "days");
-    const start = yesterday.format("YYYY-MM-DD 00:00");
-    const end = yesterday.format("YYYY-MM-DD 23:59");
-    const date = yesterday.format("DD MMMM YYYY");
-
-    let departmentIds = "";
-    const departments =
-      await query.getNotificationMappingDepartmentsByEmployeeId(employeeId);
-
-    if (departments.length > 0) {
-      departmentIds = departments.map((x) => {
-        return x;
-      });
-
-      const total = await query.getTotalIdeasheetOfDepartmentManager(
-        departmentIds,
-        start,
-        end
-      );
-      const subject = "Ideasheet yang harus diterima";
-      const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang disetujui tanggal ${date} untuk diterima`;
-      if (total > 0) mailSender.send(subject, email, message);
+      mailSender.send(subject, email, message);
     }
   } catch (error) {
     console.log(error);
   }
 };
 
-const sendDailyNotifForKomite = async (email) => {
+const sendDailyNotifForDepartmentManager = async (
+  departmentIds,
+  email,
+  start,
+  end,
+  date
+) => {
   try {
-    const yesterday = moment().add(-1, "days");
-    const start = yesterday.format("YYYY-MM-DD 00:00");
-    const end = yesterday.format("YYYY-MM-DD 23:59");
-    const date = yesterday.format("DD MMMM YYYY");
+    const total = await query.getTotalIdeasheetOfDepartmentManager(
+      departmentIds,
+      start,
+      end
+    );
 
+    const subject = "Ideasheet yang harus disetujui";
+    const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang diperiksa tanggal ${date} untuk disetujui`;
+
+    if (total > 0) {
+      console.log("send mail to dept manager :", email);
+      console.log("subject : ", subject);
+      console.log("message : ", message);
+      mailSender.send(subject, email, message);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const sendDailyNotifForKomite = async (email, start, end, date) => {
+  try {
     const total = await query.getTotalIdeasheetOfKomite(start, end);
     const subject = "Ideasheet yang harus diterima";
     const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang disetujui tanggal ${date} untuk diterima`;
 
-    if (total > 0) mailSender.send(subject, email, message);
+    if (total > 0) {
+      console.log("send mail to komite :", email);
+      console.log("subject : ", subject);
+      console.log("message : ", message);
+
+      mailSender.send(subject, email, message);
+    }
   } catch (error) {
     console.log(error);
   }

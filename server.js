@@ -1,6 +1,9 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
+const cron = require("node-cron");
+const notif = require("./services/approvalNotificationService");
+
 var bodyParser = require("body-parser");
 
 const app = express();
@@ -64,3 +67,10 @@ app.use("/ideabox", express.static(__dirname + "/public/ideabox"));
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+//scheduler
+cron.schedule("0 0 7 * * *", async () => {
+  console.log("mail scheduler run");
+
+  await notif.dailyNotification();
+});

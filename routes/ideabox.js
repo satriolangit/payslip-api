@@ -10,6 +10,7 @@ const repo = require("../repositories/ideaboxRepository");
 const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
 const notifService = require("../services/approvalNotificationService");
+const queryPdf = require("../queries/ideaboxPdfQuery");
 
 //upload photo config
 const storage = multer.diskStorage({
@@ -141,7 +142,7 @@ router.get("/view/:id", async (req, res) => {
   }
 });
 
-/* routes from edit  */
+/* routes for edit  */
 router.get("/edit/:id", async (req, res) => {
   try {
     const ideaboxId = req.params.id;
@@ -358,7 +359,7 @@ router.post(
 
       // console.log("master", master);
       // console.log("detail", detail);
-      console.log("comment", comment);
+      //console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];
@@ -388,7 +389,7 @@ router.post(
         master.departmentId
       );
 
-      console.log("master:", master);
+      //console.log("master:", master);
 
       await notifService.notifySectionManager(
         master.departmentId,
@@ -558,6 +559,49 @@ router.post("/delete", async (req, res) => {
   }
 });
 
+// route for users
+router.get("/user", auth, async (req, res) => {
+  try {
+    const data = await repo.getAdminUsers();
+
+    res.status(200).json({
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      message: "Failed to get users",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
+router.post("/user/search", auth, async (req, res) => {
+  try {
+    const { keywords } = req.body;
+
+    const data = await repo.searchAdminUsers(keywords);
+
+    res.status(200).json({
+      status: 200,
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      status: 500,
+      message: "Failed search users",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
 router.post("/notify", async (req, res) => {
   try {
     //await notifService.notifySectionManager(3, "PC", "WAHYU TES");
@@ -572,6 +616,30 @@ router.post("/notify", async (req, res) => {
     res.status(500).json({
       result: "ERROR",
       message: error,
+    });
+  }
+});
+
+/* route for view pdf ideabox  */
+router.get("/pdf/:id", async (req, res) => {
+  try {
+    const ideaboxId = req.params.id;
+    const data = await queryPdf.getData(ideaboxId);
+
+    //console.log(data);
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get ideabox",
+      data: req.body,
+      errors: error,
     });
   }
 });
