@@ -277,7 +277,7 @@ router.post(
         role,
         isActive,
         phone,
-        siteName
+        siteName,
       } = request;
 
       console.log(request);
@@ -353,7 +353,7 @@ router.post(
         isActive,
         userId,
         phone,
-        siteName
+        siteName,
       } = request;
 
       let { photo } = request;
@@ -562,10 +562,11 @@ router.post("/search", auth, async (req, res) => {
 
     const sql =
       "SELECT * FROM user WHERE name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ? ORDER BY created_on DESC";
-      
-    if(siteName !== "ALL")
-      sql = "SELECT * FROM user WHERE site_name = ? AND (name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ?) ORDER BY created_on DESC";
-      
+
+    if (siteName !== "ALL")
+      sql =
+        "SELECT * FROM user WHERE site_name = ? AND (name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ?) ORDER BY created_on DESC";
+
     const data = await db.query(sql, [
       siteName,
       "%" + keywords + "%",
@@ -607,14 +608,15 @@ router.post("/upload", async (req, res) => {
           const name = row[0];
           const email = row[1];
           const nik = row[2];
-          const role = row[3];
-          const phone = row[4];
-          const password = row[5];
-          const isActive = row[6].toLowerCase() == 'active' ? 1 : 0;
-          const site = row[7];
-          const salt = bcrypt.genSaltSync(10);
+          const department = row[3];
+          const role = row[4];
+          const phone = row[5];
+          const password = row[6];
+          const isActive = row[7].toLowerCase() == "active" ? 1 : 0;
+          const site = row[8];
 
           const isUserExists = await service.isUserAlreadyExist(nik);
+          const departmentId = await service.getDepartmentId(department);
 
           if (!isUserExists) {
             await service.createUser(
@@ -627,7 +629,8 @@ router.post("/upload", async (req, res) => {
               "system upload",
               "",
               isActive,
-              site
+              site,
+              departmentId
             );
           } else {
             await service.updateUserByEmployeeId(
@@ -639,7 +642,8 @@ router.post("/upload", async (req, res) => {
               password,
               "system upload",
               isActive,
-              site
+              site,
+              departmentId
             );
           }
 
