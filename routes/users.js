@@ -29,7 +29,13 @@ const tokenExpiryTime = config.get("tokenExpiryTime");
 // @access  Private
 router.get("/", auth, async (req, res) => {
   try {
-    const sql = "SELECT * FROM user ORDER BY name";
+    const sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+        usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+          usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+          LEFT JOIN department dept ON dept.id = ud.department_id
+      ORDER BY usr.name`;
     const data = await db.query(sql);
 
     res.status(200).json({
@@ -52,7 +58,14 @@ router.get("/", auth, async (req, res) => {
 // @access  Private
 router.get("/site/:site", auth, async (req, res) => {
   try {
-    const sql = "SELECT * FROM user WHERE site_name = ? ORDER BY name";
+    const sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+        usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+          usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+        LEFT JOIN department dept ON dept.id = ud.department_id
+      WHERE usr.site_name = ?
+      ORDER BY usr.name`;
     const data = await db.query(sql, req.params.site);
 
     res.status(200).json({
@@ -75,7 +88,13 @@ router.get("/site/:site", auth, async (req, res) => {
 // @access  Private
 router.get("/:id", auth, async (req, res) => {
   try {
-    const sql = "SELECT * FROM user WHERE user_id = ?";
+    const sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+    usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+      usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+  FROM user usr 
+    LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+    LEFT JOIN department dept ON dept.id = ud.department_id
+    WHERE usr.user_id = ?`;
     const data = await db.query(sql, req.params.id);
 
     res.status(200).json({
@@ -106,10 +125,21 @@ router.get("/page/:page/:size", auth, async (req, res) => {
     let sql = "";
     let data = null;
     if (page * numPerPage < totalRows) {
-      sql = "SELECT * FROM user LIMIT ? OFFSET ?";
+      sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+        usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+          usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+        LEFT JOIN department dept ON dept.id = ud.department_id 
+        LIMIT ? OFFSET ?`;
       data = await db.query(sql, [numPerPage, page]);
     } else if (numPerPage > totalRows) {
-      sql = "SELECT * FROM user";
+      sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+        usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+          usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+        LEFT JOIN department dept ON dept.id = ud.department_id`;
       data = await db.query(sql);
     }
 
@@ -560,12 +590,24 @@ router.post("/search", auth, async (req, res) => {
   try {
     const { keywords, siteName } = req.body;
 
-    const sql =
-      "SELECT * FROM user WHERE name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ? ORDER BY created_on DESC";
+    const sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+        usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+          usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+        LEFT JOIN department dept ON dept.id = ud.department_id 
+      WHERE usr.name LIKE ? OR usr.email LIKE ? OR usr.employee_id LIKE ? OR usr.role LIKE ? 
+      ORDER BY usr.created_on DESC`;
 
     if (siteName !== "ALL")
-      sql =
-        "SELECT * FROM user WHERE site_name = ? AND (name LIKE ? OR email LIKE ? OR employee_id LIKE ? OR role LIKE ?) ORDER BY created_on DESC";
+      sql = `SELECT usr.user_id, usr.email, usr.name, usr.password, usr.employee_id, usr.photo, usr.role, usr.created_by, usr.created_on,
+          usr.last_change_password, usr.last_reset_password, usr.updated_on, usr.updated_by, usr.is_active, usr.phone,
+            usr.password_plain, usr.site_name, ud.department_id, dept.department_name
+        FROM user usr 
+          LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+          LEFT JOIN department dept ON dept.id = ud.department_id
+        WHERE usr.site_name = ? AND (usr.name LIKE ? OR usr.email LIKE ? OR usr.employee_id LIKE ? 
+          OR usr.role LIKE ?) ORDER BY usr.created_on DESC`;
 
     const data = await db.query(sql, [
       siteName,
