@@ -53,6 +53,30 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
+router.get("/employee", auth, async (req, res) => {
+  try {
+    const sql = `SELECT usr.user_id, usr.name, usr.employee_id, ud.department_id, dept.department_name
+      FROM user usr 
+        LEFT JOIN user_department ud ON ud.user_id = usr.user_id
+          LEFT JOIN department dept ON dept.id = ud.department_id
+      ORDER BY usr.name`;
+    const data = await db.query(sql);
+
+    res.status(200).json({
+      message: "OK",
+      data: data,
+      errors: null,
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({
+      message: "Failed to get users",
+      data: req.body,
+      errors: err,
+    });
+  }
+});
+
 // @route   GET api/user
 // @desc    Get all users by site name
 // @access  Private
