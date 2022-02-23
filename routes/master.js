@@ -94,4 +94,26 @@ router.get("/department", async (req, res) => {
   }
 });
 
+router.get("/department/:id", async (req, res) => {
+  try {
+    const data = await repo.getDepartmentNameById(req.params.id);
+
+    const result = data;
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: result,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed toget departments",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 module.exports = router;
