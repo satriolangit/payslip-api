@@ -233,7 +233,7 @@ router.post(
       });
     }
 
-    const { name, email, password, employeeId, phone } = req.body;
+    const { name, email, password, employeeId, phone, departmentId } = req.body;
 
     try {
       let sql = "SELECT user_id, role FROM user WHERE email = ? LIMIT 1";
@@ -270,6 +270,8 @@ router.post(
         phone,
         password,
       ]);
+
+      await service.mapUserToDepartment(userId, departmentId);
 
       //generate token
       const payload = {
@@ -332,6 +334,7 @@ router.post(
         isActive,
         phone,
         siteName,
+        departmentId,
       } = request;
 
       console.log(request);
@@ -349,7 +352,7 @@ router.post(
           photo = baseUrl + req.file.originalname;
           console.log(photo);
         }
-        await service.createUser(
+        const userId = await service.createUser(
           name,
           email,
           password,
@@ -362,14 +365,16 @@ router.post(
           siteName
         );
 
-        res.status(200).json({
+        await service.mapUserToDepartment(userId, departmentId);
+
+        return res.status(200).json({
           result: "OK",
           message: "Successfully add user",
           data: req.body,
           errors: null,
         });
       } else {
-        res.status(400).json({
+        return res.status(400).json({
           result: "FAIL",
           message: "N.I.K sudah dipakai oleh user lain, mohon diganti",
           data: req.body,
@@ -380,7 +385,7 @@ router.post(
       }
     } catch (err) {
       console.error("Add user error : ", err.message);
-      res.status(500).json({
+      return res.status(500).json({
         result: "FAIL",
         message: "Add user failed, internal server error",
         data: req.body,
@@ -408,6 +413,7 @@ router.post(
         userId,
         phone,
         siteName,
+        departmentId,
       } = request;
 
       let { photo } = request;
@@ -433,6 +439,8 @@ router.post(
         loggedUser.id,
         siteName
       );
+
+      await service.mapUserToDepartment(userId, departmentId);
 
       res.status(200).json({
         result: "OK",
