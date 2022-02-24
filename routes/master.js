@@ -96,7 +96,7 @@ router.get("/department", async (req, res) => {
 
 router.get("/department/:id", async (req, res) => {
   try {
-    const data = await repo.getDepartmentNameById(req.params.id);
+    const data = await repo.getDepartmentById(req.params.id);
 
     const result = data;
 

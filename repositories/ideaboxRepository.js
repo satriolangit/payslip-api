@@ -274,6 +274,14 @@ const getDepartments = async () => {
   return await db.query(sql);
 };
 
+const getDepartmentById = async (id) => {
+  const sql =
+    "SELECT id, department_code AS departmentCode, department_name AS departmentName FROM department WHERE id = ?";
+
+  const query = await db.query(sql, id);
+  return query[0] || { id: 0, departmentCode: "NA", departmentName: "NA" };
+};
+
 const getDepartmentNameById = async (id) => {
   const sql =
     "SELECT department_name AS departmentName FROM department WHERE id = ?";
@@ -403,6 +411,7 @@ const searchAdminUsers = async (keywords) => {
 
 module.exports = {
   getDepartments,
+  getDepartmentById,
   getIdeaboxList,
   getIdeaTypes,
   getIdeaRanks,

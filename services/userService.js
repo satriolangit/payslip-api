@@ -59,8 +59,8 @@ const mapUserToDepartment = async (userId, departmentId, employeeId) => {
 };
 
 const removeMapping = async (userId, departmentId) => {
-  const sql = `DELETE FROM user_department WHERE user_id=? AND department_id=?`;
-  await db.query(sql, [userId, departmentId]);
+  const sql = `DELETE FROM user_department WHERE user_id=?`;
+  await db.query(sql, [userId]);
 };
 
 const createUser = async (
@@ -189,4 +189,5 @@ module.exports = {
   updateUserByEmployeeId,
   updateUserById,
   getDepartmentId,
+  mapUserToDepartment,
 };
