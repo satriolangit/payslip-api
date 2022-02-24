@@ -334,7 +334,6 @@ router.post(
         isActive,
         phone,
         siteName,
-        employeeId,
         departmentId,
       } = request;
 
@@ -368,14 +367,14 @@ router.post(
 
         await service.mapUserToDepartment(userId, departmentId);
 
-        res.status(200).json({
+        return res.status(200).json({
           result: "OK",
           message: "Successfully add user",
           data: req.body,
           errors: null,
         });
       } else {
-        res.status(400).json({
+        return res.status(400).json({
           result: "FAIL",
           message: "N.I.K sudah dipakai oleh user lain, mohon diganti",
           data: req.body,
@@ -386,7 +385,7 @@ router.post(
       }
     } catch (err) {
       console.error("Add user error : ", err.message);
-      res.status(500).json({
+      return res.status(500).json({
         result: "FAIL",
         message: "Add user failed, internal server error",
         data: req.body,
@@ -440,6 +439,8 @@ router.post(
         loggedUser.id,
         siteName
       );
+
+      await service.mapUserToDepartment(userId, departmentId);
 
       res.status(200).json({
         result: "OK",
