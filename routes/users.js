@@ -233,7 +233,7 @@ router.post(
       });
     }
 
-    const { name, email, password, employeeId, phone } = req.body;
+    const { name, email, password, employeeId, phone, departmentId } = req.body;
 
     try {
       let sql = "SELECT user_id, role FROM user WHERE email = ? LIMIT 1";
@@ -270,6 +270,8 @@ router.post(
         phone,
         password,
       ]);
+
+      await service.mapUserToDepartment(userId, departmentId);
 
       //generate token
       const payload = {
@@ -332,6 +334,8 @@ router.post(
         isActive,
         phone,
         siteName,
+        employeeId,
+        departmentId,
       } = request;
 
       console.log(request);
@@ -349,7 +353,7 @@ router.post(
           photo = baseUrl + req.file.originalname;
           console.log(photo);
         }
-        await service.createUser(
+        const userId = await service.createUser(
           name,
           email,
           password,
@@ -361,6 +365,8 @@ router.post(
           isActive,
           siteName
         );
+
+        await service.mapUserToDepartment(userId, departmentId);
 
         res.status(200).json({
           result: "OK",
@@ -408,6 +414,7 @@ router.post(
         userId,
         phone,
         siteName,
+        departmentId,
       } = request;
 
       let { photo } = request;
