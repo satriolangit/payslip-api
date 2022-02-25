@@ -60,8 +60,6 @@ router.get("/item/:id", auth, async (req, res) => {
     // 	errors: null,
     // });
 
-    //console.log(data);
-
     res.status(200).json({
       data: data,
     });

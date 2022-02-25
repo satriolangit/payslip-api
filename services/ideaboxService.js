@@ -53,22 +53,16 @@ const submit = async (master) => {
     approvalRole,
   } = master;
 
-  //console.log("master", master);
-
   const sql =
     "INSERT INTO ideabox (idea_number, idea_type, submitted_by, submitted_at, tema, kaizen_area, pelaksanaan_ideasheet, impact_type, kaizen_amount, department_id, assigned_to, status) " +
     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const number = await generateNumber();
 
-  //console.log("employeeId :", employeeId);
-
   const assignedTo =
     approvalRole !== "EMPLOYEE"
       ? await repo.getNextAssignee(submittedBy)
       : "SECTION_MANAGER";
-
-  console.log(assignedTo);
 
   var result = await db.query(sql, [
     number,
@@ -266,18 +260,9 @@ const replaceImpacts = async (ideaboxId, impacts) => {
 };
 
 const posting = async (ideaboxId, employeeId) => {
-  console.log(
-    "posting: ",
-    ideaboxId,
-    employeeId,
-    "EMPLOYEE",
-    "SECTION_MANAGER"
-  );
-
   let sql =
     "UPDATE ideabox SET assigned_to = 'SECTION_MANAGER', status = 'POSTED' WHERE id = ? AND (status = 'OPEN' OR status = 'REJECTED')";
 
-  console.log(sql);
   await db.query(sql, [ideaboxId]);
 };
 
@@ -286,15 +271,6 @@ const approve = async (ideaboxId, employeeId) => {
   const ideabox = await repo.geetIdeaboxByid(ideaboxId);
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
   const now = moment.utc().format("YYYY-MM-DD HH:mm:ss");
-
-  console.log(
-    "approve: ",
-    ideaboxId,
-    employeeId,
-    approvalRole,
-    roleId,
-    assignedTo
-  );
 
   let sql = "";
   if (roleId === "SECTION_MANAGER") {
@@ -317,7 +293,6 @@ const approve = async (ideaboxId, employeeId) => {
     sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
   }
 
-  console.log(sql);
   await db.query(sql, [employeeId, now, assignedTo, ideaboxId]);
 };
 
@@ -334,8 +309,6 @@ const remove = async (ideaboxId) => {
   const query2 = "DELETE FROM ideabox_detail WHERE master_id = ?";
   const query3 = "DELETE FROM ideabox_comment WHERE master_id = ?";
 
-  console.log(query1, query2, query3);
-
   await db.query(query1, ideaboxId);
   await db.query(query2, ideaboxId);
   await db.query(query3, ideaboxId);
@@ -347,10 +320,6 @@ const deleteFile = (beforeImage, afterImage) => {
   try {
     const beforeImagePath = path + beforeImage;
     const afterImagePath = path + afterImage;
-
-    console.log("delete: ", beforeImagePath);
-    console.log("delete: ", afterImagePath);
-    //console.log(beforeImagePath, afterImagePath);
 
     fs.unlinkSync(beforeImagePath);
     fs.unlinkSync(afterImagePath);

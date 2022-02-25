@@ -23,10 +23,8 @@ router.get("/download/:filename", async (req, res) => {
   try {
     const filename = req.params.filename;
     const path = "./public/payslip/" + filename;
-    console.log(path);
-    res.download(path);
 
-    console.log("filename: ", filename, "path:", path);
+    res.download(path);
 
     //set lastdownload & downloadcount
     let downloadCount = 0;
@@ -38,7 +36,7 @@ router.get("/download/:filename", async (req, res) => {
     if (result.length > 0) {
       downloadCount = result[0].download_count;
       const count = downloadCount + 1;
-      console.log("count :", count);
+
       sql =
         "UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?";
       await db.query(sql, [count, now, filename]);
@@ -53,7 +51,6 @@ router.get("/download2/:filename", async (req, res) => {
     const filename = req.params.filename;
     const path = "./public/payslip/" + filename;
 
-    console.log(path);
     //set lastdownload & downloadcount
     let downloadCount = 0;
     let sql =
@@ -64,7 +61,7 @@ router.get("/download2/:filename", async (req, res) => {
     if (result.length > 0) {
       downloadCount = result[0].download_count;
       const count = downloadCount + 1;
-      console.log("count :", count);
+
       sql =
         "UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?";
       await db.query(sql, [count, now, filename]);
@@ -138,7 +135,7 @@ router.get("/:employeeId", auth, async (req, res) => {
 router.get("/open/:filename", async (req, res) => {
   const filename = req.params.filename;
   const path = "./public/payslip/" + filename;
-  console.log(filename, path);
+
   pdf2base64(path)
     .then((response) => {
       console.log(response); //cGF0aC90by9maWxlLmpwZw==
@@ -223,22 +220,17 @@ router.get("/:employeeId/:limit", auth, async (req, res) => {
 
 router.post("/upload", (req, res) => {
   try {
-    console.log("enter upload payslip");
     var form = new IncomingForm();
     let logs = "";
 
     form.on("fileBegin", async (name, file) => {
       file.path = __dirname + "/../public/payslip/" + file.name;
-
-      console.log(file);
     });
 
     form.on("file", async (field, file) => {
       // Do something with the file
       // e.g. save it to the database
       // you can access it using file.path
-
-      console.log("ener on file");
 
       var pdf = file.name;
       var filenames = pdf.split(".");
@@ -259,12 +251,7 @@ router.post("/upload", (req, res) => {
 
       const isEmployeeFound = await service.isEmployeeFound(employeeId);
       const isPayslipAlreadyExist = await service.isFileExist(pdf);
-      console.log(
-        "isEmployeeFound: ",
-        isEmployeeFound,
-        " isFileAlreadyExist:",
-        isPayslipAlreadyExist
-      );
+
       if (isEmployeeFound && !isPayslipAlreadyExist) {
         await service.createPayslip(
           employeeId,
@@ -280,7 +267,6 @@ router.post("/upload", (req, res) => {
         //delete file
         if (!isEmployeeFound) {
           const path = "./public/payslip/" + pdf;
-          console.log("path:", path);
           fs.unlinkSync(path);
         }
 
@@ -307,8 +293,6 @@ router.post("/download", async (req, res) => {
   try {
     const { filename } = req.body;
 
-    console.log("filename: ", filename);
-
     //set lastdownload & downloadcount
     let downloadCount = 0;
     let sql =
@@ -319,7 +303,7 @@ router.post("/download", async (req, res) => {
     if (result.length > 0) {
       downloadCount = result[0].download_count;
       const count = downloadCount + 1;
-      console.log("count :", count);
+
       sql =
         "UPDATE payslip SET download_count = ?, last_download_on = ? WHERE filename = ?";
       await db.query(sql, [count, now, filename]);
@@ -355,7 +339,7 @@ router.post(
 
       //delete file
       const path = "./public/payslip/" + filename;
-      console.log("path:", path);
+
       fs.unlinkSync(path);
 
       return res.status(200).json({
@@ -395,7 +379,7 @@ router.post(
     }
 
     const { ids } = req.body;
-    console.log(req.body);
+
     try {
       for (i = 0; i < ids.length; i++) {
         const id = ids[i].split(";")[0];
@@ -406,10 +390,8 @@ router.post(
 
         //delete file
         const path = "./public/payslip/" + filename;
-        console.log("path:", path);
-        fs.unlinkSync(path);
 
-        console.log("id:", id, "filename:", filename);
+        fs.unlinkSync(path);
       }
 
       return res.status(200).json({

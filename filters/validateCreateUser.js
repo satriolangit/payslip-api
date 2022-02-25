@@ -22,12 +22,10 @@ const filter = (req, res, next) => {
         "any.required": "N.I.K harus diisi",
         "string.pattern.base": "N.I.K harus diisi dengan angka",
       }),
-    phone: Joi.string()
-      .required()
-      .messages({
-        "any.required": "No. telepon harus diisi",
-        "string.empty": "No. telepon harus diisi",
-      }),
+    phone: Joi.string().required().messages({
+      "any.required": "No. telepon harus diisi",
+      "string.empty": "No. telepon harus diisi",
+    }),
     password: Joi.string().min(6).messages({
       "string.min": "Password harus diisi minimal 6 karakter",
     }),
@@ -44,7 +42,7 @@ const filter = (req, res, next) => {
   try {
     const request = JSON.parse(req.body.data);
 
-    console.log(request);
+    //console.log(request);
 
     const { error } = schema.validate(request);
 

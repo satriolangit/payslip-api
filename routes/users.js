@@ -240,7 +240,6 @@ router.post(
       let user = await db.query(sql, email);
 
       if (user.length > 0) {
-        console.log("user:", user);
         return res.status(400).json({
           message: "User already exists",
           data: req.body,
@@ -337,8 +336,6 @@ router.post(
         departmentId,
       } = request;
 
-      console.log(request);
-
       const isUserExists = await service.isUserAlreadyExist(employeeId);
 
       if (!isUserExists) {
@@ -350,7 +347,6 @@ router.post(
 
         if (req.file) {
           photo = baseUrl + req.file.originalname;
-          console.log(photo);
         }
         const userId = await service.createUser(
           name,
@@ -425,7 +421,6 @@ router.post(
 
       if (req.file) {
         photo = baseUrl + req.file.originalname;
-        console.log(photo);
       }
       await service.updateUserById(
         userId,
@@ -476,8 +471,6 @@ router.post(
   ],
   async (req, res) => {
     const errors = validationResult(req);
-
-    console.log(req.body);
 
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -674,7 +667,7 @@ router.post("/upload", async (req, res) => {
 
   form.parse(req, async (err, fields, files) => {
     var f = files[Object.keys(files)[0]];
-    console.log("f:", f, "files:", files);
+
     readExcel(f.path).then(async (rows) => {
       for (i = 1; i < rows.length; i++) {
         try {
@@ -728,7 +721,6 @@ router.post("/upload", async (req, res) => {
         }
       }
 
-      console.log("ok:", ok, " fail:", fail);
       const uploadMessage = "Upload user done, OK :" + ok + ", FAIL :" + fail;
       return res.json({ message: uploadMessage });
     });
@@ -788,8 +780,6 @@ router.post("/test", [upload.single("photo")], function (req, res, next) {
       role,
       isActive,
     } = user;
-
-    console.log(request);
 
     if (req.file) {
       console.log("file attached", req.file);

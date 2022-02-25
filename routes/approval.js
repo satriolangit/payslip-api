@@ -47,8 +47,6 @@ router.get("/mapping", async (req, res) => {
 
 router.get("/mapping/users", async (req, res) => {
   try {
-    console.log("masuk /mapping/users");
-
     const result = await query.getActiveUsers();
 
     const users = result.map((user) => {
@@ -57,8 +55,6 @@ router.get("/mapping/users", async (req, res) => {
         name: user.name,
       };
     });
-
-    //console.log(users);
 
     res.status(200).json({
       result: users,
@@ -143,7 +139,6 @@ router.post("/mapping/add", async (req, res) => {
 router.post("/remove", async (req, res) => {
   try {
     const { ids } = req.body;
-    console.log(ids);
 
     ids.map(async (id) => {
       await service.removeMappingById(id);

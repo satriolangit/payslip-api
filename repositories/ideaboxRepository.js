@@ -151,7 +151,7 @@ const getApprovalDepartments = async (employeeId) => {
 
   const query = await db.query(sql, employeeId);
   const result = query.map((x) => x.department_id);
-  console.log("department:", result);
+  //console.log("department:", result);
   return result;
 };
 

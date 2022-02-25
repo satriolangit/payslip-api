@@ -24,7 +24,6 @@ const removeMapping = async (employeeId) => {
 
 const removeMappingById = async (mappingId) => {
   const sql = `DELETE FROM approval_role_mapping WHERE id = ?`;
-  console.log(sql);
 
   const result = await db.query(sql, [mappingId]);
   return result;

@@ -151,8 +151,6 @@ const updateUserByEmployeeId = async (
   siteName,
   departmentId
 ) => {
-  console.log("update user by employeeId");
-
   const timestamp = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
   const sql =
     "UPDATE user SET name = ?, email = ?, role = ?, phone = ?, password = ?, password_plain = ?, updated_by = ?, updated_on = ?, site_name = ? WHERE employee_id = ?";

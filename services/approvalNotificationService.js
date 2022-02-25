@@ -46,7 +46,6 @@ const notifySectionManager = async (
     const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk diperiksa`;
 
     try {
-      console.log("notifySectionManager: ", tos, message);
       mailSender.sendBulk(subject, tos, message);
     } catch (error) {
       console.log(error);
@@ -73,7 +72,6 @@ const notifyDepartmentManager = async (
     const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk disetujui`;
 
     try {
-      console.log("notifyDeptManager: ", tos, message);
       mailSender.sendBulk(subject, tos, message);
     } catch (error) {
       console.log(error);
@@ -94,7 +92,6 @@ const notifyKomite = async (departmentId, departmentName, employeeName) => {
     const message = `Anda mendapat form idea sheet baru atas nama ${employeeName} dari departemen ${departmentName} untuk diterima`;
 
     try {
-      console.log("notifyKomite: ", tos, message);
       mailSender.sendBulk(subject, tos, message);
     } catch (error) {
       console.log(error);
@@ -122,8 +119,6 @@ const dailyNotification = async () => {
       end,
       date
     );
-
-    //console.log("item : ", item);
   });
 
   //notify department manager
@@ -165,10 +160,6 @@ const sendDailyNotifForSectionManager = async (
     const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang disubmit tanggal ${date} untuk diperiksa`;
 
     if (total > 0) {
-      console.log("send mail to section manager :", email);
-      console.log("subject : ", subject);
-      console.log("message : ", message);
-
       mailSender.send(subject, email, message);
     }
   } catch (error) {
@@ -194,9 +185,6 @@ const sendDailyNotifForDepartmentManager = async (
     const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang diperiksa tanggal ${date} untuk disetujui`;
 
     if (total > 0) {
-      console.log("send mail to dept manager :", email);
-      console.log("subject : ", subject);
-      console.log("message : ", message);
       mailSender.send(subject, email, message);
     }
   } catch (error) {
@@ -211,10 +199,6 @@ const sendDailyNotifForKomite = async (email, start, end, date) => {
     const message = `anda mendapat form idea sheet baru sejumlah ${total} form yang disetujui tanggal ${date} untuk diterima`;
 
     if (total > 0) {
-      console.log("send mail to komite :", email);
-      console.log("subject : ", subject);
-      console.log("message : ", message);
-
       mailSender.send(subject, email, message);
     }
   } catch (error) {

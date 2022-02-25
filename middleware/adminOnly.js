@@ -20,13 +20,13 @@ module.exports = async function (req, res, next) {
     //req.user = decoded.user;
     const userId = decoded.user.id;
 
-    console.log(decoded);
+    //console.log(decoded);
 
     //check user
     const sql = "SELECT user_id FROM user WHERE user_id = ? AND role= 'admin' ";
     let user = await db.query(sql, userId);
 
-    console.log("user:", user);
+    //console.log("user:", user);
 
     if (user.length > 0) {
       next();

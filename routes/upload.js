@@ -88,8 +88,6 @@ router.post("/", (req, res) => {
 
 router.post("/files", async (req, res) => {
   try {
-    console.log("enter /files");
-
     var form = new IncomingForm();
 
     let baseUrl = config.get("upload_url");
@@ -104,8 +102,6 @@ router.post("/files", async (req, res) => {
       file.path = __dirname + "/../public/uploads/" + filename;
 
       fileUrl = baseUrl + filename;
-
-      console.log("enter fileBegin:", filename);
     });
 
     form.on("file", function (name, file) {
@@ -114,7 +110,7 @@ router.post("/files", async (req, res) => {
 
     form.on("end", async () => {
       isFileExist = await service.isFileExist(filename);
-      console.log("on end fileExists: ", isFileExist);
+
       if (!isFileExist) service.createUpload(filename, fileUrl, "system");
       res.json({ result: "OK", fileUrl });
     });
@@ -144,7 +140,7 @@ router.post(
 
       //delete file
       const path = "./public/uploads/" + filename;
-      console.log("path:", path);
+
       fs.unlinkSync(path);
 
       return res.status(200).json({
@@ -188,7 +184,7 @@ router.post(
 
         //delete file
         const path = "./public/uploads/" + filename;
-        console.log("path:", path);
+
         fs.unlinkSync(path);
       }
 
@@ -210,11 +206,10 @@ router.post(
 
 router.post("/search", auth, async (req, res) => {
   try {
-    console.log(req.body);
     const { keywords } = req.body;
 
     const data = await service.searchFiles(keywords);
-    console.log(data);
+
     res.status(200).json({
       status: 200,
       message: "OK",

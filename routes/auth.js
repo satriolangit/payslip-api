@@ -66,7 +66,7 @@ router.post(
     }
 
     const { nik, password, siteName } = req.body;
-    console.log(req.body);
+    //console.log(req.body);
 
     try {
       let sql = "";
@@ -85,7 +85,6 @@ router.post(
       }
 
       if (user.length === 0) {
-        console.log("user:", user);
         return res.status(400).json({
           status: 400,
           message: "Invalid credentials",
