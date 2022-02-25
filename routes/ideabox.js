@@ -536,7 +536,6 @@ router.post("/delete", async (req, res) => {
 
     ideaboxIds.map(async (id) => {
       const image = await repo.getIdeaboxImageById(id);
-      console.log(image);
 
       service.deleteFile(image.beforeImage, image.afterImage);
 
