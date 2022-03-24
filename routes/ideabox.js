@@ -26,21 +26,53 @@ const storage = multer.diskStorage({
   },
 });
 
+const uploadFilter = function (req, file, cb) {
+  console.log(file.mimetype);
+
+  const mimeType = file.mimetype;
+  if (
+    mimeType === "image/png" ||
+    mimeType === "image/jpeg" ||
+    mimeType === "image/bmp"
+  ) {
+    cb(null, true);
+  } else {
+    return cb(
+      new Error(
+        "File type not accepted, please reupload using (.png, .jpg, .jpeg, .bmp)"
+      )
+    );
+  }
+};
+
 var upload = multer({
   storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (
-      file.mimetype == "image/png" ||
-      file.mimetype == "image/jpg" ||
-      file.mimetype == "image/jpeg"
-    ) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(new Error("File type not accepted (.png, .jpg, .jpeg)"));
-    }
+  limits: {
+    fileSize: 50000000,
   },
+  fileFilter: uploadFilter,
 });
+
+// var upload = multer({
+//   storage: storage,
+//   fileFilter: (req, file, cb) => {
+//     if (
+//       file.mimetype == "image/png" ||
+//       file.mimetype == "image/jpg" ||
+//       file.mimetype == "image/jpeg" ||
+//       file.mimetype == "image/bmp"
+//     ) {
+//       cb(null, true);
+//     } else {
+//       cb(null, false);
+//       return cb(
+//         new Error(
+//           "File type not accepted, please reupload using (.png, .jpg, .jpeg, .bmp)"
+//         )
+//       );
+//     }
+//   },
+// });
 
 router.get("/number", async (req, res) => {
   try {
