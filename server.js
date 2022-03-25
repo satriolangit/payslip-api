@@ -60,8 +60,8 @@ app.use("/public", express.static(__dirname + "/public"));
 app.use("/payslip", express.static(__dirname + "/public/payslip"));
 app.use("/files", express.static(__dirname + "/public/uploads"));
 app.use("/photos", express.static(__dirname + "/public/photos"));
-app.use("/survey", express.static(__dirname + "/public/survey"));
-app.use("/ideabox", express.static(__dirname + "/public/ideabox"));
+app.use("/files-survey", express.static(__dirname + "/public/survey"));
+app.use("/files-ideabox", express.static(__dirname + "/public/ideabox"));
 
 //port
 const PORT = process.env.PORT || 3001;

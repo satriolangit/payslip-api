@@ -33,13 +33,15 @@ const uploadFilter = function (req, file, cb) {
   if (
     mimeType === "image/png" ||
     mimeType === "image/jpeg" ||
-    mimeType === "image/bmp"
+    mimeType === "image/bmp" ||
+    mimeType === "image/gif" ||
+    mimeType === "image/tiff"
   ) {
     cb(null, true);
   } else {
     return cb(
       new Error(
-        "File type not accepted, please reupload using (.png, .jpg, .jpeg, .bmp)"
+        "File type not accepted, please reupload using (.png, .jpg, .jpeg, .bmp, .gif, .tiff)"
       )
     );
   }
@@ -47,32 +49,9 @@ const uploadFilter = function (req, file, cb) {
 
 var upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 50000000,
-  },
+
   fileFilter: uploadFilter,
 });
-
-// var upload = multer({
-//   storage: storage,
-//   fileFilter: (req, file, cb) => {
-//     if (
-//       file.mimetype == "image/png" ||
-//       file.mimetype == "image/jpg" ||
-//       file.mimetype == "image/jpeg" ||
-//       file.mimetype == "image/bmp"
-//     ) {
-//       cb(null, true);
-//     } else {
-//       cb(null, false);
-//       return cb(
-//         new Error(
-//           "File type not accepted, please reupload using (.png, .jpg, .jpeg, .bmp)"
-//         )
-//       );
-//     }
-//   },
-// });
 
 router.get("/number", async (req, res) => {
   try {
