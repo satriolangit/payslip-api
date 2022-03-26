@@ -98,7 +98,10 @@ router.get("/closedIdeaCount", async (req, res) => {
     const year = req.query.year;
     const employeeId = req.query.employeeId;
 
-    const total = await repo.getTotalClosedIdeaboxByYear(year);
+    const total = await repo.getTotalClosedIdeaboxByYearAndEmployee(
+      year,
+      employeeId
+    );
 
     res.status(200).json({
       result: "OK",

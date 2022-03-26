@@ -333,8 +333,10 @@ const getTotalClosedIdeaboxByYearAndEmployee = async (year, employeeId) => {
   const startDate = moment.utc(`${year.toString()}-01-01`).format("YYYY-MM-DD");
   const endDate = moment.utc(`${year.toString()}-12-31`).format("YYYY-MM-DD");
 
+  console.log(startDate, endDate);
+
   const sql = `SELECT COUNT(id) AS Total FROM ideabox 
-        WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED' AND submitteed_by = ?`;
+        WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED' AND submitted_by = ?`;
 
   const query = await db.query(sql, [startDate, endDate, employeeId]);
   const result = query[0].Total;
