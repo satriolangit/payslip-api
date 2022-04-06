@@ -98,7 +98,10 @@ router.get("/closedIdeaCount", async (req, res) => {
     const year = req.query.year;
     const employeeId = req.query.employeeId;
 
-    const total = await repo.getTotalClosedIdeaboxByYear(year);
+    const total = await repo.getTotalClosedIdeaboxByYearAndEmployee(
+      year,
+      employeeId
+    );
 
     res.status(200).json({
       result: "OK",
@@ -208,6 +211,8 @@ router.post(
       const { beforeImageFile, afterImageFile } = detail;
       let { beforeImage, afterImage } = detail;
 
+      console.log(comment);
+
       if (beforeImageFile !== null) {
         beforeImage = req.files.beforeImage[0].filename;
       }
@@ -289,6 +294,8 @@ router.post("/list/search", auth, async (req, res) => {
 
     let data = [];
 
+    console.log(approvalRole, employeeId, keywords);
+
     if (approvalRole === "ADMIN") {
       data = await repo.searchIdeaboxListForAdmin(keywords);
     } else if (approvalRole === "EMPLOYEE") {
@@ -298,8 +305,8 @@ router.post("/list/search", auth, async (req, res) => {
       approvalRole === "DEPARTMENT_MANAGER"
     ) {
       data = await repo.searchIdeaboxListForManager(
-        approvalRole,
         employeeId,
+        approvalRole,
         keywords
       );
     } else {
