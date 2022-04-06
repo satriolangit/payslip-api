@@ -294,6 +294,8 @@ router.post("/list/search", auth, async (req, res) => {
 
     let data = [];
 
+    console.log(approvalRole, employeeId, keywords);
+
     if (approvalRole === "ADMIN") {
       data = await repo.searchIdeaboxListForAdmin(keywords);
     } else if (approvalRole === "EMPLOYEE") {
@@ -303,8 +305,8 @@ router.post("/list/search", auth, async (req, res) => {
       approvalRole === "DEPARTMENT_MANAGER"
     ) {
       data = await repo.searchIdeaboxListForManager(
-        approvalRole,
         employeeId,
+        approvalRole,
         keywords
       );
     } else {
