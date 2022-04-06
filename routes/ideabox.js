@@ -211,6 +211,8 @@ router.post(
       const { beforeImageFile, afterImageFile } = detail;
       let { beforeImage, afterImage } = detail;
 
+      console.log(comment);
+
       if (beforeImageFile !== null) {
         beforeImage = req.files.beforeImage[0].filename;
       }
