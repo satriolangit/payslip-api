@@ -661,4 +661,27 @@ router.get("/pdf/:id", async (req, res) => {
   }
 });
 
+router.post("/report", async (req, res) => {
+  try {
+    const service = require("../services/reportService");
+    const { startDate, endDate, type } = req.body;
+
+    const result = await service.getReportData(startDate, endDate, type);
+
+    res.status(200).json({
+      result: "OK",
+      message: "OK",
+      data: result,
+      errors: null,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to get ideabox",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
 module.exports = router;

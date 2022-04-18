@@ -417,6 +417,24 @@ const searchAdminUsers = async (keywords) => {
   return data;
 };
 
+const getClosedIdeaboxIdByDateAndType = async (
+  startDate,
+  endDate,
+  type = "ALL"
+) => {
+  let sql = "";
+
+  if (type === "ALL") {
+    sql = `SELECT id FROM ideabox WHERE status = 'CLOSED' AND submitted_at BETWEEN ? AND ?`;
+    const result = await db.query(sql, [startDate, endDate]);
+    return result;
+  } else {
+    sql = `SELECT id FROM ideabox WHERE status = 'CLOSED' AND submitted_at BETWEEN ? AND ? AND idea_type = ?`;
+    const result = await db.query(sql, [startDate, endDate, type]);
+    return result;
+  }
+};
+
 module.exports = {
   getDepartments,
   getDepartmentById,
@@ -444,4 +462,5 @@ module.exports = {
   getIdeaboxImageById,
   getAdminUsers,
   searchAdminUsers,
+  getClosedIdeaboxIdByDateAndType,
 };
