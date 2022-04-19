@@ -684,4 +684,34 @@ router.post("/report", async (req, res) => {
   }
 });
 
+router.get("/compress", (req, res) => {
+  const compress_images = require("compress-images");
+
+  const INPUT_PATH =
+    __dirname + "/../public/ideabox/**/*.{jpg,JPG,jpeg,JPEG,png,svg,gif}";
+  const OUTPUT_PATH =
+    __dirname +
+    "/../public/ideabox/compress/**/*.{jpg,JPG,jpeg,JPEG,png,svg,gif}";
+
+  compress_images(
+    INPUT_PATH,
+    OUTPUT_PATH,
+    { compress_force: false, statistic: true, autoupdate: true },
+    false,
+    { jpg: { engine: "mozjpeg", command: ["-quality", "60"] } },
+    { png: { engine: "pngquant", command: ["--quality=20-50", "-o"] } },
+    { svg: { engine: "svgo", command: "--multipass" } },
+    {
+      gif: { engine: "gifsicle", command: ["--colors", "64", "--use-col=web"] },
+    },
+    function (error, completed, statistic) {
+      console.log("-------------");
+      console.log(error);
+      console.log(completed);
+      console.log(statistic);
+      console.log("-------------");
+    }
+  );
+});
+
 module.exports = router;
