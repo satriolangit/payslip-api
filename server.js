@@ -2,6 +2,10 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const cron = require("node-cron");
+const pdf = require("pdf-creator-node");
+const fs = require("fs");
+const path = require("path");
+
 const notif = require("./services/approvalNotificationService");
 
 var bodyParser = require("body-parser");
@@ -54,6 +58,39 @@ app.use("/api/ideabox/notification", require("./routes/approvalNotification"));
 
 //test
 app.get("/xyz", (req, res) => res.send("Hello World!"));
+app.get("/print", (req, res) => {
+  const basePath = path.join(__dirname, "public/ideabox");
+  const template = path.join(
+    __dirname,
+    "public/ideabox/template/template.html"
+  );
+  var html = fs.readFileSync(template, "utf8");
+  const options = {};
+
+  const data = {
+    number: "123456",
+  };
+
+  var document = {
+    html: html,
+    data: {
+      data,
+    },
+    path: path.join(basePath, "output.pdf"),
+    type: "",
+  };
+
+  pdf
+    .create(document, options)
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+  res.send("print pdf : " + html);
+});
 
 app.use(fileUpload());
 app.use("/public", express.static(__dirname + "/public"));
