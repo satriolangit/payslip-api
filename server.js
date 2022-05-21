@@ -5,6 +5,7 @@ const cron = require("node-cron");
 const pdf = require("pdf-creator-node");
 const fs = require("fs");
 const path = require("path");
+const { engine } = require('express-handlebars');
 
 const notif = require("./services/approvalNotificationService");
 
@@ -14,6 +15,11 @@ const app = express();
 
 //init middleware
 app.use(express.json({ extended: false }));
+
+app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }));
+app.set('view engine', 'hbs');
+
+
 
 /* Use cors and fileUpload*/
 app.use(function (req, res, next) {
@@ -55,6 +61,7 @@ app.use("/api/ideabox", require("./routes/ideabox"));
 app.use("/api/master", require("./routes/master"));
 app.use("/api/approval", require("./routes/approval"));
 app.use("/api/ideabox/notification", require("./routes/approvalNotification"));
+app.use("/api/report", require('./routes/report'));
 
 //test
 app.get("/xyz", (req, res) => res.send("Hello World!"));
