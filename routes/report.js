@@ -108,7 +108,7 @@ router.get("/kyt", async (req, res) => {
 
 router.get("/print/umum", async (req, res) => {
   await printPdf({
-    url: "http://localhost:3001/api/report/umum",
+    url: "http://localhost:3001/api/report/umum/104",
     filepath: "./public/report/ideasheet-umum.pdf",
   });
   res.send("print pdf");
@@ -116,7 +116,7 @@ router.get("/print/umum", async (req, res) => {
 
 router.get("/print/kyt", async (req, res) => {
   const opts = {
-    url: "http://localhost:3001/api/report/kyt",
+    url: "http://localhost:3001/api/report/kyt/127",
     filepath: "./public/report/ideasheet-kyt.pdf",
   };
   await printPdf(opts);

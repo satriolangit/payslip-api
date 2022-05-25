@@ -2,10 +2,9 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const cron = require("node-cron");
-const pdf = require("pdf-creator-node");
 const fs = require("fs");
 const path = require("path");
-const { engine } = require('express-handlebars');
+const { engine } = require("express-handlebars");
 
 const notif = require("./services/approvalNotificationService");
 
@@ -16,10 +15,8 @@ const app = express();
 //init middleware
 app.use(express.json({ extended: false }));
 
-app.engine('hbs', engine({ defaultLayout: 'main', extname: '.hbs' }));
-app.set('view engine', 'hbs');
-
-
+app.engine("hbs", engine({ defaultLayout: "main", extname: ".hbs" }));
+app.set("view engine", "hbs");
 
 /* Use cors and fileUpload*/
 app.use(function (req, res, next) {
@@ -61,43 +58,10 @@ app.use("/api/ideabox", require("./routes/ideabox"));
 app.use("/api/master", require("./routes/master"));
 app.use("/api/approval", require("./routes/approval"));
 app.use("/api/ideabox/notification", require("./routes/approvalNotification"));
-app.use("/api/report", require('./routes/report'));
+app.use("/api/report", require("./routes/report"));
 
 //test
 app.get("/xyz", (req, res) => res.send("Hello World!"));
-app.get("/print", (req, res) => {
-  const basePath = path.join(__dirname, "public/ideabox");
-  const template = path.join(
-    __dirname,
-    "public/ideabox/template/template.html"
-  );
-  var html = fs.readFileSync(template, "utf8");
-  const options = {};
-
-  const data = {
-    number: "123456",
-  };
-
-  var document = {
-    html: html,
-    data: {
-      data,
-    },
-    path: path.join(basePath, "output.pdf"),
-    type: "",
-  };
-
-  pdf
-    .create(document, options)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-  res.send("print pdf : " + html);
-});
 
 app.use(fileUpload());
 app.use("/public", express.static(__dirname + "/public"));
