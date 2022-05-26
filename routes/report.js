@@ -3,13 +3,20 @@ const puppeteer = require("puppeteer");
 const appConfig = require("config");
 const path = require("path");
 const fs = require("fs");
+const appRoot = require("app-root-path");
 const config = appConfig.get("ideabox");
 const queryPdf = require("../queries/ideaboxPdfQuery");
+const repo = require("../repositories/ideaboxRepository");
+const archiver = require("zip-a-folder");
+const logger = require("../utils/logger");
 
 const router = express.Router();
+const BASE_URL = appConfig.get("base_url");
 
 const printPdf = async ({ url, filepath }) => {
   console.log(filepath);
+  console.info("Generate pdf : " + filepath);
+
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(url, {
@@ -26,7 +33,6 @@ const printPdf = async ({ url, filepath }) => {
 
 router.get("/umum/:id", async (req, res) => {
   const assets_url = config.get("pdf_assets_url");
-  const pdf_path = path.join(__dirname, "public/report");
   const base_url = appConfig.get("base_url");
   const ideaboxId = req.params.id;
   const ideabox = await queryPdf.getData(ideaboxId);
@@ -47,7 +53,7 @@ router.get("/umum/:id", async (req, res) => {
     before: detail.beforeSummary,
     beforeImage: `${base_url}/public/ideabox/${detail.beforeImage}`,
     after: detail.afterSummary,
-    afterImage: `${base_url}/public/ideabox/${detailAfterImage}`,
+    afterImage: `${base_url}/public/ideabox/${detail.AfterImage}`,
     pelaksanaanIdeasheet: master.isIdeasheet,
     impacts: impact,
     nilaiKaizen: master.kaizenAmount,
@@ -63,7 +69,6 @@ router.get("/umum/:id", async (req, res) => {
 
 router.get("/kyt", async (req, res) => {
   const assets_url = config.get("pdf_assets_url");
-  const pdf_path = path.join(__dirname, "public/report");
   const base_url = appConfig.get("base_url");
   const ideaboxId = req.params.id;
   const ideabox = await queryPdf.getData(ideaboxId);
@@ -125,7 +130,69 @@ router.get("/print/kyt", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-  } catch (error) {}
+    const { startDate, endDate, type } = req.body;
+    const APP_PATH = appRoot.path;
+
+    const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
+      /-/g,
+      ""
+    )}`;
+
+    const reportPath = path.join(APP_PATH, "public/report", directoryName);
+    const reportUmumPath = path.join(reportPath, "umum");
+    const reportQkytPath = path.join(reportPath, "qkyt");
+
+    if (!fs.existsSync(reportPath)) {
+      fs.mkdirSync(reportPath);
+      fs.mkdirSync(path.join(reportPath, "umum"));
+      fs.mkdirSync(path.join(reportPath, "qkyt"));
+    }
+
+    const from = startDate + " 00:00:00";
+    const to = endDate + " 23:59:59";
+
+    const data = await repo.getIdeaboxReport(from, to, type);
+
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      const ideaboxId = item.id;
+      const ideaNumber = item.ideaNumber.replace(/-/g, "");
+      const submitDate = item.submittedAt;
+
+      const url =
+        item.ideaType === "UMUM"
+          ? `${BASE_URL}/api/report/umum/${ideaboxId}`
+          : `${BASE_URL}/api/report/kyt/${ideaboxId}`;
+
+      const pdf = `${ideaNumber}_${item.submittedBy}_${item.ideaType}_${submitDate}.pdf`;
+
+      const pdfPath =
+        item.ideaType === "UMUM"
+          ? path.join(reportUmumPath, pdf)
+          : path.join(reportQkytPath, pdf);
+
+      await printPdf({
+        url: url,
+        filepath: pdfPath,
+      });
+    }
+
+    const { zip } = archiver;
+    const zipPath = path.join(
+      APP_PATH,
+      "public/report",
+      directoryName + ".zip"
+    );
+    await zip(reportPath, zipPath);
+
+    res.download(zipPath);
+
+    //res.json(data);
+    console.log("done");
+  } catch (error) {
+    console.error(error);
+    logger.error(error);
+  }
 });
 
 module.exports = router;

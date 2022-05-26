@@ -417,6 +417,21 @@ const searchAdminUsers = async (keywords) => {
   return data;
 };
 
+const getIdeaboxReport = async (startDate, endDate, ideaType = "ALL") => {
+  let sql = `SELECT id, idea_number as ideaNumber, idea_type as ideaType, 
+      date_format(submitted_at, '%d%M%y') as submittedAt, submitted_by as submittedBy 
+    FROM ideabox 
+    WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED'`;
+
+  if (ideaType !== "ALL") {
+    sql += ` AND idea_type = '${ideaType}'`;
+  }
+
+  console.log("sql:", sql);
+
+  return await db.query(sql, [startDate, endDate]);
+};
+
 module.exports = {
   getDepartments,
   getDepartmentById,
@@ -444,4 +459,5 @@ module.exports = {
   getIdeaboxImageById,
   getAdminUsers,
   searchAdminUsers,
+  getIdeaboxReport,
 };
