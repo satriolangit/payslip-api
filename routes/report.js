@@ -130,8 +130,13 @@ router.get("/print/kyt", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { startDate, endDate, type } = req.body;
+    let { startDate, endDate, type } = req.body;
     const APP_PATH = appRoot.path;
+
+    startDate = startDate.substring(0, 10);
+    endDate = endDate.substring(0, 10);
+
+    console.log(startDate, endDate);
 
     const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
       /-/g,
@@ -185,9 +190,10 @@ router.post("/", async (req, res) => {
     );
     await zip(reportPath, zipPath);
 
-    res.download(zipPath);
+    res.sendFile(zipPath);
 
     //res.json(data);
+
     console.log("done");
   } catch (error) {
     console.error(error);
