@@ -147,57 +147,75 @@ router.post("/", async (req, res) => {
     const reportUmumPath = path.join(reportPath, "umum");
     const reportQkytPath = path.join(reportPath, "qkyt");
 
-    if (!fs.existsSync(reportPath)) {
-      fs.mkdirSync(reportPath);
-      fs.mkdirSync(path.join(reportPath, "umum"));
-      fs.mkdirSync(path.join(reportPath, "qkyt"));
-    }
-
     const from = startDate + " 00:00:00";
     const to = endDate + " 23:59:59";
 
     const data = await repo.getIdeaboxReport(from, to, type);
+    let downloadLink = "";
+    let result = "NO_DATA";
+    let message = "Ideasheet not found.";
 
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      const ideaboxId = item.id;
-      const ideaNumber = item.ideaNumber.replace(/-/g, "");
-      const submitDate = item.submittedAt;
+    if (data.length > 0) {
+      if (!fs.existsSync(reportPath)) {
+        fs.mkdirSync(reportPath);
+        fs.mkdirSync(path.join(reportPath, "umum"));
+        fs.mkdirSync(path.join(reportPath, "qkyt"));
+      }
 
-      const url =
-        item.ideaType === "UMUM"
-          ? `${BASE_URL}/api/report/umum/${ideaboxId}`
-          : `${BASE_URL}/api/report/kyt/${ideaboxId}`;
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        const ideaboxId = item.id;
+        const ideaNumber = item.ideaNumber.replace(/-/g, "");
+        const submitDate = item.submittedAt;
 
-      const pdf = `${ideaNumber}_${item.submittedBy}_${item.ideaType}_${submitDate}.pdf`;
+        const url =
+          item.ideaType === "UMUM"
+            ? `${BASE_URL}/api/report/umum/${ideaboxId}`
+            : `${BASE_URL}/api/report/kyt/${ideaboxId}`;
 
-      const pdfPath =
-        item.ideaType === "UMUM"
-          ? path.join(reportUmumPath, pdf)
-          : path.join(reportQkytPath, pdf);
+        const pdf = `${ideaNumber}_${item.submittedBy}_${item.ideaType}_${submitDate}.pdf`;
 
-      await printPdf({
-        url: url,
-        filepath: pdfPath,
-      });
+        const pdfPath =
+          item.ideaType === "UMUM"
+            ? path.join(reportUmumPath, pdf)
+            : path.join(reportQkytPath, pdf);
+
+        await printPdf({
+          url: url,
+          filepath: pdfPath,
+        });
+      }
+
+      const { zip } = archiver;
+      const zipName = directoryName + ".zip";
+      const zipPath = path.join(APP_PATH, "public/report", zipName);
+      await zip(reportPath, zipPath);
+
+      result = "OK";
+      downloadLink = `${BASE_URL}/public/report/${zipName}`;
+      message = "Sucessfully generate report";
+
+      fs.rmSync(reportPath, { recursive: true, force: true });
     }
 
-    const { zip } = archiver;
-    const zipPath = path.join(
-      APP_PATH,
-      "public/report",
-      directoryName + ".zip"
-    );
-    await zip(reportPath, zipPath);
-
-    res.sendFile(zipPath);
-
-    //res.json(data);
+    res.status(200).json({
+      result: "OK",
+      message: message,
+      data: { download_link: downloadLink, generated_report: data.length },
+      errors: {},
+    });
 
     console.log("done");
   } catch (error) {
     console.error(error);
     logger.error(error);
+
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to generate report",
+      data: req.body,
+      errors: error,
+    });
   }
 });
 

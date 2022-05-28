@@ -1,0 +1,6 @@
+2022-05-28 11:25:37 error: error is not defined ReferenceError: error is not defined
+    at D:\projects\payslip\src\payslip-api\routes\report.js:203:15
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+2022-05-28 11:26:03 error: error is not defined ReferenceError: error is not defined
+    at D:\projects\payslip\src\payslip-api\routes\report.js:203:15
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
