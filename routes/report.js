@@ -15,7 +15,7 @@ const BASE_URL = appConfig.get("base_url");
 
 const printPdf = async ({ url, filepath }) => {
   console.log(filepath);
-  console.info("Generate pdf : " + filepath);
+  logger.info("Generate pdf : " + filepath);
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -136,8 +136,6 @@ router.post("/", async (req, res) => {
     startDate = startDate.substring(0, 10);
     endDate = endDate.substring(0, 10);
 
-    console.log(startDate, endDate);
-
     const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
       /-/g,
       ""
@@ -195,7 +193,15 @@ router.post("/", async (req, res) => {
       downloadLink = `${BASE_URL}/public/report/${zipName}`;
       message = "Sucessfully generate report";
 
-      fs.rmSync(reportPath, { recursive: true, force: true });
+      //fs.rmSync(reportPath, { recursive: true, force: true });
+
+      fs.rmdir(reportPath, { recursive: true }, (err) => {
+        if (err) {
+          logger.error(err);
+        }
+
+        console.log(`${reportPath} is deleted!`);
+      });
     }
 
     res.status(200).json({
