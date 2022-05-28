@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideasheet</title>
+    <style>
+        body {
+            font-size: 14px;
+        }
+        .page {           
+            width: 794px;
+            height: 1123px;
+            padding: 15px;
+            
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .page-header img {
+            width: 400px;
+            height: auto;
+        }
+
+        .sheet-header {
+            border: 3px solid black; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            min-height: 120px;   
+            margin-top: 10px;         
+        }
+    </style>
+</head>
+<body>    
+    <div class="page">
+        <div class="page-header">
+            <img src="{{data.logo}}" alt="logo"/>
+            <div style="width: 220px;">
+                <div style="border: 2px solid black; padding: 3px;">Tgl. Efektif : 3 Januari 2022</div>
+                <div style="display: flex; border: 2px solid black; ">
+                    <div style="border-right: 2px solid black; padding: 3px;">No. Document</div>
+                    <div style="padding: 3px;">S-FR-HR-049/4</div>
+                </div>
+            </div>
+        </div>
+        <div class="sheet-header">
+            <div>
+                <img src="{{data.logoMaster}}" alt="" />
+            </div>
+            <div><h1>IDEA SHEET</h2></div>
+            <div><img src="{{data.logo3Tahun}}" alt=""></div>
+        </div>
+        <div style="margin-top: 1px; border: 3px solid black; ">
+            <div style="display: flex; padding: 1px; justify-content: space-between;">
+                <div style="display: flex; border: 1px solid black;width: 50%;">
+                  <div style="min-width: 100px;">Nama</div>
+                  <div style="margin: 0 5px 0 0">:</div>
+                  <div>{{data.nama}}</div>
+                </div>
+                <div style="display: flex; flex-grow: 1; border: 1px solid black; border-left: none">
+                    <div style="min-width: 100px;">NIK</div>
+                    <div style="margin: 0 5px 0 0">:</div>
+                    <div>{{data.nik}}</div>
+                  </div>
+            </div>
+            <div style="display: flex; padding: 1px; justify-content: space-between;">
+                <div style="display: flex; border: 1px solid black;width: 50%;">
+                  <div style="min-width: 100px;">Departemen</div>
+                  <div style="margin: 0 5px 0 0">:</div>
+                  <div>{{data.departemen}}</div>
+                </div>
+                <div style="display: flex; flex-grow: 1; border: 1px solid black; border-left: none">
+                    <div style="min-width: 100px;">Area Kaizen</div>
+                    <div style="margin: 0 5px 0 0">:</div>
+                    <div>{{data.areaKaizen}}</div>
+                  </div>
+            </div>           
+            <div style="display: flex; padding: 1px; justify-content: space-between;">
+                <div style="display: flex; border: 1px solid black;width: 50%;">
+                  <div style="min-width: 100px;">Tanggal</div>
+                  <div style="margin: 0 5px 0 0">:</div>
+                  <div>{{data.tanggal}}</div>
+                </div>
+                <div style="display: flex; flex-grow: 1; border: 1px solid black; border-left: none">
+                    <div style="min-width: 100px;">Jenis Idea</div>
+                    <div style="margin: 0 5px 0 0">:</div>
+                    <div>
+                        <span style="margin-right: 20px;text-decoration: line-through;">UMUM</span>
+                        <span>Q-KYT</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; padding: 1px; justify-content:space-between; border: 1px solid black">
+                <div style="display: flex;">
+                  <div style="min-width: 100px;">Tema</div>
+                  <div style="margin: 0 5px 0 0">:</div>
+                  <div>{{data.tema}}</div>
+                </div>
+                <div>No. {{data.ideaNumber}}</div>                
+            </div>   
+            <div style="padding:1px; border:1px solid black; margin-top:1px">
+                <span>Isi nama, departemen, tanggal, tema, NIK dan area dengan jelas tanpa disingkat.</span>
+            </div>   
+            <div style="display: flex; justify-content: center; margin-top:1px; border:1px solid black">
+                <span>Explanation (Penjelasan)</span>
+            </div> 
+            <div style="display: flex; margin-top:2px;">
+                <div style="width: 50%; border: 1px solid black;">
+                    <div style="display: flex; justify-content: center; border-bottom: 1px solid black;">
+                        <span>Before</span>
+                    </div>
+                    <div style="min-height: 80px;border-bottom: 1px dotted black; padding-left: 6px;">
+                        <p>{{data.before}}</p>
+                    </div>                   
+                    <div style="display: flex; margin-top:1px; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Kapan :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeKapan}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Dimana :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeDimana}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Siapa :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeSiapa}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Apa :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeApa}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Bagaimana :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeBagaimana}}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; border:1px solid black;">
+                        <div style="width: 20%; border-right: 1px solid black;padding:2px;">Apa yg terjadi :</div>
+                        <div style="width: 80%; padding-left: 2px;">
+                            <span>{{data.beforeApaYangTerjadi}}</span>
+                        </div>
+                    </div>
+                    <div style="border: 1px solid black;">
+                        Bagaimana hal ini bisa menjadi masalah ? (Situasi)
+                    </div>
+                    <div style="height: 150x; display: flex; border:1px solid black">
+                        <div style="flex: 1 1 0; border-right: 1px solid black;">
+                            <p>{{data.beforeSituasi}}</p>
+                        </div>
+                        <div style="flex: 1 1 0">
+                            <img style="width: 100%; height: 150px;" src="{{data.beforeImage}}" />
+                        </div>                        
+                    </div>
+                </div>
+                <div style="width: 50%; border: 1px solid black; border-left:none">
+                    <div style="display: flex; justify-content: center; border-bottom: 1px solid black;">
+                        <span>After</span>
+                    </div> 
+                    <div style="min-height: 80px;border-bottom: 1px dotted black;padding-left:6px;">
+                        <p>{{data.after}}</p>
+                    </div>
+                    <div style="height: 200px; padding: 2px">
+                        <img style="width: 100%; height: 200px;" src="{{data.afterImage}}" />
+                    </div> 
+                    <div style="border-top:1px solid black; display: flex;">
+                        <div style="border-right: 1px solid black; width: 75%;">
+                            <div>Rank 3 Frekuensi Bertambah</div>
+                            <div>Rank 2 Terjadi Sewaktu-waktu</div>
+                            <div>Rank 1 Jarang Terjadi</div>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <div style="text-align: center; border-bottom: 1px solid black;">Rank</div>
+                            <div style="text-align: center; font-size: 18px; font-weight: bold;">{{data.rank}}</div>
+                        </div>
+                    </div>   
+                </div>
+            </div>   
+            <div style="border: 1px solid black; margin-top:1px; display:flex; justify-content: space-evenly;">
+                <div>Pelaksaan Ideasheet</div>
+                {{#if data.pelaksanaanIdeasheet}}
+                    <div>
+                        <input type="checkbox" checked/> Sudah
+                    </div>
+                    <div>
+                        <input type="checkbox"/> Belum
+                    </div>
+                {{else}}
+                    <div>
+                        <input type="checkbox"/> Sudah
+                    </div>
+                    <div>
+                        <input type="checkbox" checked /> Belum
+                    </div>
+                {{/if}}
+            </div>
+            <div style="border: 1px solid black;margin-top:1px; display: flex;">
+                <div style="width:30%; display: flex; justify-content: center; align-items: center;">
+                    <span>Isi Pengaruhnya</span> 
+                </div>
+                <div>
+                {{#each data.impacts}}
+                <div>
+                    {{#if this.checked}}
+                        <input type="checkbox" id="{{this.id}}" checked /> {{this.text}}
+                    {{else}}
+                        <input type="checkbox" id="{{this.id}}" /> {{this.text}}
+                    {{/if}}
+                </div>
+                {{/each}}                
+            </div>
+            </div>
+            <div style="display: flex; border:1px solid black; margin-top:1px; min-height: 50px;">
+                <div style="width: 50%; display: flex; justify-content: center; align-items: center; border-right: 1px solid black;">
+                    <span>Nilai Kaizen jika di Rupiahkan</span>
+                </div>
+                <div style="width: 50%; display: flex; justify-content: center; align-items: center;">
+                    <span>{{data.nilaiKaizen}}</span>
+                </div>
+            </div>            
+        </div>
+        <div style="border: 3px solid black; margin-top: 1px;">
+            <div style="text-align:center; border:1px solid black;margin-top:1px">
+                <span>Permintaan atau komentar dari pimpinan kerja pembuat Ideasheet</span>
+            </div>
+            <div style="min-height: 50px; border:1px solid black; margin-top:1px; padding: 2px;">
+            {{#each data.comments}}
+                <div>By {{this.createdBy}} : {{this.comment}} ({{this.createdAt}})</div>
+            {{/each}}
+            </div>
+        </div>
+        <div><span>Note: Untuk Penjelasan Detail Dgn Gambar bisa dilampirkan gambar.</span></div>
+        <div style="display: flex; margin-top:10px;">
+            <div style="width: 25%;text-align: center;border:2px solid black">
+                <div style="border-bottom:2px solid black;">Diterima</div>
+                <div style="min-height: 75px;line-height: 75px;">{{data.diterimaOleh}}</div>
+            </div>
+            <div style="width: 25%;text-align: center;border:2px solid black;border-left:none">
+                <div style="border-bottom:2px solid black;">Disetujui</div>
+                <div style="min-height: 75px;line-height: 75px;">{{data.disetujuiOleh}}</div>
+            </div>
+            <div style="width: 25%;text-align: center;border:2px solid black;border-left:none">
+                <div style="border-bottom:2px solid black;">Diperiksa</div>
+                <div style="min-height: 75px;line-height: 75px;">{{data.diperiksaOleh}}</div>
+            </div>
+            <div style="width: 25%;text-align: center;border:2px solid black; border-left:none">
+                <div style="border-bottom:2px solid black;">Dibuat</div>
+                <div style="min-height: 75px;line-height: 75px;">{{data.dibuatOleh}}</div>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div style="width: 25%; text-align:center">
+                Komite Ideabox
+            </div>
+            <div style="width: 25%; text-align:center">
+                Departemen Manager
+            </div>
+            <div style="width: 25%; text-align:center">
+                Section Manager / Group Head
+            </div>
+            <div style="width: 25%; text-align:center">
+                Pembuat Ide
+            </div>
+        </div>
+    </div>    
+</body>
+</html>

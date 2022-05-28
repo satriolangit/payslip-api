@@ -10,6 +10,9 @@
   "upload_url": "http://localhost:3001/files/",
   "photo_url": "http://localhost:3001/photos/",
   "payslip_url": "http://localhost:3001/payslip/",
-  "survey_upload_url": "http://localhost:3001/survey/"
-  
+  "survey_upload_url": "http://localhost:3001/survey/",
+  "base_url": "http://localhost:3001", 
+  "ideabox": {
+    "pdf_assets_url": "http://localhost:3001/public/tmpl_images"    
+  }
 }
