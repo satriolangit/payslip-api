@@ -11,6 +11,7 @@ const query = require("../queries/ideaboxViewQuery");
 const queryEdit = require("../queries/ideaboxEditQuery");
 const notifService = require("../services/approvalNotificationService");
 const queryPdf = require("../queries/ideaboxPdfQuery");
+const logger = require("../utils/logger");
 
 //upload photo config
 const storage = multer.diskStorage({
@@ -63,6 +64,7 @@ router.get("/number", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to generate ideabox number",
@@ -84,6 +86,7 @@ router.get("/closedIdeaCount/:year", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get total closed ideasheet",
@@ -110,6 +113,7 @@ router.get("/closedIdeaCount", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get total closed ideasheet",
@@ -147,6 +151,7 @@ router.get("/view/:id", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get ideabox",
@@ -189,6 +194,7 @@ router.get("/edit/:id", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get ideabox",
@@ -241,7 +247,7 @@ router.post(
         errors: null,
       });
     } catch (error) {
-      console.log("error:", error);
+      logger.error(error);
       res.status(500).json({
         result: "FAIL",
         message: "Internal server error, failed to edit ideabox 123",
@@ -278,6 +284,7 @@ router.post("/list", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get ideabox list",
@@ -320,7 +327,7 @@ router.post("/list/search", auth, async (req, res) => {
       errors: null,
     });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err);
     res.status(500).json({
       status: 500,
       message: "Failed to search ideabox list",
@@ -355,6 +362,7 @@ router.post("/listpage", async (req, res) => {
       totalData: totalRows,
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get ideabox list",
@@ -377,7 +385,7 @@ router.post(
 
       // console.log("master", master);
       // console.log("detail", detail);
-      //console.log("comment", comment);
+      console.log("comment", comment);
 
       const beforeImage = req.files.beforeImage[0];
       const afterImage = req.files.afterImage[0];
@@ -422,6 +430,7 @@ router.post(
         errors: null,
       });
     } catch (error) {
+      logger.error(error);
       return res.status(500).json({
         result: "FAIL",
         message: "Internal server error, failed to submit ideabox",
@@ -444,6 +453,7 @@ router.post("/submit/impact", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to submit ideabox impact",
@@ -466,6 +476,7 @@ router.post("/submit/kyt", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to submit ideabox",
@@ -491,6 +502,7 @@ router.post("/approve", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to approve ideabox",
@@ -515,6 +527,7 @@ router.post("/posting", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to posting ideabox",
@@ -539,6 +552,7 @@ router.post("/reject", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to reject ideabox",
@@ -567,6 +581,7 @@ router.post("/delete", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to remove ideabox",
@@ -587,7 +602,7 @@ router.get("/user", auth, async (req, res) => {
       errors: null,
     });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err);
     res.status(500).json({
       message: "Failed to get users",
       data: req.body,
@@ -609,7 +624,7 @@ router.post("/user/search", auth, async (req, res) => {
       errors: null,
     });
   } catch (err) {
-    console.error(err.message);
+    logger.error(err);
     res.status(500).json({
       status: 500,
       message: "Failed search users",
@@ -629,7 +644,7 @@ router.post("/notify", async (req, res) => {
       result: "OK",
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).json({
       result: "ERROR",
       message: error,
@@ -652,6 +667,7 @@ router.get("/pdf/:id", async (req, res) => {
       errors: null,
     });
   } catch (error) {
+    logger.error(error);
     res.status(500).json({
       result: "FAIL",
       message: "Internal server error, failed to get ideabox",

@@ -3,7 +3,7 @@ require("winston-daily-rotate-file");
 const { createLogger, format, transports } = require("winston");
 const path = require("path");
 
-const logLevel = "info";
+const logLevel = "debug";
 
 const { combine, timestamp, printf } = format;
 

@@ -9,6 +9,7 @@ const queryPdf = require("../queries/ideaboxPdfQuery");
 const repo = require("../repositories/ideaboxRepository");
 const archiver = require("zip-a-folder");
 const logger = require("../utils/logger");
+const moment = require("moment");
 
 const router = express.Router();
 const BASE_URL = appConfig.get("base_url");
@@ -39,6 +40,8 @@ router.get("/umum/:id", async (req, res) => {
 
   const { master, detail, comment, impact } = ideabox;
 
+  console.log("master:", master);
+
   const data = {
     logo: `${assets_url}/logo.png`,
     logoMaster: `${assets_url}/logo-master.png`,
@@ -53,7 +56,7 @@ router.get("/umum/:id", async (req, res) => {
     before: detail.beforeSummary,
     beforeImage: `${base_url}/public/ideabox/${detail.beforeImage}`,
     after: detail.afterSummary,
-    afterImage: `${base_url}/public/ideabox/${detail.AfterImage}`,
+    afterImage: `${base_url}/public/ideabox/${detail.afterImage}`,
     pelaksanaanIdeasheet: master.isIdeasheet,
     impacts: impact,
     nilaiKaizen: master.kaizenAmount,
@@ -74,6 +77,8 @@ router.get("/kyt", async (req, res) => {
   const ideabox = await queryPdf.getData(ideaboxId);
 
   const { master, detail, comment, impact } = ideabox;
+
+  console.log("master:", master);
 
   const data = {
     logo: `${assets_url}/logo.png`,
@@ -96,7 +101,7 @@ router.get("/kyt", async (req, res) => {
     beforeApaYangTerjadi: detail.beforeIncident,
     beforeSituasi: detail.beforeSituation,
     after: master.afterSummary,
-    afterImage: `${base_url}/public/ideabox/${detailAfterImage}`,
+    afterImage: `${base_url}/public/ideabox/${detail.afterImage}`,
     rank: detail.afterRank,
     pelaksanaanIdeasheet: master.isIdeasheet,
     impacts: impact,
@@ -129,6 +134,95 @@ router.get("/print/kyt", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  try {
+    let { startDate, endDate, type } = req.body;
+    const APP_PATH = appRoot.path;
+
+    startDate = startDate.substring(0, 10);
+    endDate = endDate.substring(0, 10);
+
+    const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
+      /-/g,
+      ""
+    )}`;
+
+    const reportPath = path.join(APP_PATH, "public/report", directoryName);
+    const reportUmumPath = path.join(reportPath, "umum");
+    const reportQkytPath = path.join(reportPath, "qkyt");
+
+    const from = startDate + " 00:00:00";
+    const to = endDate + " 23:59:59";
+
+    const data = await repo.getIdeaboxReport(from, to, type);
+    let downloadLink = "";
+    let result = "NO_DATA";
+    let message = "Ideasheet not found.";
+
+    if (data.length > 0) {
+      if (!fs.existsSync(reportPath)) {
+        fs.mkdirSync(reportPath);
+        fs.mkdirSync(path.join(reportPath, "umum"));
+        fs.mkdirSync(path.join(reportPath, "qkyt"));
+      }
+
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        const pdfFile = item.pdf_file;
+
+        const sourcePath = path.join(APP_PATH, "public/report", pdfFile);
+        const destinationPath =
+          item.ideaType === "UMUM"
+            ? path.join(reportUmumPath, pdfFile)
+            : path.join(reportQkytPath, pdfFile);
+
+        fs.copyFile(sourcePath, destinationPath, (err) => {
+          if (err) logger.error(err);
+          logger.info(`${sourcePath} was copied to ${destinationPath}`);
+        });
+      }
+
+      const { zip } = archiver;
+      const zipName = directoryName + ".zip";
+      const zipPath = path.join(APP_PATH, "public/report", zipName);
+      await zip(reportPath, zipPath);
+
+      result = "OK";
+      downloadLink = `${BASE_URL}/public/report/${zipName}`;
+      message = "Sucessfully generate report";
+
+      //fs.rmSync(reportPath, { recursive: true, force: true });
+
+      fs.rmdir(reportPath, { recursive: true }, (err) => {
+        if (err) {
+          logger.error(err);
+        }
+
+        console.log(`${reportPath} is deleted!`);
+      });
+    }
+
+    res.status(200).json({
+      result: "OK",
+      message: message,
+      data: { download_link: downloadLink, generated_report: data.length },
+      errors: {},
+    });
+
+    console.log("done");
+  } catch (error) {
+    console.error(error);
+    logger.error(error);
+
+    res.status(500).json({
+      result: "FAIL",
+      message: "Internal server error, failed to generate report",
+      data: req.body,
+      errors: error,
+    });
+  }
+});
+
+router.post("/generate", async (req, res) => {
   try {
     let { startDate, endDate, type } = req.body;
     const APP_PATH = appRoot.path;

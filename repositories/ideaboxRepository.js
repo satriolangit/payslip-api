@@ -243,7 +243,8 @@ const geetIdeaboxByid = async (id) => {
             DATE_FORMAT(submitted_at, '%Y-%m-%d') AS submittedAt, submitter.name AS submitterName, ibx.tema, ibx.kaizen_area AS kaizenArea,
             ibx.kaizen_amount AS kaizenAmount, ibx.department_id AS departmentId,
             reviewer.name AS reviewerName, approver.name AS approverName, receiver.name AS receiverName,
-            ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName
+            ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName,
+            date_format(ibx.submitted_at, '%d%M%y') AS sheetDate
             FROM ideabox ibx LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
             LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
@@ -419,9 +420,10 @@ const searchAdminUsers = async (keywords) => {
 
 const getIdeaboxReport = async (startDate, endDate, ideaType = "ALL") => {
   let sql = `SELECT id, idea_number as ideaNumber, idea_type as ideaType, 
-      date_format(submitted_at, '%d%M%y') as submittedAt, submitted_by as submittedBy 
+      date_format(submitted_at, '%d%M%y') as submittedAt, submitted_by as submittedBy,
+      pdf_file, pdf_url
     FROM ideabox 
-    WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED'`;
+    WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED' AND pdf_file IS NOT NULL`;
 
   if (ideaType !== "ALL") {
     sql += ` AND idea_type = '${ideaType}'`;
