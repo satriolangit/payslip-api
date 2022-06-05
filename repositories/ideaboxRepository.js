@@ -258,8 +258,8 @@ const geetIdeaboxByid = async (id) => {
 };
 
 const getIdeaboxImageById = async (ideaboxId) => {
-  const sql = ` SELECT before_image AS beforeImage, after_image AS afterImage
-    FROM ideabox_detail
+  const sql = `SELECT master_id, before_image AS beforeImage, after_image AS afterImage, ibx.pdf_file AS pdfFile
+    FROM ideabox_detail detail INNER JOIN ideabox ibx ON ibx.id = detail.master_id
     WHERE master_id = ?`;
 
   const result = await db.query(sql, ideaboxId);

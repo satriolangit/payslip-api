@@ -567,9 +567,13 @@ router.post("/delete", async (req, res) => {
     const { ideaboxIds } = req.body;
 
     ideaboxIds.map(async (id) => {
-      const image = await repo.getIdeaboxImageById(id);
+      const file = await repo.getIdeaboxImageById(id);
 
-      service.deleteFile(image.beforeImage, image.afterImage);
+      const { beforeImage, afterImage, pdfFile } = file;
+
+      service.deleteFile(beforeImage, afterImage);
+
+      if (pdfFile) service.deletePdf(pdfFile);
 
       await service.remove(id);
     });

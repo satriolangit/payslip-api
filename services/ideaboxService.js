@@ -337,6 +337,18 @@ const deleteFile = (beforeImage, afterImage) => {
   }
 };
 
+const deletePdf = (pdfFile) => {
+  const path = "./public/report/";
+
+  try {
+    const pdfPath = path + pdfFile;
+
+    fs.unlinkSync(pdfPath);
+  } catch (error) {
+    console.log("Failed to delete ideabox pdf file, Error :", error);
+  }
+};
+
 const writePdf = async ({ ideabox }) => {
   try {
     const BASE_URL = appConfig.get("base_url");
@@ -383,4 +395,5 @@ module.exports = {
   updateDetail,
   posting,
   deleteFile,
+  deletePdf,
 };
