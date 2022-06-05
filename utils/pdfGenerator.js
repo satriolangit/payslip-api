@@ -3,7 +3,6 @@ const logger = require("./logger");
 
 module.exports = async ({ url, filepath }) => {
   console.log(filepath);
-  logger.info("Generate pdf : " + filepath);
 
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"],

@@ -15,8 +15,8 @@ const router = express.Router();
 const BASE_URL = appConfig.get("base_url");
 
 const printPdf = async ({ url, filepath }) => {
-  console.log(filepath);
-  logger.info("Generate pdf : " + filepath);
+  //console.log(filepath);
+  //logger.info("Generate pdf : " + filepath);
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -40,7 +40,7 @@ router.get("/umum/:id", async (req, res) => {
 
   const { master, detail, comment, impact } = ideabox;
 
-  console.log("master:", master);
+  //console.log("master:", master);
 
   const data = {
     logo: `${assets_url}/logo.png`,
@@ -78,7 +78,7 @@ router.get("/kyt", async (req, res) => {
 
   const { master, detail, comment, impact } = ideabox;
 
-  console.log("master:", master);
+  //console.log("master:", master);
 
   const data = {
     logo: `${assets_url}/logo.png`,
@@ -141,6 +141,8 @@ router.post("/", async (req, res) => {
     startDate = startDate.substring(0, 10);
     endDate = endDate.substring(0, 10);
 
+    logger.info("Generate report : " + startDate + " - " + endDate);
+
     const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
       /-/g,
       ""
@@ -177,7 +179,7 @@ router.post("/", async (req, res) => {
 
         fs.copyFile(sourcePath, destinationPath, (err) => {
           if (err) logger.error(err);
-          logger.info(`${sourcePath} was copied to ${destinationPath}`);
+          logger.info(`copying ${pdfFile} to ${destinationPath}`);
         });
       }
 
@@ -198,6 +200,7 @@ router.post("/", async (req, res) => {
         }
 
         console.log(`${reportPath} is deleted!`);
+        logger.info(`Deleting ${reportPath}`);
       });
     }
 
@@ -209,6 +212,7 @@ router.post("/", async (req, res) => {
     });
 
     console.log("done");
+    logger.info(`Generate report done : ${downloadLink}`);
   } catch (error) {
     console.error(error);
     logger.error(error);

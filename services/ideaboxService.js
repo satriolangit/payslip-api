@@ -296,9 +296,9 @@ const approve = async (ideaboxId, employeeId) => {
       ideabox.submitterName
     );
   } else if (roleId === "KOMITE_IDEABOX") {
-    logger.info("approve : " + roleId);
+    logger.info("approve : " + roleId + " id :" + ideaboxId);
     sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
-    logger.info("sql :" + sql);
+    //logger.info("sql :" + sql);
     await writePdf({ ideabox });
   }
 
@@ -356,6 +356,8 @@ const writePdf = async ({ ideabox }) => {
         : `${BASE_URL}/api/report/kyt/${ideaboxId}`;
 
     await generatePdf({ url, filepath: pdfPath });
+
+    logger.info("Write pdf : " + pdfPath);
 
     //update ideabox
     const sql = "UPDATE ideabox SET pdf_url = ?, pdf_file = ? WHERE id = ?";
