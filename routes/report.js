@@ -15,8 +15,6 @@ const router = express.Router();
 const BASE_URL = appConfig.get("base_url");
 
 const printPdf = async ({ url, filepath }) => {
-  //console.log(filepath);
-  //logger.info("Generate pdf : " + filepath);
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
@@ -39,8 +37,6 @@ router.get("/umum/:id", async (req, res) => {
   const ideabox = await queryPdf.getData(ideaboxId);
 
   const { master, detail, comment, impact } = ideabox;
-
-  //console.log("master:", master);
 
   const data = {
     logo: `${assets_url}/logo.png`,
@@ -77,8 +73,6 @@ router.get("/kyt", async (req, res) => {
   const ideabox = await queryPdf.getData(ideaboxId);
 
   const { master, detail, comment, impact } = ideabox;
-
-  //console.log("master:", master);
 
   const data = {
     logo: `${assets_url}/logo.png`,
@@ -192,8 +186,6 @@ router.post("/", async (req, res) => {
       downloadLink = `${BASE_URL}/public/report/${zipName}`;
       message = "Sucessfully generate report";
 
-      //fs.rmSync(reportPath, { recursive: true, force: true });
-
       fs.rmdir(reportPath, { recursive: true }, (err) => {
         if (err) {
           logger.error(err);
@@ -233,6 +225,7 @@ router.post("/generate", async (req, res) => {
 
     startDate = startDate.substring(0, 10);
     endDate = endDate.substring(0, 10);
+
 
     const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
       /-/g,
@@ -290,8 +283,6 @@ router.post("/generate", async (req, res) => {
       result = "OK";
       downloadLink = `${BASE_URL}/public/report/${zipName}`;
       message = "Sucessfully generate report";
-
-      //fs.rmSync(reportPath, { recursive: true, force: true });
 
       fs.rmdir(reportPath, { recursive: true }, (err) => {
         if (err) {
