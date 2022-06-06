@@ -33,7 +33,7 @@ const getIdeaboxDetail = async (ideaboxId) => {
 };
 
 const getComments = async (ideaboxId) => {
-  const sql = `SELECT cmt.comment AS value, cmt.created_at AS createdAt, usr.name AS createdBy
+  const sql = `SELECT cmt.comment AS value, DATE_FORMAT(cmt.created_at, '%d %M %y %h:%i') AS createdAt, usr.name AS createdBy
           FROM ideabox_comment cmt 
           LEFT JOIN user usr ON usr.employee_id = cmt.created_by
           WHERE master_id = ?

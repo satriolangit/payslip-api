@@ -3,6 +3,11 @@ const db = require("../config/database");
 const moment = require("moment");
 const repo = require("./../repositories/ideaboxRepository");
 const notifService = require("./approvalNotificationService");
+const generatePdf = require("../utils/pdfGenerator");
+const logger = require("../utils/logger");
+const appRoot = require("app-root-path");
+const appConfig = require("config");
+const path = require("path");
 
 const generateNumber = async () => {
   const sql =
@@ -146,37 +151,34 @@ const isCommentExist = async (ideaboxId, employeeId) => {
 };
 
 const submitComment = async (ideaboxId, comment) => {
-  const { createdBy } = comment;
+  const { createdBy, value } = comment;
   const isExist = await isCommentExist(ideaboxId, createdBy);
 
-  console.log(ideaboxId, comment);
+  console.log("submitComment :", comment);
 
   if (isExist) {
-    await updateComment(ideaboxId, comment);
+    await updateComment({ ideaboxId, comment: value, createdBy });
   } else {
-    await insertComment(ideaboxId, comment);
+    await insertComment({ ideaboxId, comment: value, createdBy });
   }
 };
 
-const insertComment = async (ideaboxId, comment) => {
+const insertComment = async ({ ideaboxId, comment, createdBy }) => {
   const sql = `INSERT ideabox_comment (master_id, created_by, created_at, comment) VALUES (?,?,?,?)`;
 
-  const { comment: message, createdBy } = comment;
-
-  console.log("insert comment, :", comment, message);
+  console.log("insertComment :", comment);
 
   var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
   var stillUtc = moment.utc(date).toDate();
   var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
-  await db.query(sql, [ideaboxId, createdBy, timestamp, message]);
+  await db.query(sql, [ideaboxId, createdBy, timestamp, comment]);
 };
 
-const updateComment = async (ideaboxId, comment) => {
-  const { comment: message, createdBy } = comment;
+const updateComment = async ({ ideaboxId, comment, createdBy }) => {
   const sql =
     "UPDATE ideabox_comment SET comment=?  WHERE master_id = ? AND created_by = ? ";
-  await db.query(sql, [message, ideaboxId, createdBy]);
+  await db.query(sql, [comment, ideaboxId, createdBy]);
 };
 
 const deleteImpactByIdeaboxId = async (ideaboxId) => {
@@ -294,7 +296,10 @@ const approve = async (ideaboxId, employeeId) => {
       ideabox.submitterName
     );
   } else if (roleId === "KOMITE_IDEABOX") {
+    logger.info("approve : " + roleId + " id :" + ideaboxId);
     sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
+    //logger.info("sql :" + sql);
+    await writePdf({ ideabox });
   }
 
   await db.query(sql, [employeeId, now, assignedTo, ideaboxId]);
@@ -332,6 +337,48 @@ const deleteFile = (beforeImage, afterImage) => {
   }
 };
 
+const deletePdf = (pdfFile) => {
+  const path = "./public/report/";
+
+  try {
+    const pdfPath = path + pdfFile;
+
+    fs.unlinkSync(pdfPath);
+  } catch (error) {
+    console.log("Failed to delete ideabox pdf file, Error :", error);
+  }
+};
+
+const writePdf = async ({ ideabox }) => {
+  try {
+    const BASE_URL = appConfig.get("base_url");
+    const APP_PATH = appRoot.path;
+    const reportPath = path.join(APP_PATH, "public/report");
+    const { ideaboxId, ideaNumber, ideaType, sheetDate, submittedBy } = ideabox;
+    const pdfName = `${ideaNumber.replace(
+      /-/g,
+      ""
+    )}_${submittedBy}_${ideaType}_${sheetDate}.pdf`;
+
+    const pdfPath = path.join(reportPath, pdfName);
+    const pdfUrl = `${BASE_URL}/public/report/${pdfName}`;
+    const url =
+      ideaType === "UMUM"
+        ? `${BASE_URL}/api/report/umum/${ideaboxId}`
+        : `${BASE_URL}/api/report/kyt/${ideaboxId}`;
+
+    await generatePdf({ url, filepath: pdfPath });
+
+    logger.info("Write pdf : " + pdfPath);
+
+    //update ideabox
+    const sql = "UPDATE ideabox SET pdf_url = ?, pdf_file = ? WHERE id = ?";
+    await db.query(sql, [pdfUrl, pdfName, ideaboxId]);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 module.exports = {
   submit,
   submitDetailUmum,
@@ -348,4 +395,5 @@ module.exports = {
   updateDetail,
   posting,
   deleteFile,
+  deletePdf,
 };

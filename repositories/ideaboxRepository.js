@@ -7,7 +7,7 @@ const getIdeaboxList = async (role) => {
             CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
             ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
             ibx.approved_at AS approvalDate, approver.name AS approverName, 
-            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
         FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -26,7 +26,7 @@ const searchIdeaboxList = async (role, employeeId, keywords) => {
             CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
             ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
             ibx.approved_at AS approvalDate, approver.name AS approverName, 
-            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
         FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -56,7 +56,7 @@ const getIdeaboxListForEmployee = async (employeeId) => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -75,7 +75,7 @@ const searchIdeaboxListForEmployee = async (employeeId, keywords) => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -107,7 +107,7 @@ const getIdeaboxListForAdmin = async () => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -125,7 +125,7 @@ const searchIdeaboxListForAdmin = async (keywords) => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -168,7 +168,7 @@ const getIdeaboxListForManager = async (role, employeeId) => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -192,7 +192,7 @@ const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
       ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
       ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -224,7 +224,7 @@ const getIdeaboxListPerPages = async (role, employeeId, limit, offset) => {
 			CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
 			ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
 			ibx.approved_at AS approvalDate, approver.name AS approverName, 
-			ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema
+			ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
 		FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -243,7 +243,8 @@ const geetIdeaboxByid = async (id) => {
             DATE_FORMAT(submitted_at, '%Y-%m-%d') AS submittedAt, submitter.name AS submitterName, ibx.tema, ibx.kaizen_area AS kaizenArea,
             ibx.kaizen_amount AS kaizenAmount, ibx.department_id AS departmentId,
             reviewer.name AS reviewerName, approver.name AS approverName, receiver.name AS receiverName,
-            ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName
+            ibx.status, ibx.pelaksanaan_ideasheet AS isIdeasheet, dept.department_name AS departmentName,
+            date_format(ibx.submitted_at, '%d%M%y') AS sheetDate
             FROM ideabox ibx LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
             LEFT JOIN user approver ON approver.employee_id = ibx.approved_by
@@ -257,8 +258,8 @@ const geetIdeaboxByid = async (id) => {
 };
 
 const getIdeaboxImageById = async (ideaboxId) => {
-  const sql = ` SELECT before_image AS beforeImage, after_image AS afterImage
-    FROM ideabox_detail
+  const sql = `SELECT master_id, before_image AS beforeImage, after_image AS afterImage, ibx.pdf_file AS pdfFile
+    FROM ideabox_detail detail INNER JOIN ideabox ibx ON ibx.id = detail.master_id
     WHERE master_id = ?`;
 
   const result = await db.query(sql, ideaboxId);
@@ -419,9 +420,10 @@ const searchAdminUsers = async (keywords) => {
 
 const getIdeaboxReport = async (startDate, endDate, ideaType = "ALL") => {
   let sql = `SELECT id, idea_number as ideaNumber, idea_type as ideaType, 
-      date_format(submitted_at, '%d%M%y') as submittedAt, submitted_by as submittedBy 
+      date_format(submitted_at, '%d%M%y') as submittedAt, submitted_by as submittedBy,
+      pdf_file, pdf_url
     FROM ideabox 
-    WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED'`;
+    WHERE submitted_at BETWEEN ? AND ? AND status = 'CLOSED' AND pdf_file IS NOT NULL`;
 
   if (ideaType !== "ALL") {
     sql += ` AND idea_type = '${ideaType}'`;
