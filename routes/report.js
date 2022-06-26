@@ -15,7 +15,6 @@ const router = express.Router();
 const BASE_URL = appConfig.get("base_url");
 
 const printPdf = async ({ url, filepath }) => {
-
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(url, {
@@ -66,7 +65,7 @@ router.get("/umum/:id", async (req, res) => {
   res.render("ideasheet_umum", { data: data });
 });
 
-router.get("/kyt", async (req, res) => {
+router.get("/kyt/:id", async (req, res) => {
   const assets_url = config.get("pdf_assets_url");
   const base_url = appConfig.get("base_url");
   const ideaboxId = req.params.id;
@@ -225,7 +224,6 @@ router.post("/generate", async (req, res) => {
 
     startDate = startDate.substring(0, 10);
     endDate = endDate.substring(0, 10);
-
 
     const directoryName = `${startDate.replace(/-/g, "")}-${endDate.replace(
       /-/g,
