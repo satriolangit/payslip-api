@@ -178,12 +178,14 @@ const getSectionManagerTobeNotifiedDaily = async () => {
 };
 
 const getDepartmentManagerToBeNotifiedDaily = async () => {
-  const sql = `SELECT usr.employee_id AS employeeId, usr.email, GROUP_CONCAT(apm.department_id SEPARATOR ',') AS departmentIds
+  const sql = `SELECT usr.employee_id AS employeeId, usr.email, usr.name,
+	GROUP_CONCAT(DISTINCT apm.department_id SEPARATOR ',') AS departmentIds 
     FROM approval_role apr 
       INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
         INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
         INNER JOIN user usr ON usr.employee_id = apm.employee_id
-    WHERE apr.id = 'DEPARTMENT_MANAGER' AND ntm.notification_type = 2`;
+    WHERE apr.id = 'DEPARTMENT_MANAGER' AND ntm.notification_type = 2
+    GROUP BY usr.employee_id, usr.email, usr.name`;
 
   const result = await db.query(sql);
 
@@ -191,12 +193,15 @@ const getDepartmentManagerToBeNotifiedDaily = async () => {
 };
 
 const getKomiteToBeNotifiedDaily = async () => {
-  const sql = `SELECT usr.employee_id AS employeeId, usr.email, GROUP_CONCAT(apm.department_id SEPARATOR ',') AS departmentIds
+  const sql = `SELECT usr.employee_id AS employeeId, usr.email, usr.name,
+      GROUP_CONCAT(DISTINCT apm.department_id SEPARATOR ',') AS departmentIds
     FROM approval_role apr 
       INNER JOIN approval_role_mapping apm ON apm.role_id = apr.id
-        INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
-        INNER JOIN user usr ON usr.employee_id = apm.employee_id
-    WHERE apr.id = 'KOMITE_IDEABOX' AND ntm.notification_type = 2`;
+      INNER JOIN notification_mapping ntm ON ntm.employee_id = apm.employee_id
+      INNER JOIN user usr ON usr.employee_id = apm.employee_id
+    WHERE apr.id = 'KOMITE_IDEABOX' AND ntm.notification_type = 2
+    GROUP BY usr.employee_id, usr.email, usr.name
+    `;
 
   const result = await db.query(sql);
 

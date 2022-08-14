@@ -2,12 +2,15 @@ const db = require("../config/database");
 const moment = require("moment");
 
 const getIdeaboxList = async (role) => {
-  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
+  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, 
+            submitter.name AS submitterName, 
             ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
             CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-            ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-            ibx.approved_at AS approvalDate, approver.name AS approverName, 
-            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+            ibx.kaizen_amount AS amount, DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+            DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+            DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+            DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, 
+            ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
         FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -21,12 +24,16 @@ const getIdeaboxList = async (role) => {
 };
 
 const searchIdeaboxList = async (role, employeeId, keywords) => {
-  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
+  const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, 
+            submitter.name AS submitterName, 
             ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
             CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-            ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-            ibx.approved_at AS approvalDate, approver.name AS approverName, 
-            ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+            ibx.kaizen_amount AS amount, 
+            DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+            DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+            DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+            DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, 
+            receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
         FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -54,9 +61,11 @@ const getIdeaboxListForEmployee = async (employeeId) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -73,9 +82,11 @@ const searchIdeaboxListForEmployee = async (employeeId, keywords) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -105,9 +116,11 @@ const getIdeaboxListForAdmin = async () => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -123,9 +136,11 @@ const searchIdeaboxListForAdmin = async (keywords) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -166,9 +181,11 @@ const getIdeaboxListForManager = async (role, employeeId) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -190,9 +207,11 @@ const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, 
       ibx.submitted_by AS submittedBy, dept.department_name as departmentName,
       CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-      ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-      ibx.approved_at AS approvalDate, approver.name AS approverName, 
-      ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+      ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+      DATE_FORMAT(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+      DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
     FROM ideabox ibx 
       LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
       LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by
@@ -222,9 +241,11 @@ const searchIdeaboxListForManager = async (employeeId, role, keywords) => {
 const getIdeaboxListPerPages = async (role, employeeId, limit, offset) => {
   const sql = `SELECT ibx.id AS ideaboxId, ibx.idea_number AS ideaNumber, ibx.idea_type AS ideaboxType, submitter.name AS submitterName, ibx.submitted_by AS submittedBy, 
 			CASE WHEN ibx.pelaksanaan_ideasheet = 0 THEN 'BELUM DILAKSANAKAN' ELSE 'SUDAH DILAKSANAKAN' END AS isIdeasheet,
-			ibx.kaizen_amount AS amount, ibx.submitted_at AS submitDate, ibx.reviewed_at AS reviewDate, reviewer.name AS reviewerName,
-			ibx.approved_at AS approvalDate, approver.name AS approverName, 
-			ibx.accepted_at AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
+			ibx.kaizen_amount AS amount, 
+      DATE_FORMAT(ibx.submitted_at, '%Y-%m-%d') AS submitDate, 
+      DATE_FORMAT(ibx.reviewed_at, '%Y-%m-%d') AS reviewDate, reviewer.name AS reviewerName,
+			DATE_FORMAR(ibx.approved_at, '%Y-%m-%d') AS approvalDate, approver.name AS approverName, 
+			DATE_FORMAT(ibx.accepted_at, '%Y-%m-%d') AS acceptedDate, receiver.name AS receiverName, ibx.status, ibx.tema, ibx.pdf_file AS pdfFile
 		FROM ideabox ibx 
             LEFT JOIN user submitter ON submitter.employee_id = ibx.submitted_by
             LEFT JOIN user reviewer ON reviewer.employee_id = ibx.reviewed_by

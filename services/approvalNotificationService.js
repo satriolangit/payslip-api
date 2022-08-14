@@ -105,8 +105,8 @@ const dailyNotification = async () => {
   let end = yesterday.format("YYYY-MM-DD 23:59");
   let date = yesterday.format("DD MMMM YYYY");
 
-  start = "2022-01-01 00:00";
-  end = "2022-02-28 00:00";
+  // start = "2022-01-01 00:00";
+  // end = "2022-02-28 00:00";
 
   //notify section manager
   const sectionManagers = await query.getSectionManagerTobeNotifiedDaily();

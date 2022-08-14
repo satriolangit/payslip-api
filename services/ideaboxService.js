@@ -41,9 +41,9 @@ const generateNumber = async () => {
 };
 
 const submit = async (master) => {
-  var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
-  var stillUtc = moment.utc(date).toDate();
-  var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
+  // var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+  // var stillUtc = moment.utc(date).toDate();
+  var timestamp = moment().format("YYYY-MM-DD HH:mm:ss"); //moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
 
   const {
     ideaType,
@@ -276,7 +276,7 @@ const approve = async (ideaboxId, employeeId) => {
   const approvalRole = await repo.getApprovalRole(employeeId);
   const ideabox = await repo.geetIdeaboxByid(ideaboxId);
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
-  const now = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+  const now = moment().format("YYYY-MM-DD HH:mm:ss");
 
   let sql = "";
   if (roleId === "SECTION_MANAGER") {

@@ -82,3 +82,12 @@ cron.schedule("0 0 7 * * *", async () => {
 
   await notif.dailyNotification();
 });
+
+const moment = require("moment");
+
+var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+var stillUtc = moment.utc(date).toDate();
+var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
+var local = moment().format("YYYY-MM-DD HH:mm:ss");
+
+console.log(date, stillUtc, timestamp, local);
