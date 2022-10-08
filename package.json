@@ -34,7 +34,7 @@
 		"pdf-creator-node": "^2.3.4",
 		"pdf-to-base64": "^1.0.2",
 		"puppeteer": "^14.1.1",
-		"read-excel-file": "^4.0.4",
+		"read-excel-file": "^5.5.0",
 		"uuid": "^3.3.2",
 		"winston": "^3.7.2",
 		"winston-daily-rotate-file": "^4.6.1",
