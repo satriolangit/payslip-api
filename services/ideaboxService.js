@@ -1,4 +1,3 @@
-const fs = require("fs");
 const db = require("../config/database");
 const moment = require("moment");
 const repo = require("./../repositories/ideaboxRepository");
@@ -278,23 +277,23 @@ const approve = async (ideaboxId, employeeId) => {
   const { role_id: roleId, next_role: assignedTo } = approvalRole;
   const now = moment().format("YYYY-MM-DD HH:mm:ss");
 
+  const { status, departmentId, departmentName, submitterName } = ideabox;
+
+  if (status === "REJECTED") return;
+
   let sql = "";
   if (roleId === "SECTION_MANAGER") {
     sql = `UPDATE ideabox SET reviewed_by = ?, reviewed_at = ?, assigned_to = ?, status='REVIEWED' WHERE id = ?`;
 
     notifService.notifyDepartmentManager(
-      ideabox.departmentId,
-      ideabox.departmentName,
-      ideabox.submitterName
+      departmentId,
+      departmentName,
+      submitterName
     );
   } else if (roleId === "DEPARTMENT_MANAGER") {
     sql = `UPDATE ideabox SET approved_by = ?, approved_at = ?, assigned_to = ?, status='APPROVED' WHERE id = ?`;
 
-    notifService.notifyKomite(
-      ideabox.departmentId,
-      ideabox.departmentName,
-      ideabox.submitterName
-    );
+    notifService.notifyKomite(departmentId, departmentName, submitterName);
   } else if (roleId === "KOMITE_IDEABOX") {
     logger.info("approve : " + roleId + " id :" + ideaboxId);
     sql = `UPDATE ideabox SET accepted_by = ?, accepted_at = ?, assigned_to = ?, status = 'CLOSED' WHERE id = ?`;
@@ -306,8 +305,10 @@ const approve = async (ideaboxId, employeeId) => {
 };
 
 const reject = async (ideaboxId, employeeId) => {
-  const approvalRole = await repo.getApprovalRole(employeeId);
-  const { role_id: roleId, prev_role: assignedTo } = approvalRole;
+  // const approvalRole = await repo.getApprovalRole(employeeId);
+  // const { role_id: roleId, prev_role: assignedTo } = approvalRole;
+
+  const assignedTo = "EMPLOYEE";
 
   const sql = `UPDATE ideabox SET assigned_to = ?, status = 'REJECTED' WHERE id = ?`;
   await db.query(sql, [assignedTo, ideaboxId]);
