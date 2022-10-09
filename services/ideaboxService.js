@@ -306,10 +306,10 @@ const approve = async (ideaboxId, employeeId) => {
 };
 
 const reject = async (ideaboxId, employeeId) => {
-  const approvalRole = await repo.getApprovalRole(employeeId);
-  const { role_id: roleId, prev_role: assignedTo } = approvalRole;
+  // const approvalRole = await repo.getApprovalRole(employeeId);
+  // const { role_id: roleId, prev_role: assignedTo } = approvalRole;
 
-  const sql = `UPDATE ideabox SET assigned_to = ?, status = 'REJECTED' WHERE id = ?`;
+  const sql = `UPDATE ideabox SET assigned_to = 'EMPLOYEE', status = 'REJECTED' WHERE id = ?`;
   await db.query(sql, [assignedTo, ideaboxId]);
 };
 

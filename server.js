@@ -8,7 +8,7 @@ const { engine } = require("express-handlebars");
 
 const notif = require("./services/approvalNotificationService");
 
-var bodyParser = require("body-parser");
+let bodyParser = require("body-parser");
 
 const app = express();
 
@@ -85,9 +85,9 @@ cron.schedule("0 0 7 * * *", async () => {
 
 const moment = require("moment");
 
-var date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
-var stillUtc = moment.utc(date).toDate();
-var timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
-var local = moment().format("YYYY-MM-DD HH:mm:ss");
+const date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+const stillUtc = moment.utc(date).toDate();
+const timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
+const local = moment().format("YYYY-MM-DD HH:mm:ss");
 
 console.log(date, stillUtc, timestamp, local);
