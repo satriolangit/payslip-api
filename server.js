@@ -6,6 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const { engine } = require("express-handlebars");
 
+const mailSender = require("./services/mailSender");
+
 const notif = require("./services/approvalNotificationService");
 
 let bodyParser = require("body-parser");
@@ -74,20 +76,25 @@ app.use("/files-ideabox", express.static(__dirname + "/public/ideabox"));
 //port
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 
-//scheduler
-cron.schedule("0 0 7 * * *", async () => {
-  console.log("mail scheduler run");
-
-  await notif.dailyNotification();
+  console.log("sendmail to wahyu.hw@gmail.com");
+  mailSender.send("test mail", "wahyu.hw@gmail.com", "test email 12345");
 });
 
-const moment = require("moment");
+//scheduler
+// cron.schedule("0 0 7 * * *", async () => {
+//   console.log("mail scheduler run");
 
-const date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
-const stillUtc = moment.utc(date).toDate();
-const timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
-const local = moment().format("YYYY-MM-DD HH:mm:ss");
+//   await notif.dailyNotification();
+// });
 
-console.log(date, stillUtc, timestamp, local);
+// const moment = require("moment");
+
+// const date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+// const stillUtc = moment.utc(date).toDate();
+// const timestamp = moment(stillUtc).local().format("YYYY-MM-DD HH:mm:ss");
+// const local = moment().format("YYYY-MM-DD HH:mm:ss");
+
+// console.log(date, stillUtc, timestamp, local);
