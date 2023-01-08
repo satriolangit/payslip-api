@@ -63,7 +63,22 @@ app.use("/api/ideabox/notification", require("./routes/approvalNotification"));
 app.use("/api/report", require("./routes/report"));
 
 //test
-app.get("/xyz", (req, res) => res.send("Hello World!"));
+app.get("/xyz", (req, res) => {
+  try {
+    mailSender.send(
+      "shindengen payslip",
+      "wahyu.hw@gmail.com",
+      "test send email"
+    );
+
+    res.send("hello world and send email");
+  } catch (error) {
+    res.json(error);
+    res.send("error 1234");
+  }
+
+  console.log("xyz");
+});
 
 app.use(fileUpload());
 app.use("/public", express.static(__dirname + "/public"));
@@ -84,11 +99,11 @@ app.listen(PORT, () => {
 });
 
 //scheduler
-// cron.schedule("0 0 7 * * *", async () => {
-//   console.log("mail scheduler run");
+cron.schedule("0 0 7 * * *", async () => {
+  console.log("mail scheduler run");
 
-//   await notif.dailyNotification();
-// });
+  await notif.dailyNotification();
+});
 
 // const moment = require("moment");
 

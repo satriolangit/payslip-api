@@ -9,15 +9,13 @@ const smtp = {
   },
 };
 
-const config = {
+const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "shindengen.mail@gmail.com",
     pass: "hyllaghtsskiovtn",
   },
-};
-
-const transporter = nodemailer.createTransport(config);
+});
 
 const send = (subject, to, message) => {
   const options = {
