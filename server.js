@@ -99,7 +99,13 @@ app.listen(PORT, () => {
 });
 
 //scheduler
-cron.schedule("0 0 7 * * *", async () => {
+// cron.schedule("0 0 7 * * *", async () => {
+//   console.log("mail scheduler run");
+
+//   await notif.dailyNotification();
+// });
+
+cron.schedule("10 * * * * *", async () => {
   console.log("mail scheduler run");
 
   await notif.dailyNotification();

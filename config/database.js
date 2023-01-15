@@ -4,7 +4,7 @@ const mysql = require("mysql2");
 
 const setting = config.get("mysql");
 
-var pool = mysql.createPool({
+const pool = mysql.createPool({
   connectionLimit: 20,
   host: setting.host,
   user: setting.user,
